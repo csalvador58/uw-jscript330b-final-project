@@ -95,14 +95,14 @@ rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
 (Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
 (DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
-(Route) Login -->> User: Respond - JWT token
-(Route) Login -->> User: Respond - Error not authorized
+(Route) Login -->> User: Response - JWT token
+(Route) Login -->> User: Response - Error not authorized
 end
 
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 
 %% Admin creates a new User
@@ -112,7 +112,7 @@ rect rgb(0, 128, 255)
 (External) Electronic data verification system -->> (Route) Create New User: Invalid User data
 (External) Electronic data verification system ->> MongoDB_User: Save User data + unique user _id
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
-(Route) Create New User -->> User: Responds - Success/Fail
+(Route) Create New User -->> User: Response - Success/Fail
 end
 
 %% Admin views a User record by userId
@@ -120,7 +120,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId
 (Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% Admin views a list of userIds for a specific Vendor or Verifier group
@@ -128,7 +128,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a list of userIds by vendorGroupId or verifierGroupId
 (Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve userIds matching query
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% Admin updates own user data (Limited to email, phone, password) 
@@ -136,7 +136,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 
 %% Admin deletes a User record
@@ -146,7 +146,7 @@ rect rgb(0, 128, 255)
 MongoDB_User -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User ->> MongoDB_User_Data: Lookup all personal records matching userId and delete documents in User_Data collection DB
 MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
-(Route) Delete User -->> User: Responds - Success/Fail
+(Route) Delete User -->> User: Response - Success/Fail
 end
 
 %% A Vendor User updates own user data (Limited to email, phone, password) 
@@ -154,7 +154,7 @@ rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 
 %% A Vendor User views personal records 
@@ -162,7 +162,7 @@ rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
 MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% A Vendor User uploads a NEW personal record
@@ -176,7 +176,7 @@ rect rgb(127, 0, 255)
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
-(Route) Update User Data -->> User: Responds - Success/Fail
+(Route) Update User Data -->> User: Response - Success/Fail
 end
 
 %% A Vendor User deletes a personal record
@@ -194,7 +194,7 @@ MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Su
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success/Fail
-(Route) Delete User Data -->> User: Responds - Success/Fail
+(Route) Delete User Data -->> User: Response - Success/Fail
 end
 
 %% A Verifier User views own user data 
@@ -202,7 +202,7 @@ rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% A Verifier User updates own user data (Limited to email, phone, password) 
@@ -210,7 +210,7 @@ rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 
 %% A Verifier validates ZK proof of a userId
@@ -220,7 +220,7 @@ rect rgb(76, 0, 153)
 MongoDB_User ->> (Route) Verify ZK proof: Confirms + Success/Fail
 (Route) Verify ZK proof ->> (External) Zero-Knowledge component: Submit input data from verifier
 (External) Zero-Knowledge component -->> (Route) Verify ZK proof: Confirms with Verified/Not Verified/Fail
-(Route) Verify ZK proof -->> User: Responds - Verified/Not Verified/Fail
+(Route) Verify ZK proof -->> User: Response - Verified/Not Verified/Fail
 end
 ```
 
@@ -241,14 +241,14 @@ rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
 (Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
 (DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
-(Route) Login -->> User: Respond - JWT token
-(Route) Login -->> User: Respond - Error not authorized
+(Route) Login -->> User: Response - JWT token
+(Route) Login -->> User: Response - Error not authorized
 end
 
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 ```
 
@@ -277,7 +277,7 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 
 %% Admin creates a new User
@@ -287,7 +287,7 @@ rect rgb(0, 128, 255)
 (External) Electronic data verification system -->> (Route) Create New User: Invalid User data
 (External) Electronic data verification system ->> MongoDB_User: Save User data + unique user _id
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
-(Route) Create New User -->> User: Responds - Success/Fail
+(Route) Create New User -->> User: Response - Success/Fail
 end
 ```
 
@@ -319,7 +319,7 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 
 %% Admin views a User record by userId
@@ -327,7 +327,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId
 (Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% Admin views a list of userIds for a specific Vendor or Verifier group
@@ -335,7 +335,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a list of userIds by vendorGroupId or verifierGroupId
 (Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve userIds matching query
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% A Vendor User views personal records 
@@ -343,7 +343,7 @@ rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
 MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% A Verifier User views own user data 
@@ -351,7 +351,7 @@ rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
 %% A Verifier validates ZK proof of a userId
@@ -361,7 +361,7 @@ rect rgb(76, 0, 153)
 MongoDB_User ->> (Route) Verify ZK proof: Confirms + Success/Fail
 (Route) Verify ZK proof ->> (External) Zero-Knowledge component: Submit input data from verifier
 (External) Zero-Knowledge component -->> (Route) Verify ZK proof: Confirms with Verified/Not Verified/Fail
-(Route) Verify ZK proof -->> User: Responds - Verified/Not Verified/Fail
+(Route) Verify ZK proof -->> User: Response - Verified/Not Verified/Fail
 end
 ```
 
@@ -394,7 +394,7 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 
 %% Admin updates own user data (Limited to email, phone, password) 
@@ -402,7 +402,7 @@ rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 
 %% A Vendor User updates own user data (Limited to email, phone, password) 
@@ -410,7 +410,7 @@ rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 
 %% A Vendor User uploads a NEW personal record
@@ -424,7 +424,7 @@ rect rgb(127, 0, 255)
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
-(Route) Update User Data -->> User: Responds - Success/Fail
+(Route) Update User Data -->> User: Response - Success/Fail
 end
 
 %% A Verifier User updates own user data (Limited to email, phone, password) 
@@ -432,7 +432,7 @@ rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
 MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
-(Route) Update User -->> User: Responds - Success/Fail
+(Route) Update User -->> User: Response - Success/Fail
 end
 ```
 
@@ -465,7 +465,7 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
-(Middleware) Validate User -->> User: Respond - Error invalid token
+(Middleware) Validate User -->> User: Response - Error invalid token
 end
 
 %% Admin deletes a User record
@@ -475,7 +475,7 @@ rect rgb(0, 128, 255)
 MongoDB_User -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User ->> MongoDB_User_Data: Lookup all personal records matching userId and delete documents in User_Data collection DB
 MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
-(Route) Delete User -->> User: Responds - Success/Fail
+(Route) Delete User -->> User: Response - Success/Fail
 end
 
 %% A Vendor User deletes a personal record
@@ -493,23 +493,8 @@ MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Su
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success/Fail
-(Route) Delete User Data -->> User: Responds - Success/Fail
+(Route) Delete User Data -->> User: Response - Success/Fail
 end
-```
-
-> Authorization
-```mermaid
-
-```
-
-> Authorization
-```mermaid
-
-```
-
-> Authorization
-```mermaid
-
 ```
 
 ### Plan
