@@ -95,8 +95,8 @@ rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
 (Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
 (DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
-(Route) Login -->> User: Responds - JWT token
-(Route) Login -->> User: Responds - Error not authorized
+(Route) Login -->> User: Respond - JWT token
+(Route) Login -->> User: Respond - Error not authorized
 end
 
 %% Any logged in user requests
@@ -241,8 +241,8 @@ rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
 (Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
 (DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
-(Route) Login -->> User: Responds - JWT token
-(Route) Login -->> User: Responds - Error not authorized
+(Route) Login -->> User: Respond - JWT token
+(Route) Login -->> User: Respond - Error not authorized
 end
 
 %% Any logged in user requests
