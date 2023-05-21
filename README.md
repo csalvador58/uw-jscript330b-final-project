@@ -80,7 +80,7 @@ participant (Route) Delete User Data
 end
 
 box External Components
-participant (External) Electronic data verifiection system
+participant (External) Electronic data verification system
 participant (External) Zero-Knowledge component
 end
 
@@ -107,10 +107,10 @@ end
 
 %% Admin creates a new User
 rect rgb(0, 128, 255)
-(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a new User (i.e. name, email, phone, tempPassword, vendorGroupId, verifierGroupdId)
-(Route) Create New User ->>(External) Electronic data verifiection system: Perform an external validation on user data
-(External) Electronic data verifiection system -->> (Route) Create New User: Invalid User data
-(External) Electronic data verifiection system ->> MongoDB_User: Save User data + unique user _id
+(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a new User (i.e. name, email, phone, tempPassword, vendorGroupId, verifierGroupId)
+(Route) Create New User ->>(External) Electronic data verification system: Perform an external validation on user data
+(External) Electronic data verification system -->> (Route) Create New User: Invalid User data
+(External) Electronic data verification system ->> MongoDB_User: Save User data + unique user _id
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Responds - Success/Fail
 end
@@ -168,9 +168,9 @@ end
 %% A Vendor User uploads a NEW personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads a NEW electronic personal record
-(Route) Update User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
-(External) Electronic data verifiection system -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(Route) Update User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Prof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
@@ -182,9 +182,9 @@ end
 %% A Vendor User deletes a personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Delete User Data: (Vendor) - Deletes a personal record
-(Route) Delete User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
-(External) Electronic data verifiection system -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(Route) Delete User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Delete User Data: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
 (Route) Delete User Data ->> MongoDB_User_Data: Verify Vendor role and delete personal record by id
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Success/Fail
@@ -267,7 +267,7 @@ participant (Route) Create New User
 end
 
 box External Components
-participant (External) Electronic data verifiection system
+participant (External) Electronic data verification system
 end
 
 box Mongo DB
@@ -282,10 +282,10 @@ end
 
 %% Admin creates a new User
 rect rgb(0, 128, 255)
-(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a new User (i.e. name, email, phone, tempPassword, vendorGroupId, verifierGroupdId)
-(Route) Create New User ->>(External) Electronic data verifiection system: Perform an external validation on user data
-(External) Electronic data verifiection system -->> (Route) Create New User: Invalid User data
-(External) Electronic data verifiection system ->> MongoDB_User: Save User data + unique user _id
+(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a new User (i.e. name, email, phone, tempPassword, vendorGroupId, verifierGroupId)
+(Route) Create New User ->>(External) Electronic data verification system: Perform an external validation on user data
+(External) Electronic data verification system -->> (Route) Create New User: Invalid User data
+(External) Electronic data verification system ->> MongoDB_User: Save User data + unique user _id
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Responds - Success/Fail
 end
@@ -307,7 +307,7 @@ participant (Route) Verify ZK proof
 end
 
 box External Components
-participant (External) Electronic data verifiection system
+participant (External) Electronic data verification system
 participant (External) Zero-Knowledge component
 end
 
@@ -381,7 +381,7 @@ participant (Route) Update User Data
 end
 
 box External Components
-participant (External) Electronic data verifiection system
+participant (External) Electronic data verification system
 participant (External) Zero-Knowledge component
 end
 
@@ -416,9 +416,9 @@ end
 %% A Vendor User uploads a NEW personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads a NEW electronic personal record
-(Route) Update User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
-(External) Electronic data verifiection system -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(Route) Update User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Prof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
@@ -452,7 +452,7 @@ participant (Route) Delete User Data
 end
 
 box External Components
-participant (External) Electronic data verifiection system
+participant (External) Electronic data verification system
 participant (External) Zero-Knowledge component
 end
 
@@ -481,9 +481,9 @@ end
 %% A Vendor User deletes a personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Delete User Data: (Vendor) - Deletes a personal record
-(Route) Delete User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
-(External) Electronic data verifiection system -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(Route) Delete User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Delete User Data: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
 (Route) Delete User Data ->> MongoDB_User_Data: Verify Vendor role and delete personal record by id
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Success/Fail
