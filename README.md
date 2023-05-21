@@ -71,8 +71,11 @@ end
 box Routes (After Login)
 participant (Route) Create New User
 participant (Route) Read Only Data
+participant (Route) Verify ZK proof
+participant (Route) Update User
 participant (Route) Update User Data
 participant (Route) Delete User
+participant (Route) Delete User Data
 end
 
 box External Components
@@ -81,8 +84,9 @@ participant (External) Zero-Knowledge component
 end
 
 box Mongo DB
-participant MongoDB_User_Data
 participant MongoDB_User
+participant MongoDB_User_Data
+participant MongoDB_User_zkTransactions
 end
 
 %% Any User logs in
@@ -95,50 +99,128 @@ User ->> (Route) Login: Sends request to Login with email/password
 end
 
 %% Any logged in user requests
-User ->> (Middleware) Validate User: All requests require a token validation to retrieve user data (i.e. roles, route access)
+rect rgb(18, 65, 195)
+User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> User: Respond - Error invalid token
+end
 
 %% Admin creates a new User
-rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a record for a new user
-(Route) Create New User ->>(External) Electronic data verifiection system: Valid User data - First_Name, Last_Name, Vendor_ID
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved User data feeds into ZKP system to generate a ZK proof
-(External) Zero-Knowledge component ->> MongoDB_User: Save new user record with ZK Proof_Root
+rect rgb(0, 128, 255)
+(Middleware) Validate User ->> (Route) Create New User: (Admin) - Create a new User (i.e. name, email, phone, tempPassword, vendorGroupId, verifierGroupdId)
+(Route) Create New User ->>(External) Electronic data verifiection system: Perform an external validation on user data
 (External) Electronic data verifiection system -->> (Route) Create New User: Invalid User data
+(External) Electronic data verifiection system ->> MongoDB_User: Save User data + unique user _id
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Responds - Success/Fail
 end
 
-%% A Vendor User views personal records 
-rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (User) - Process request to view a Vendor User's records
-(Route) Read Only Data ->> MongoDB_User_Data: Retrieve records matching logged in Vendor User
-MongoDB_User_Data -->> (Route) Read Only Data: Confirms with Success/Fail
-(Route) Read Only Data -->> User: Responds - Success/Fail
+%% Admin views a User record by userId
+rect rgb(0, 128, 255)
+(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId
+(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document
+MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
+(Route) Read Only Data -->> User: Responds - Data + Success/Fail
 end
 
-%% A Vendor User uploads NEW personal record
-rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Update User Data: (User) - User uploads NEW official electronic personal record
-(Route) Update User Data ->> (External) Electronic data verifiection system: Verify uploaded NEW official electronic personal record
-(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved NEW official electronic personal records
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Save NEW official electronic personal records + updated ZK Prof_Root
-MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
-(Route) Update User Data -->> User: Responds - Success/Fail
+%% Admin views a list of userIds for a specific Vendor or Verifier group
+rect rgb(0, 128, 255)
+(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a list of userIds by vendorGroupId or verifierGroupId
+(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve userIds matching query
+MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
+(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+end
+
+%% Admin updates own user data (Limited to email, phone, password) 
+rect rgb(0, 128, 255)
+(Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
+(Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
+MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
+(Route) Update User -->> User: Responds - Success/Fail
 end
 
 %% Admin deletes a User record
-rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Delete User: (Admin) - Delete a user record
-(Route) Delete User ->> MongoDB_User: Lookup UserId and delete record in db
+rect rgb(0, 128, 255)
+(Middleware) Validate User ->> (Route) Delete User: (Admin) - Delete a user document by userId
+(Route) Delete User ->> MongoDB_User: Lookup by userId and delete document in User collection DB
 MongoDB_User -->> (Route) Delete User: Confirms with Success/Fail
+(Route) Delete User ->> MongoDB_User_Data: Lookup all personal records matching userId and delete documents in User_Data collection DB
+MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User -->> User: Responds - Success/Fail
 end
 
+%% A Vendor User updates own user data (Limited to email, phone, password) 
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
+(Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
+MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
+(Route) Update User -->> User: Responds - Success/Fail
+end
 
-(External) Zero-Knowledge component -->>(Route) Create New User: Responds - Success/Errors
-(Route) Create New User -->> User: Responds - Success/Errors
-MongoDB_User -->> (Route) Create New User: Responds - Error - Server
+%% A Vendor User views personal records 
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
+(Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
+MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
+(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+end
 
+%% A Vendor User uploads a NEW personal record
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads a NEW electronic personal record
+(Route) Update User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
+(External) Electronic data verifiection system -->> (Route) Update User Data: Confirms with Success/Fail
+(External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
+(Route) Update User Data -->> User: Responds - Success/Fail
+end
+
+%% A Vendor User deletes a personal record
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Delete User Data: (Vendor) - Deletes a personal record
+%% (Route) Delete User Data ->> (External) Electronic data verifiection system: Perform an external validation on personal data
+%% (External) Electronic data verifiection system -->> (Route) Delete User Data: Confirms with Success/Fail
+%% (External) Electronic data verifiection system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+%% (External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
+(Route) Delete User Data ->> MongoDB_User_Data: Verify Vendor role and delete personal record by id
+MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Success/Fail
+(Route) Delete User Data ->> (External) Zero-Knowledge component: Feed updated data into ZKP system to generate a ZK proof
+(External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Save updated personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+MongoDB_User_Data -->> (Route) Delete User Data: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success/Fail
+(Route) Delete User Data -->> User: Responds - Success/Fail
+end
+
+%% A Verifier User views own user data 
+rect rgb(76, 0, 153)
+(Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
+(Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
+MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
+(Route) Read Only Data -->> User: Responds - Data + Success/Fail
+end
+
+%% A Verifier User updates own user data (Limited to email, phone, password) 
+rect rgb(76, 0, 153)
+(Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
+(Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
+MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
+(Route) Update User -->> User: Responds - Success/Fail
+end
+
+%% A Verifier validates ZK proof of a userId
+rect rgb(76, 0, 153)
+(Middleware) Validate User ->> (Route) Verify ZK proof: (Verifier) - Validate a ZK proof of a Vendor User personal data
+(Route) Verify ZK proof ->> MongoDB_User: Verify Verifier role
+MongoDB_User ->> (Route) Verify ZK proof: Confirms + Success/Fail
+(Route) Verify ZK proof ->> (External) Zero-Knowledge component: Submit input data from verifier
+(External) Zero-Knowledge component -->> (Route) Verify ZK proof: Confirms with Verified/Not Verified/Fail
+(Route) Verify ZK proof -->> User: Responds - Verified/Not Verified/Fail
+end
 ```
 
 
