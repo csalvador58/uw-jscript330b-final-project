@@ -29,30 +29,24 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-
-Proposal and Task Breakdown
-Your Final Project proposal is due. You should submit a link to a GitHub project that will house your submission. The project README should contain your project proposal. Your proposal should include:
-
 ### Scenario
-1. A description of the scenario your project is operating in.
-> This project serves to provide the back-end and database components for a vendor credentialing (VC) project. The authentication method used in the VC project are zero-knowledge proofs. Due to this, API calls are needed between a UI/Blockchain and the back-end and database.
+> This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that performs work at any hospital or clinic are required to maintain its vendor credentials throughout the year. There is no standard process and every major hospital network outsources to a third-party VC company to handle this service. A hospital network will provide a list of requirements to the third-party VC company to collect from a vendor worker in order to access a location (i.e. identification, background screening, completed training materials, and medical records).
 
 ### Problem
 2. A description of what problem your project seeks to solve.
-> Third-party data leaks is a common occurrence and rising issue in healthcare.  A way to reduce the issue is to minimize the number of instances personal information is uploaded to databases. All hospital vendors require service workers to upkeep their vendor credentials throughout the year in order to maintain access to any hospital. A pain point in the industry is having a service worker upload the same personal information to different vendor credentialing companies. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified.
+> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <cite>[June 2022][1]</cite>.  A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal information to different vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper into the healthcare industry to improve the security of sharing and tracking electronic medical records.
 
-https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise
+[1]: https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise
 
 ### Components
-3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc.
+<!-- 3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc. -->
+Routes:
+- Login - A user will be required to login with an username/password to obtain a JWT token. This route will deny access if required inputs are not received in a request.
+- Middleware - A request that holds a Bearer token will be validated before accessing subsequent functions.  Token expiration will occur after 15 mins which a new token will be generated for any activity within the the last 5 mins of the 15 min window.
 <br>
-> Components:
-<br>
-> Creating user access for employees with assigned roles (i.e. admin, level#)
-<br>
-> Routes
-<br>
-> Data models
+
+Data models:
+
 <br>
 
 #### Sequence Diagram
@@ -172,9 +166,9 @@ rect rgb(127, 0, 255)
 (External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
 (Route) Update User Data -->> User: Response - Success/Fail
 end
@@ -190,9 +184,9 @@ rect rgb(127, 0, 255)
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Success/Fail
 (Route) Delete User Data ->> (External) Zero-Knowledge component: Feed updated data into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Save updated personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Save updated personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success/Fail
 (Route) Delete User Data -->> User: Response - Success/Fail
 end
@@ -420,9 +414,9 @@ rect rgb(127, 0, 255)
 (External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
 (Route) Update User Data -->> User: Response - Success/Fail
 end
@@ -489,9 +483,9 @@ rect rgb(127, 0, 255)
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with updated data + Success/Fail
 (Route) Delete User Data ->> (External) Zero-Knowledge component: Feed updated data into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Save updated personal data + userId + dataType + Merkle Tree + ZK Prof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Save updated personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Delete User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Prof_Root + date/time
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success/Fail
 (Route) Delete User Data -->> User: Response - Success/Fail
 end
