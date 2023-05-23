@@ -62,6 +62,8 @@
 ### Problem
 > Third-party data leaks are a common occurrence and one that continues to rise in healthcare <a href="https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise" target="_blank">June 2022</a>.  A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Components
 <!-- 3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc. -->
 #### External Components:
@@ -97,6 +99,8 @@
 - User_Data - User ID, array of personal data (Project example: personalRecord01, personalRecord02, personalRecord03), zkProof
 - zkTransactions (TBD) - All zk related data
     - In any route that utilizes zk transactions, a transaction record will be saved to the User_zkTransactions collection containing data related to the zk changes. This will allow for a zk recursion feature if implemented in the project. A purpose of this feature could be utilized for audit scenarios requiring detailed external recreation of zk proofs. During any updates to a vendor user's User_Data, the old zk proof can be used as an input field to generate a new zk proof. This will allow for faster verifications at any point in time when evaluating a timeline of changes in the User personal data.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Plan
 - Project will be completed following the flow of the sequence diagram.
@@ -334,6 +338,7 @@ MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Response - Success/Fail
 end
 ```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### Read routes
 ```mermaid
