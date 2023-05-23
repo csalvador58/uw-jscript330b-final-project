@@ -104,7 +104,8 @@
 
 ### Plan
 - Project will be completed following the flow of the sequence diagram.
-#### Sequence Diagram
+
+#### Sequence Diagram (View below for parts of sequence)
 
 ```mermaid
 sequenceDiagram
@@ -273,6 +274,7 @@ end
 ```
 
 ##### Authorization and Authentication
+
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
@@ -301,6 +303,7 @@ end
 ```
 
 ##### Create routes
+
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
@@ -341,6 +344,7 @@ end
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### Read routes
+
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
