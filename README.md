@@ -30,25 +30,50 @@
 ## About The Project
 
 ### Scenario
-> This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that performs work at any hospital or clinic are required to maintain its vendor credentials throughout the year. There is no standard process and every major hospital network outsources to a third-party VC company to handle this service. A hospital network will provide a list of requirements to the third-party VC company to collect from a vendor worker in order to access a location (i.e. identification, background screening, completed training materials, and medical records).
+> This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that performs work at a hospital or clinic are required to be fully compliant on any credentialing requirements. Most hospital network outsources this process to a third-party VC company. A hospital network will provide a list of requirements to the third-party VC company to manage the data collection and authorization from a vendor before allowing a vendor access to a facility (i.e. identification, background screening, completed training materials, and medical records).
 
 ### Problem
-2. A description of what problem your project seeks to solve.
-> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <cite>[June 2022][1]</cite>.  A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal information to different vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper into the healthcare industry to improve the security of sharing and tracking electronic medical records.
+> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <cite>[June 2022][1]</cite>.  A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
 
 [1]: https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise
 
 ### Components
 <!-- 3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc. -->
+External Components:
+- Two external components will be simulated in this project. An Electronic data verification system (a component to authenticate input data) and a Zero-knowledge component (produces the zk proof).
+
 Routes:
-- Login - A user will be required to login with an username/password to obtain a JWT token. This route will deny access if required inputs are not received in a request.
-- Middleware - A request that holds a Bearer token will be validated before accessing subsequent functions.  Token expiration will occur after 15 mins which a new token will be generated for any activity within the the last 5 mins of the 15 min window.
-<br>
+- Login
+<br>- A user will be required to login with an username/password to obtain a JWT token. This route will deny access if required inputs are not received in a request.
+
+- Middleware
+<br>- A request that holds a Bearer token will be validated before accessing subsequent functions.  Token expiration will occur after 15 mins which a new token will be generated for any activity within the the last 5 mins of the 15 min window.
+
+- Create new user
+<br>- An Admin only privilege requiring info from a client to create a new user document in the User collection DB. Invalid inputs will be rejected.
+
+- Read data 
+<br>- Admins will be able to retrieve data for any userId in the User collection.  Admins will have a route to retrieve all userIds by a group ID. No access to the User_Data collection is permitted.
+<br>- A vendor user will be able to view data matching to their userId from both the User and User_Data collections. 
+<br>- Verifiers will have access to read data matching it's userId from the User collection. Verifiers also have a route to perform a zero knowledge verification. This will require that the verifier has a role that allows for verifications of specific data on vendor users.
+
+- Updating data
+<br>- Admins will have access to update limited data fields to email, phone, and password.
+<br>- Vendor and Verifier users will have access to update their own email, phone, and password data.
+<br>- Vendor users will be able to upload an electronic version of a personal record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB. 
+
+- Deleting data
+<br>- Admins are allowed to delete a user and all data in both User and User_Data collections by userId. Vendor and Verifier users will not have access to this feature.
+<br>- Vendor user are able to delete a personal record by a personal record ID
 
 Data models:
+- User - User ID, Name, Email, Phone, Password, vendorGroupId, verifierGroupId
+- User_Data - User ID, array of personal data (Project example: personalRecord01, personalRecord02, personalRecord03)
+- zkTransactions (TBD) - All zk related data
 
-<br>
+***(Optional) In any route that utilizes zk transactions, a transaction record will be saved to the User_zkTransactions collection containing data related to the zk changes. This will allow for a zk recursion feature if implemented in the project. A purpose of this feature could be utilized for audit scenarios requiring detailed external recreation of zk proofs. During any updates to a vendor user's User_Data, the old zk proof can be used as an input field to generate a new zk proof. This will allow for faster verifications at any point in time when evaluating a timeline of changes in the User personal data.
 
+### Plan
 #### Sequence Diagram
 
 > Full Sequence
@@ -218,7 +243,7 @@ MongoDB_User ->> (Route) Verify ZK proof: Confirms + Success/Fail
 end
 ```
 
-> Authorization
+> Authorization/Authentication
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
@@ -491,48 +516,12 @@ MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success
 end
 ```
 
-### Plan
-4. Clear and direct call-outs of how you will meet the various project requirements.
 
 ### Timeline
-5. A timeline for what project components you plan to complete, week by week, for the remainder of the class. 
-
-<br/>
-
-
-<br/>
-
-### Dependencies
-
-
-<br/>
-
-### Project Structure
-```
-
-```
-
-<br>
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-
-
-
-### Prerequisites
-
-
-<br/>
-
-
-<!-- CONTACT -->
-## Contact
-
-Chris Salvador
-
-Project Link: [https://github.com/csalvador58/uw-jscript330b-final-project](https://github.com/csalvador58/uw-jscript330b-final-project)
-
+- Week ending May 28th - Completed psuedo code for tests, data models and making any updates needed on findings from tests.
+- Week ending June 4th - Completed Login and Create functions/logic. Tests for related functions are working. Simple simulation logic for external components created needed for an operating project demo. 
+- Week ending June 11th - Completed Read, zk verification, and Delete functions/logic. Tests for related functions are working. 
+- Week ending June 18th - Completed Update functions/logic, Postman and Presentation deck completed.  For any additional time, any zk related functions that are out of scope for this project. Tests for all project functions are working. 
 <br/>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
