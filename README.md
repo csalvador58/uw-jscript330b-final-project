@@ -479,7 +479,7 @@ end
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Verify ZK proof: (Verifier) - Validate a ZK proof of a Vendor User personal data
 (Route) Verify ZK proof ->> MongoDB_User: Verify Verifier role
-MongoDB_User ->> (Route) Verify ZK proof: Confirms + Success/Fail
+MongoDB_User -->> (Route) Verify ZK proof: Confirms + Success/Fail
 (Route) Verify ZK proof ->> (External) Zero-Knowledge component: Submit input data from verifier
 (External) Zero-Knowledge component -->> (Route) Verify ZK proof: Confirms with Verified/Not Verified/Fail
 (Route) Verify ZK proof -->> User: Response - Verified/Not Verified/Fail
