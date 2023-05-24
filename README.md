@@ -87,7 +87,7 @@
 
   - An Admin will only have the access to create a new user with an assigned role. A new document will be created in the User collection DB. Invalid inputs will be rejected.
   - Only Vendor users will be able to upload an electronic version of a personal record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB.
-    - The uploading of an electronic personal record will be simulated through data simple data in the request body.
+    - The uploading of an electronic personal record will be simulated through a simple data object in the request body.
 
 - Read data
 
@@ -101,7 +101,7 @@
   - Admins will have access to update limited data fields to email, phone, and password.
   - Vendor and Verifier users will have access to update their own email, phone, and password data.
   - Vendor users will be able to upload an electronic version of a personal record to update an existing record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB.
-    - The uploading of an electronic personal record will be simulated through data in the request body.
+    - Similar to the create function, the uploading of an electronic personal record will be simulated through a simple data object in the request body.
 
 - Deleting data
   - Admins are allowed to delete a user and all data in both User and User_Data collections by userId. Vendor and Verifier users will not have access to this feature.
@@ -125,18 +125,18 @@
 #### Sequence Diagram (View below for parts of sequence)
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
 participant (Route) Login
-participant (DAO) Create JWT token
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
 end
 
 box Routes (After Login)
 participant (Route) Create New User
+participant (Route) Create New Personal record
 participant (Route) Read Only Data
 participant (Route) Verify ZK proof
 participant (Route) Update User
@@ -159,8 +159,10 @@ end
 %% Any User logs in
 rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
-(Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
-(DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
+(Route) Login ->> MongoDB_User: Retrieve user data and encrypted password
+MongoDB_User -->> (Route) Login: Confirms with data + Success/Fail
+(Route) Login ->> (DAO) Create/Update JWT token: Validates login with bcrypt and request a new JWT Token
+(DAO) Create/Update JWT token -->> (Route) Login: Generates new JWT Token with UserId with a timed token expiration
 (Route) Login -->> User: Response - JWT token
 (Route) Login -->> User: Response - Error not authorized
 end
@@ -168,6 +170,8 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
@@ -181,10 +185,10 @@ MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Response - Success/Fail
 end
 
-%% Admin views a User record by userId
+%% Admin views a User record by userId or a limited query results from text search
 rect rgb(0, 128, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId
-(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document
+(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId or a text search
+(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document or a limited query results from text search
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
@@ -197,7 +201,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% Admin updates own user data (Limited to email, phone, password)
+%% Admin updates own user data (Limited to email, phone, password) 
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -215,7 +219,29 @@ MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password)
+%% A Vendor user creates a new personal record 
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Create New Personal record: (Vendor) - Create a new personal record in User_Data with a reference to a vendor userId
+(Route) Create New Personal record ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(External) Zero-Knowledge component -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
+MongoDB_User_Data -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
+MongoDB_User_zkTransactions -->> (Route) Create New Personal record: Confirms with Success/Fail
+(Route) Create New Personal record -->> User: Response - Success/Fail
+end
+
+%% A Vendor User views personal records 
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records by ID or text search
+(Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document or a limited query result
+MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
+(Route) Read Only Data -->> User: Response - Data + Success/Fail
+end
+
+%% A Vendor User updates own user data (Limited to email, phone, password) 
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -223,22 +249,14 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User views personal records
+%% A Vendor User uploads a personal record to update an existing record based on a record ID
 rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - A Vendor User's can view all, one record by record ID, or search by text
-(Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
-MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
-(Route) Read Only Data -->> User: Response - Data + Success/Fail
-end
-
-%% A Vendor User uploads a NEW personal record
-rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads a NEW electronic personal record
+(Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads an electronic personal record with a reference an existing record ID
 (Route) Update User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
 (External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Uses current unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
@@ -263,7 +281,7 @@ MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success
 (Route) Delete User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User views own user data
+%% A Verifier User views own user data 
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -271,7 +289,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password)
+%% A Verifier User updates own user data (Limited to email, phone, password) 
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -293,21 +311,26 @@ end
 ##### Authorization and Authentication
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
 participant (Route) Login
-participant (DAO) Create JWT token
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
+end
+
+box Mongo DB
+participant MongoDB_User
 end
 
 %% Any User logs in
 rect rgb(0, 102, 51)
 User ->> (Route) Login: Sends request to Login with email/password
-(Route) Login ->> (DAO) Create JWT token: Validates login - requests a new JWT Token
-(DAO) Create JWT token ->> (Route) Login: Generates new JWT Token with UserId and timed token expiration
+(Route) Login ->> MongoDB_User: Retrieve user data and encrypted password
+MongoDB_User -->> (Route) Login: Confirms with data + Success/Fail
+(Route) Login ->> (DAO) Create/Update JWT token: Validates login with bcrypt and request a new JWT Token
+(DAO) Create/Update JWT token -->> (Route) Login: Generates new JWT Token with UserId with a timed token expiration
 (Route) Login -->> User: Response - JWT token
 (Route) Login -->> User: Response - Error not authorized
 end
@@ -315,6 +338,8 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 ```
@@ -322,29 +347,35 @@ end
 ##### Create routes
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
 end
 
 box Routes (After Login)
 participant (Route) Create New User
+participant (Route) Create New Personal record
 end
 
 box External Components
 participant (External) Electronic data verification system
+participant (External) Zero-Knowledge component
 end
 
 box Mongo DB
 participant MongoDB_User
+participant MongoDB_User_Data
+participant MongoDB_User_zkTransactions
 end
 
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
@@ -357,6 +388,20 @@ rect rgb(0, 128, 255)
 MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Response - Success/Fail
 end
+
+%% A Vendor user creates a new personal record 
+rect rgb(127, 0, 255)
+(Middleware) Validate User ->> (Route) Create New Personal record: (Vendor) - Create a new personal record in User_Data with a reference to a vendor userId
+(Route) Create New Personal record ->> (External) Electronic data verification system: Perform an external validation on personal data
+(External) Electronic data verification system -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
+(External) Zero-Knowledge component -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
+MongoDB_User_Data -->> (Route) Create New Personal record: Confirms with Success/Fail
+(External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
+MongoDB_User_zkTransactions -->> (Route) Create New Personal record: Confirms with Success/Fail
+(Route) Create New Personal record -->> User: Response - Success/Fail
+end
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -364,11 +409,11 @@ end
 ##### Read routes
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
 end
 
@@ -378,7 +423,6 @@ participant (Route) Verify ZK proof
 end
 
 box External Components
-participant (External) Electronic data verification system
 participant (External) Zero-Knowledge component
 end
 
@@ -390,13 +434,15 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
-%% Admin views a User record by userId
+%% Admin views a User record by userId or a limited query results from text search
 rect rgb(0, 128, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId
-(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document
+(Middleware) Validate User ->> (Route) Read Only Data: (Admin) - View a User by userId or a text search
+(Route) Read Only Data ->> MongoDB_User: Verify Admin role and retrieve a matching User document or a limited query results from text search
 MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
@@ -409,15 +455,15 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Vendor User views personal records
+%% A Vendor User views personal records 
 rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
-(Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
+(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records by ID or text search
+(Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document or a limited query result
 MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User views own user data
+%% A Verifier User views own user data 
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -439,11 +485,11 @@ end
 ##### Update Routes
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
 end
 
@@ -466,10 +512,12 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
-%% Admin updates own user data (Limited to email, phone, password)
+%% Admin updates own user data (Limited to email, phone, password) 
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -477,7 +525,7 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password)
+%% A Vendor User updates own user data (Limited to email, phone, password) 
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -485,21 +533,21 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User uploads a NEW personal record
+%% A Vendor User uploads a personal record to update an existing record based on a record ID
 rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads a NEW electronic personal record
+(Middleware) Validate User ->> (Route) Update User Data: (Vendor) - Uploads an electronic personal record with a reference an existing record ID
 (Route) Update User Data ->> (External) Electronic data verification system: Perform an external validation on personal data
 (External) Electronic data verification system -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Electronic data verification system ->> (External) Zero-Knowledge component: Approved personal data feeds into ZKP system to generate a ZK proof
 (External) Zero-Knowledge component -->> (Route) Update User Data: Confirms with Success/Fail
-(External) Zero-Knowledge component ->> MongoDB_User_Data: Create unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
+(External) Zero-Knowledge component ->> MongoDB_User_Data: Uses current unique id + save personal data + userId + dataType + Merkle Tree + ZK Proof_Root
 MongoDB_User_Data -->> (Route) Update User Data: Confirms with Success/Fail
 (External) Zero-Knowledge component ->> MongoDB_User_zkTransactions: Record changes + userId + dataType + Merkle Tree + ZK Proof_Root + date/time
 MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success/Fail
 (Route) Update User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password)
+%% A Verifier User updates own user data (Limited to email, phone, password) 
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -511,11 +559,11 @@ end
 ##### Delete Routes
 
 ```mermaid
-sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
 participant User
+participant (DAO) Create/Update JWT token
 participant (Middleware) Validate User
 end
 
@@ -538,6 +586,8 @@ end
 %% Any logged in user requests
 rect rgb(18, 65, 195)
 User ->> (Middleware) Validate User: All requests require a valid token
+(Middleware) Validate User -->> (DAO) Create/Update JWT token: Update JWT if near time expiration
+(DAO) Create/Update JWT token ->> (Middleware) Validate User: Response - JWT token or error
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
