@@ -51,58 +51,75 @@
 </details>
 <br/>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 ### Scenario
+
 > This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that perform work at a hospital or clinic are required to be fully compliant on any credentialing requirements. Most hospital network outsources this process to a third-party VC company. A hospital network will provide a list of requirements to the third-party VC company to manage the data collection and authorization of vendors to access a facility (i.e. data can include identification, background screening, completed training materials, and medical records).
 
 ### Problem
-> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <a href="https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise" target="_blank">June 2022</a>.  A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
+
+> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <a href="https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise" target="_blank">June 2022</a>. A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Components
+
 <!-- 3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc. -->
+
 #### External Components:
+
 - Two external components will be simulated in this project. An Electronic data verification system (a component to authenticate input data) and a Zero-knowledge component (produces the zk proof).
 
 #### Routes:
+
 - Login
-    - A user will be required to login with an username/password to obtain a JWT token. This route will deny access if required inputs are not received in a request.
+
+  - A user will be required to login with an username/password to obtain a JWT token. This route will deny access if required inputs are not received in a request.
 
 - Middleware
-    - A request that holds a Bearer token will be validated before accessing subsequent functions.  Token expiration will occur after 15 mins which a new token will be generated for any activity within the the last 5 mins of the 15 min window. (Timing will be simulated during demo)
 
-- Create new user
-    - An Admin only privilege requiring info from a client to create a new user document in the User collection DB. Invalid inputs will be rejected.
+  - A request that holds a Bearer token will be validated before accessing subsequent functions. Token expiration will occur after 15 mins which a new token will be generated for any activity within the the last 5 mins of the 15 min window. (Timing will be simulated during demo)
 
-- Read data 
-    - Admins will be able to retrieve data for any userId in the User collection.  Admins will have a route to retrieve all userIds by a group ID. No access to the User_Data collection is permitted.
-    - A vendor user will be able to view data matching to their userId from both the User and User_Data collections. 
-    - Verifiers will have access to read data matching it's userId from the User collection. Verifiers also have a route to perform a zero knowledge verification. This will require that the verifier has a role that allows for verifications of specific data on vendor users.
+- Create
+
+  - An Admin will only have the access to create a new user with an assigned role. A new document will be created in the User collection DB. Invalid inputs will be rejected.
+  - Only Vendor users will be able to upload an electronic version of a personal record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB.
+    - The uploading of an electronic personal record will be simulated through data simple data in the request body.
+
+- Read data
+
+  - Admins will be able to retrieve data for any userId in the User collection. Admins will have a route to retrieve all userIds by a group ID. No access to the User_Data collection is permitted.
+  - Admins will be able to search records relating to a user's name, email, phone and retrieve a limit of 5 documents based on input.
+  - A vendor user will be able to view data matching to their userId from both the User and User_Data collections.
+  - Verifiers will have access to read data matching it's userId from the User collection. Verifiers also have a route to perform a zero knowledge verification. This will require that the verifier has a role that allows for verifications of specific data on vendor users.
 
 - Updating data
-    - Admins will have access to update limited data fields to email, phone, and password.
-    - Vendor and Verifier users will have access to update their own email, phone, and password data.
-    - Vendor users will be able to upload an electronic version of a personal record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB.
-        - The uploading of an electronic personal record will be simulated through data in the request body.  
+
+  - Admins will have access to update limited data fields to email, phone, and password.
+  - Vendor and Verifier users will have access to update their own email, phone, and password data.
+  - Vendor users will be able to upload an electronic version of a personal record to update an existing record. The record will be authenticated through a simulated Electronic data verification system before passed into the ZK component to generate a ZK proof. All necessary data required for the zk system to function is saved into the User_Data collection DB.
+    - The uploading of an electronic personal record will be simulated through data in the request body.
 
 - Deleting data
-    - Admins are allowed to delete a user and all data in both User and User_Data collections by userId. Vendor and Verifier users will not have access to this feature.
-    - Vendor user are able to delete a personal record by a personal record ID
+  - Admins are allowed to delete a user and all data in both User and User_Data collections by userId. Vendor and Verifier users will not have access to this feature.
+  - Vendor user are able to delete a personal record by a personal record ID
 
 #### Data models:
-- User - User ID, Name, Email, Phone, Password, vendorGroupId, verifierGroupId
-- User_Data - User ID, array of personal data (Project example: personalRecord01, personalRecord02, personalRecord03), zkProof
-- zkTransactions (TBD) - All zk related data
-    - In any route that utilizes zk transactions, a transaction record will be saved to the User_zkTransactions collection containing data related to the zk changes. This will allow for a zk recursion feature if implemented in the project. A purpose of this feature could be utilized for audit scenarios requiring detailed external recreation of zk proofs. During any updates to a vendor user's User_Data, the old zk proof can be used as an input field to generate a new zk proof. This will allow for faster verifications at any point in time when evaluating a timeline of changes in the User personal data.
+
+- User - Fields include a User ID, Name, Email, Phone, Password, vendorGroupId, and verifierGroupId
+  - Index will be used on the name, email, and phone fields.
+- User_Data - Fields will include a User ID, array of personal data (Project example: personalRecord01, ..., personalRecordN), and a zkProof string
+  - Aggregate and Lookup methods will be used to connect the User and User_Data collections and display requesting documents to a Vendor user.
+- zkTransactions (TBD - This portion may not be included in project or a simple model will be use for demo) - All zk related data
+  - In any route that utilizes zk transactions, a transaction record will be saved to the User_zkTransactions collection containing data related to the zk changes. This will allow for a zk recursion feature if implemented in the project. A purpose of this feature could be utilized for audit scenarios requiring detailed external recreation of zk proofs. During any updates to a vendor user's User_Data, the old zk proof can be used as an input field to generate a new zk proof. This will allow for faster verifications at any point in time when evaluating a timeline of changes in the User personal data.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Plan
+
 - Project will be completed following the flow of the sequence diagram.
 
 #### Sequence Diagram (View below for parts of sequence)
@@ -180,7 +197,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% Admin updates own user data (Limited to email, phone, password) 
+%% Admin updates own user data (Limited to email, phone, password)
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -198,7 +215,7 @@ MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password) 
+%% A Vendor User updates own user data (Limited to email, phone, password)
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -206,9 +223,9 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User views personal records 
+%% A Vendor User views personal records
 rect rgb(127, 0, 255)
-(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
+(Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - A Vendor User's can view all, one record by record ID, or search by text
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
 MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
@@ -246,7 +263,7 @@ MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success
 (Route) Delete User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User views own user data 
+%% A Verifier User views own user data
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -254,7 +271,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password) 
+%% A Verifier User updates own user data (Limited to email, phone, password)
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -341,6 +358,7 @@ MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Response - Success/Fail
 end
 ```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ##### Read routes
@@ -391,7 +409,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Vendor User views personal records 
+%% A Vendor User views personal records
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document
@@ -399,7 +417,7 @@ MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User views own user data 
+%% A Verifier User views own user data
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -419,6 +437,7 @@ end
 ```
 
 ##### Update Routes
+
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
@@ -450,7 +469,7 @@ User ->> (Middleware) Validate User: All requests require a valid token
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
-%% Admin updates own user data (Limited to email, phone, password) 
+%% Admin updates own user data (Limited to email, phone, password)
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -458,7 +477,7 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password) 
+%% A Vendor User updates own user data (Limited to email, phone, password)
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -480,7 +499,7 @@ MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success
 (Route) Update User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password) 
+%% A Verifier User updates own user data (Limited to email, phone, password)
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -490,6 +509,7 @@ end
 ```
 
 ##### Delete Routes
+
 ```mermaid
 sequenceDiagram
 %%{init: {'theme':'dark'}}%%
@@ -550,12 +570,13 @@ MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success
 end
 ```
 
-
 ### Timeline
-- Week ending May 28th - Completed psuedo code for tests, data models and making any updates needed on findings from tests.
-- Week ending June 4th - Completed Login and Create functions/logic. Tests for related functions are working. Simple simulation logic for external components created needed for an operating project demo. 
-- Week ending June 11th - Completed Read, zk verification, and Delete functions/logic. Tests for related functions are working. 
-- Week ending June 18th - Completed Update functions/logic, Postman and Presentation deck completed.  For any additional time, any zk related functions that are out of scope for this project. Tests for all project functions are working. 
-<br/>
+
+- Week ending May 28th - Completed psuedo code for tests, setup data models. Begin Login/Auth portion of code.
+- Week ending June 4th - Completed Login, Create, and Read functions/logic. Tests for related functions are working. Begin working on simple simulation logic for external components needed for an operating project demo.
+- Week ending June 11th - Completed Update and Delete functions/logic. Tests for related functions are working.
+- Week ending June 13th - Completed Postman and Presentation deck completed.
+- Week ending June 18th - Tests for all project functions are working.
+  <br/>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
