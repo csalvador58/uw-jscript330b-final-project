@@ -125,6 +125,7 @@
 #### Sequence Diagram (View below for parts of sequence)
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
@@ -311,6 +312,7 @@ end
 ##### Authorization and Authentication
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
@@ -347,6 +349,7 @@ end
 ##### Create routes
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
@@ -409,6 +412,7 @@ end
 ##### Read routes
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
@@ -485,6 +489,7 @@ end
 ##### Update Routes
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
@@ -559,6 +564,7 @@ end
 ##### Delete Routes
 
 ```mermaid
+sequenceDiagram
 %%{init: {'theme':'dark'}}%%
 
 box Authorization
