@@ -17,22 +17,17 @@ describe('/login', () => {
 
   describe('before user is created in the system', () => {
     describe('POST /', () => {});
-    describe('POST /updateUser', () => {});
+    describe('POST /createUser', () => {});
     describe('POST /updatePassword', () => {});
-    describe('POST /addUserData', () => {});
-    describe('GET /user', () => {});
-    describe('GET /userData', () => {});
-    describe('PUT /createUser', () => {});
-    describe('PUT /addUserData', () => {});
   });
   describe('after user is created in the system', () => {
     describe('POST /', () => {});
   });
   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
     beforeEach(async () => {
-      await request(server).post('/login/user').send(adminUser);
-      await request(server).post('/login/user').send(vendorUser);
-      await request(server).post('/login/user').send(verifierUser);
+      await request(server).post('/login/createUser').send(adminUser);
+      await request(server).post('/login/createUser').send(vendorUser);
+      await request(server).post('/login/createUser').send(verifierUser);
     });
     describe('POST /', () => {});
   });
@@ -40,8 +35,19 @@ describe('/login', () => {
     let adminToken;
     let vendorToken;
     let verifierToken;
+    beforeEach(async () => {
+      await request(server).post('/login/createUser').send(adminUser);
+      const response01 = await request(server).post('/login').send(adminUser);
+      adminToken = response01.body.token;
+      await request(server).post('/login/createUser').send(vendorUser);
+      const response02 = await request(server).post('/login').send(vendorUser);
+      vendorToken = response02.body.token;
+      await request(server).post('/login/createUser').send(verifierUser);
+      const response03 = await request(server)
+        .post('/login')
+        .send(verifierUser);
+      verifierToken = response03.body.token;
+    });
+    describe('POST /updatePassword', () => {});
   });
-
-  describe('', () => {});
-  describe('', () => {});
 });
