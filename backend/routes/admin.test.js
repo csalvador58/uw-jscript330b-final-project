@@ -47,25 +47,25 @@ describe('/admin', () => {
     });
     describe('Before login', () => {
       describe('GET /', () => {
-        it('should return 401 response without a valid token', async () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
           // code here
           expect(res.statusCode).toEqual(401);
         });
       });
       describe('POST /', () => {
-        it('should return 401 response without a valid token', async () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
           // code here
           expect(res.statusCode).toEqual(401);
         });
       });
       describe('PUT /', () => {
-        it('should return 401 response without a valid token', async () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
           // code here
           expect(res.statusCode).toEqual(401);
         });
       });
       describe('DELETE /', () => {
-        it('should return 401 response without a valid token', async () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
           // code here
           expect(res.statusCode).toEqual(401);
         });
@@ -87,7 +87,7 @@ describe('/admin', () => {
           // code here
           expect(res.statusCode).toEqual(403);
         });
-        it('should return 400 BAD response with an invalid userId', async () => {
+        it('should return 400 Bad Request response with an invalid userId', async () => {
           // code here
           expect(res.statusCode).toEqual(400);
         });
@@ -151,7 +151,7 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(403);
           });
-          it('should return 400 Bad response without a valid email', async () => {
+          it('should return 400 Bad Request response without a valid email', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -159,7 +159,7 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response if password is invalid', async () => {
+          it('should return 400 Bad Request response if password is invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -167,7 +167,7 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response without one or more roles assigned', async () => {
+          it('should return 400 Bad Request response without one or more roles assigned', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -175,7 +175,7 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response if name is invalid', async () => {
+          it('should return 400 Bad Request response if name is invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -183,7 +183,7 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response if phone is invalid', async () => {
+          it('should return 400 Bad Request response if phone is invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -191,19 +191,19 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response if an admin role and vendorGroupId is not zero', async () => {
+          it('should return 400 Bad Request response if an admin role and vendorGroupId is not zero', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
-          it('should return 400 Bad response if an admin role and verifierGroupId is not zero', async () => {
+          it('should return 400 Bad Request response if an admin role and verifierGroupId is not zero', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
-          it('should return 400 Bad response if not a vendor role and vendorGroupId is valid', async () => {
+          it('should return 400 Bad Request response if not a vendor role and vendorGroupId is valid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
-          it('should return 400 BAD response if a vendor role is selected and vendorGroupId is invalid', async () => {
+          it('should return 400 Bad Request response if a vendor role is selected and vendorGroupId is invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
@@ -211,11 +211,11 @@ describe('/admin', () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
-          it('should return 400 Bad response if not a verifier role and verifierGroupId is valid', async () => {
+          it('should return 400 Bad Request response if not a verifier role and verifierGroupId is valid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
-          it('should return 400 BAD response if a verifier role is selected and verifierGroupId is invalid', async () => {
+          it('should return 400 Bad Request response if a verifier role is selected and verifierGroupId is invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(200);
           });
@@ -241,7 +241,7 @@ describe('/admin', () => {
           expect(res.statusCode).toEqual(403);
         });
         describe('updating admin user info - PUT /', () => {
-          it('should return 400 Bad response if required fields are invalid', async () => {
+          it('should return 400 Bad Request response if required fields are invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -261,7 +261,7 @@ describe('/admin', () => {
           });
         });
         describe('updating email, phone, or password for a userId - PUT /admin/:id', () => {
-          it('should return 400 Bad response if required fields are invalid', async () => {
+          it('should return 400 Bad Request response if required fields are invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);
           });
@@ -281,10 +281,22 @@ describe('/admin', () => {
           });
         });
       });
-      describe('DELETE /', () => {
+      describe('DELETE /admin/:id', () => {
         it('should return 403 Forbidden response without an admin role', async () => {
           // code here
           expect(res.statusCode).toEqual(403);
+        });
+        it('should return 405 Method Not Allowed if admin attempts to delete itself', async () => {
+          // code here
+          expect(res.statusCode).toEqual(405);
+        });
+        it('should return 400 BAD Request response if userId is not in system', async () => {
+          expect(res.statusCode).toEqual(400);
+        });
+        it('should remove user and userData collections by userId', async () => {
+          // code here
+          // check user collection
+          // check userData collection
         });
       });
     });
