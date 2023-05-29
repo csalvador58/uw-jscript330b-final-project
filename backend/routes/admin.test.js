@@ -261,6 +261,10 @@ describe('/admin', () => {
           });
         });
         describe('updating email, phone, or password for a userId - PUT /admin/:id', () => {
+          it('should return 403 Forbidden response without an admin role', async () => {
+            // code here
+            expect(res.statusCode).toEqual(403);
+          });
           it('should return 400 Bad Request response if required fields are invalid', async () => {
             // code here
             expect(res.statusCode).toEqual(400);

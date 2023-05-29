@@ -15,6 +15,10 @@ const userDataSchema = new mongoose.Schema({
       enum: validDataKeys,
     },
   },
+  data: { type: String },
 });
+
+// Use compound index make a field unique
+userDataSchema.index({ userId: 1, personalData: 1 }, { unique: true });
 
 module.exports = mongoose.model('userData', userDataSchema);
