@@ -56,101 +56,11 @@ describe('/login', () => {
       });
     });
   });
-  describe('creating a new user', () => {
-    describe('POST /createUser', () => {
-      it('should return 403 Forbidden if user does not have an admin role', async () => {
-        // code here
-        expect(res.statusCode).toEqual(403);
-      });
-      it('should return 400 Bad response without a valid email', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response with a valid email', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response if password is invalid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response if password is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response without one or more roles assigned', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response with one or more roles assigned', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response if name is invalid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response if name is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response if phone is invalid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response if phone is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response if an admin role and vendorGroupId is not zero', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 400 Bad response if an admin role and verifierGroupId is not zero', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 400 Bad response if not a vendor role and vendorGroupId is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 400 BAD response if a vendor role is selected and vendorGroupId is invalid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 200 OK response if a vendor role is selected and vendorGroupId is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 400 Bad response if not a verifier role and verifierGroupId is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 400 BAD response if a verifier role is selected and verifierGroupId is invalid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 200 OK response if a verifier role is selected and verifierGroupId is valid', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return a 409 Conflict response if email already exist', async () => {
-        // code here
-        expect(res.statusCode).toEqual(409);
-      });
-      it('should not store a raw password', async () => {
-        // code here
-        // create a new user with admin role and receive a userId
-        // find the user with the userId
-        // check to make sure password is encrypted
-      });
-    });
-  });
   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
     beforeEach(async () => {
-      await request(server).post('/login/createUser').send(adminUser);
-      await request(server).post('/login/createUser').send(vendorUser);
-      await request(server).post('/login/createUser').send(verifierUser);
+      await request(server).post('/admin/createUser').send(adminUser);
+      await request(server).post('/admin/createUser').send(vendorUser);
+      await request(server).post('/admin/createUser').send(verifierUser);
     });
     describe('POST /', () => {
       it('should return 400 BAD response when email or password is missing', async () => {
@@ -181,13 +91,13 @@ describe('/login', () => {
     let vendorToken;
     let verifierToken;
     beforeEach(async () => {
-      await request(server).post('/login/createUser').send(adminUser);
+      await request(server).post('/admin/createUser').send(adminUser);
       const response01 = await request(server).post('/login').send(adminUser);
       adminToken = response01.body.token;
-      await request(server).post('/login/createUser').send(vendorUser);
+      await request(server).post('/admin/createUser').send(vendorUser);
       const response02 = await request(server).post('/login').send(vendorUser);
       vendorToken = response02.body.token;
-      await request(server).post('/login/createUser').send(verifierUser);
+      await request(server).post('/admin/createUser').send(verifierUser);
       const response03 = await request(server)
         .post('/login')
         .send(verifierUser);
