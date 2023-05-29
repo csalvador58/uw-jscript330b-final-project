@@ -87,7 +87,7 @@ describe('/vendor', () => {
           // code here
           expect(res.statusCode).toEqual(403);
         });
-        it('should return 400 Bad Request response with an invalid id', async () => {
+        it('should return 400 Bad Request with an invalid id', async () => {
           // code here
           expect(res.statusCode).toEqual(400);
         });
@@ -96,61 +96,56 @@ describe('/vendor', () => {
           expect(res.statusCode).toEqual(200);
         });
       });
-      describe('uploading a new personal record - POST /vendor/data', () => {
-        it('should return 403 Forbidden if user does not have a vendor role', async () => {
-          // code here
-          expect(res.statusCode).toEqual(403);
-        });
-        it('should return 400 Bad Request response if required fields are invalid', async () => {
-          // code here
-          expect(res.statusCode).toEqual(400);
-        });
-        it('should return 200 OK response with valid data', async () => {
-          // code here
-          expect(res.statusCode).toEqual(200);
-        });
-        it('should return a 409 Conflict response if a personalData value already exist', async () => {
-          // code here
-          expect(res.statusCode).toEqual(409);
-        });
-      });
       describe('PUT /', () => {
-        it('should return 403 Forbidden response without an admin role', async () => {
+        it('should return 403 Forbidden without an vendor role', async () => {
           // code here
           expect(res.statusCode).toEqual(403);
         });
-        it('should return 400 Bad Request response if required fields are invalid', async () => {
+        it('should return 400 Bad Request if required fields are invalid', async () => {
           // code here
           expect(res.statusCode).toEqual(400);
         });
-        it('should return 200 OK response with valid data', async () => {
+        it('should return 200 OK with valid data', async () => {
           // code here
           expect(res.statusCode).toEqual(200);
         });
-        it('should return a 409 Conflict response if email already exist', async () => {
+        it('should return a 409 Conflict if email already exist', async () => {
           // code here
           expect(res.statusCode).toEqual(409);
         });
         it('should not store a raw password', async () => {
           // code here
-          // create a new user with admin role and receive a userId
           // find the user with the userId
           // check to make sure password is encrypted
         });
       });
-      describe('DELETE /admin/:id', () => {
-        it('should return 403 Forbidden response without an admin role', async () => {
+      describe('uploading a new personal record - POST /vendor/data', () => {
+        it('should return 403 Forbidden if user does not have a vendor role', async () => {
           // code here
           expect(res.statusCode).toEqual(403);
         });
-        it('should return 405 Method Not Allowed if admin attempts to delete itself', async () => {
+        it('should return 400 Bad Request if required fields are invalid', async () => {
           // code here
-          expect(res.statusCode).toEqual(405);
-        });
-        it('should return 400 BAD Request response if userId is not in system', async () => {
           expect(res.statusCode).toEqual(400);
         });
-        it('should remove user and userData collections by userId', async () => {
+        it('should return 200 OK with valid data', async () => {
+          // code here
+          expect(res.statusCode).toEqual(200);
+        });
+        it('should return a 409 Conflict if a personalData value already exist', async () => {
+          // code here
+          expect(res.statusCode).toEqual(409);
+        });
+      });
+      describe('DELETE /vendor/:id', () => {
+        it('should return 403 Forbidden without an vendor role', async () => {
+          // code here
+          expect(res.statusCode).toEqual(403);
+        });
+        it('should return 400 Bad Request if personal record id is not in system', async () => {
+          expect(res.statusCode).toEqual(400);
+        });
+        it('should remove a personal record by id', async () => {
           // code here
           // check user collection
           // check userData collection
