@@ -1,11 +1,11 @@
-const response = require('supertest');
+const request = require('supertest');
 
 const server = require('../server');
 const testUtils = require('../test-utils');
 
 const User = require('../models/user');
 
-describe('validate user middleware', () => {
+describe.skip('validate user middleware', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 

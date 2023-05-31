@@ -8,7 +8,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --coverage --coverageDirectory='coverage'",
     "ci": "jest --json --runInBand | node .github/workflows/parseOutput.js",
     "tdd": "jest --watch --runInBand",
     "start": "node index.js"
@@ -16,7 +16,9 @@
   "jest": {
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [
-      "/node_modules/"
+      "/node_modules/",
+      "index.js",
+      "test-utils.js"
     ],
     "preset": "@shelf/jest-mongodb",
     "watchPathIgnorePatterns": [
