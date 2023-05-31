@@ -1,7 +1,7 @@
 const userDAO = require('../daos/user');
 
-const isUserAuthenticated = async (req, res, next) => {
-  console.log('Middleware Test - isUserAuthenticated');
+const isUserAuthorized = async (req, res, next) => {
+  console.log('Middleware Test - isUserAuthorized');
   const tokenString = req.headers.authorization
     ? req.headers.authorization.split(' ')
     : [];
@@ -24,4 +24,4 @@ const isUserAuthenticated = async (req, res, next) => {
   }
 };
 
-module.exports = isUserAuthenticated;
+module.exports = isUserAuthorized;

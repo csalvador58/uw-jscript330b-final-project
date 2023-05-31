@@ -8,7 +8,7 @@ const saltRounds = 1;
 const secret = 'secretKey';
 
 const userDAO = require('../daos/user');
-const isUserAuthenticated = require('./isUserAuthenticated');
+const isUserAuthenticated = require('./isUserAuthorized');
 
 router.use(async (req, res, next) => {
   console.log('TEST Login - middleware check password');
@@ -40,6 +40,7 @@ router.post('/', isUserAuthenticated, async (req, res, next) => {
       roles: userRoles,
       ...otherFields
     } = await userDAO.getUserByField({ email: email });
+    if (!userId) throw new userDAO.BadDataError('User not found');
 
     // verify password matches db
     const passwordIsValid = await bcrypt.compare(password, hashedPassword);

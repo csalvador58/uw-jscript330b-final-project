@@ -74,21 +74,27 @@ describe('/login', () => {
         'should return 400 BAD response when email or password is missing',
         async (key) => {
           const testUser = {
-            ...adminUser,
+            ...user,
             [key]: '',
           };
           const res = await request(server).post('/login').send(testUser);
           expect(res.statusCode).toEqual(400);
         }
       );
-    //   it('should return 401 Unauthorized response when email not found in system', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    //   it('should return 401 Unauthorized response when password does not match', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
+      it('should return 401 Unauthorized response when email not found in system', async () => {
+        const res = await request(server).post('/login').send({
+            email: 'testBadEmail@email.com',
+            password: '123456'
+        });
+        expect(res.statusCode).toEqual(401);
+      });
+      it('should return 401 Unauthorized response when password does not match', async () => {
+        const res = await request(server).post('/login').send({
+            ...adminUser,
+            password: 'incorrectPassword'
+        });
+        expect(res.statusCode).toEqual(401);
+      });
     //   it('should return 200 OK response and a new token when login is valid', async () => {
     //     // code here
     //     expect(res.statusCode).toEqual(200);
