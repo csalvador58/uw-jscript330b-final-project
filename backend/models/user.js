@@ -6,8 +6,7 @@ const userSchema = new mongoose.Schema({
   roles: { type: [String], required: true },
   name: { type: String, required: true },
   phone: { type: Number, required: true },
-  vendorGroupId: { type: Number, required: true },
-  verifierGroupId: { type: Number, required: true },
+  groupId: { type: Number, required: true },
 });
 
 module.exports = mongoose.model('users', userSchema);
