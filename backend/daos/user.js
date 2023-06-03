@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { default: mongoose } = require('mongoose');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
@@ -34,16 +35,41 @@ module.exports.createUser = (newUserObj) => {
 module.exports.getUserByField = async (keyValuePair) => {
   try {
     const user = await User.findOne(keyValuePair).lean();
-    if (user) {
-      return user;
-    } else throw new Error('User does not exist');
+    if (user) return user;
+    throw new Error('User does not exist');
   } catch (e) {
-    if (e.message.includes('User does not exist')) {
-      throw new BadDataError(e.message);
+    if (
+      e.message.includes('User does not exist') ||
+      e.message.includes('ObjectId failed')
+    ) {
+      throw new BadDataError('Invalid userId');
     } else {
       throw new Error(e.message);
     }
   }
+};
+
+module.exports.updatePassword = async (userId, newPassword) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(newPassword, saltRounds).then(async (hashedPassword) => {
+      try {
+        console.log('TEST user DAOS - userId');
+        console.log(userId);
+        const updatedPassword = await User.findByIdAndUpdate(
+          new mongoose.Types.ObjectId(userId),
+          {
+            password: hashedPassword,
+          },
+          { new: 1 }
+        );
+        resolve(updatedPassword);
+      } catch (e) {
+        console.log('DAOS update pw - e');
+        console.log(e);
+        reject(new Error(e.message));
+      }
+    });
+  });
 };
 
 module.exports.verifyToken = async (token) => {

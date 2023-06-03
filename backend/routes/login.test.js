@@ -17,7 +17,7 @@ describe('/login', () => {
 
   const adminUser = {
     email: 'AdminEmail@email.com',
-    password: 'admin123',
+    password: 'admin123!',
     roles: 'admin',
     name: 'admin account',
     phone: '4251235555',
@@ -25,7 +25,7 @@ describe('/login', () => {
   };
   const vendorUser = {
     email: 'testVendorEmail@email.com',
-    password: 'vendor123',
+    password: 'vendor123!',
     roles: 'vendor',
     name: 'vendor account',
     phone: '2061112222',
@@ -33,7 +33,7 @@ describe('/login', () => {
   };
   const verifierUser = {
     email: 'testVerifierEmail@email.com',
-    password: 'verifier123',
+    password: 'verifier123!',
     roles: 'verifier',
     name: 'verifier account',
     phone: '2063334444',
@@ -56,98 +56,101 @@ describe('/login', () => {
     //   });
     // });
   });
-  describe.each([adminUser, vendorUser, verifierUser])('User %#', (account) => {
+  describe('POST /', () => {
     beforeEach(async () => {
-      let res = await request(server).post('/admin/createUser').send(adminUser);
-      const adminToken = res.body.token;
-      res = await request(server).post('/admin/createUser').send(vendorUser);
-      const vendorToken = res.body.token;
-      res = await request(server).post('/admin/createUser').send(verifierUser);
-      const verifierToken = res.body.token;
+      await request(server).post('/admin/createUser').send(adminUser);
+      await request(server).post('/admin/createUser').send(vendorUser);
+      await request(server).post('/admin/createUser').send(verifierUser);
     });
-    describe('POST /', () => {
-      it.each(['email', 'password'])(
-        'should return 400 BAD response when the email or password is missing',
-        async (key) => {
-          const testUser = {
-            ...account,
-            [key]: '',
-          };
-          const res = await request(server).post('/login').send(testUser);
-          expect(res.statusCode).toEqual(400);
-        }
-      );
-      it('should return 401 Unauthorized response when the email is not found in system', async () => {
-        const res = await request(server).post('/login').send({
-          email: 'testBadEmail@email.com',
-          password: '123456',
+    it('should return 401 Unauthorized response when the email is not found in system', async () => {
+      const res = await request(server).post('/login').send({
+        email: 'testBadEmail@email.com',
+        password: '123456!',
+      });
+      expect(res.statusCode).toEqual(401);
+    });
+    describe.each([adminUser, vendorUser, verifierUser])(
+      'User %#',
+      (account) => {
+        it.each(['email', 'password'])(
+          'should return 400 BAD response when the email or password is missing',
+          async (key) => {
+            const testUser = {
+              ...account,
+              [key]: '',
+            };
+            const res = await request(server).post('/login').send(testUser);
+            expect(res.statusCode).toEqual(400);
+          }
+        );
+
+        it('should return 401 Unauthorized response when the password does not match', async () => {
+          const res = await request(server)
+            .post('/login')
+            .send({
+              ...account,
+              password: 'incorrectPassword0!',
+            });
+          expect(res.statusCode).toEqual(401);
         });
-        expect(res.statusCode).toEqual(401);
-      });
-      it('should return 401 Unauthorized response when the password does not match', async () => {
-        const res = await request(server)
-          .post('/login')
-          .send({
-            ...account,
-            password: 'incorrectPassword',
-          });
-        expect(res.statusCode).toEqual(401);
-      });
-      it('should return 200 OK response and a new token when the login is valid', async () => {
-        const res = await request(server).post('/login').send(account);
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.token).toBeDefined();
-      });
-      it('should return a JWT token with only the user email, _id, and roles.', async () => {
-        const userAccount = await User.findOne({ email: account.email }).lean();
-        const res = await request(server)
-          .post('/login')
-          .send({ email: account.email, password: account.password });
-        const token = res.body.token;
-        const decodedToken = jwt.decode(token);
-        expect(decodedToken.email).toEqual(userAccount.email);
-        expect(decodedToken._id).toEqual(userAccount._id.toString());
-        expect(decodedToken.roles).toEqual(userAccount.roles);
-        expect(decodedToken.password).toBeUndefined();
-      });
+        it('should return 200 OK response and a new token when the login is valid', async () => {
+          const res = await request(server).post('/login').send(account);
+          expect(res.statusCode).toEqual(200);
+          expect(res.body.token).toBeDefined();
+        });
+        it('should return a JWT token with only the user email, _id, and roles.', async () => {
+          const userAccount = await User.findOne({
+            email: account.email,
+          }).lean();
+          const res = await request(server)
+            .post('/login')
+            .send({ email: account.email, password: account.password });
+          const token = res.body.token;
+          const decodedToken = jwt.decode(token);
+          expect(decodedToken.email).toEqual(userAccount.email);
+          expect(decodedToken._id).toEqual(userAccount._id.toString());
+          expect(decodedToken.roles).toEqual(userAccount.roles);
+          expect(decodedToken.password).toBeUndefined();
+        });
+      }
+    );
+  });
+  describe('POST /updatePassword', () => {
+    it('should return 401 Unauthorized response with an invalid token', async () => {
+      const res = await request(server)
+        .put('/login/updatePassword')
+        .set('Authorization', 'Bearer BAD')
+        .send({ password: 'newPassword' });
+      expect(res.statusCode).toEqual(401);
     });
-    // describe('after admin, vendor, and verifier users are logged in', () => {
-    //   let adminToken;
-    //   let vendorToken;
-    //   let verifierToken;
-    //   beforeEach(async () => {
-    //     await request(server).post('/admin/createUser').send(adminUser);
-    //     const response01 = await request(server).post('/login').send(adminUser);
-    //     adminToken = response01.body.token;
-    //     await request(server).post('/admin/createUser').send(vendorUser);
-    //     const response02 = await request(server)
-    //       .post('/login')
-    //       .send(vendorUser);
-    //     vendorToken = response02.body.token;
-    //     await request(server).post('/admin/createUser').send(verifierUser);
-    //     const response03 = await request(server)
-    //       .post('/login')
-    //       .send(verifierUser);
-    //     verifierToken = response03.body.token;
-    //   });
-    describe('POST /updatePassword', () => {
-      it('should return 401 Unauthorized response with an invalid token', async () => {
-        
-        expect(res.statusCode).toEqual(401);
-      });
-      it('should return 400 BAD response with an invalid password', async () => {
-        // code here
-        expect(res.statusCode).toEqual(400);
-      });
-      it('should return 200 OK response when a valid user updates own password', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-      it('should return 200 OK response when an admin updates a user password', async () => {
-        // code here
-        expect(res.statusCode).toEqual(200);
-      });
-    });
-    // });
+    describe.each([adminUser, vendorUser, verifierUser])(
+      'User %#',
+      (account) => {
+        it('should return 400 BAD response with an invalid password - password must be at least 6 characters, include a number and a special character, no spaces', async () => {
+          let token = await request(server)
+            .post('/admin/createUser')
+            .send(account);
+          const res = await request(server)
+            .put('/login/updatePassword')
+            .set('Authorization', 'Bearer' + token)
+            .send({ password: '1234' });
+          expect(res.statusCode).toEqual(400);
+        });
+        // it('should return 200 OK response when a valid user updates own password', async () => {
+        //   let token = await request(server)
+        //     .post('/login/updatePassword')
+        //     .send(account);
+        //   const res = await request(server)
+        //     .put('/login/updatePassword')
+        //     .set('Authorization', 'Bearer' + token)
+        //     .send({ password: 'validPassword0!' });
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        //     it('should return 200 OK response when an admin updates a user password', async () => {
+        //       // code here
+        //       expect(res.statusCode).toEqual(200);
+        //     });
+      }
+    );
   });
 });
