@@ -12,6 +12,8 @@ const isUserAuthorized = async (req, res, next) => {
     try {
       req.user = await userDAO.verifyToken(tokenString[1]);
       req.user.isAuthorized = true;
+      console.log('isUserAutho - req.user');
+      console.log(req.user);
       next();
     } catch (e) {
       e instanceof userDAO.BadDataError
@@ -19,6 +21,7 @@ const isUserAuthorized = async (req, res, next) => {
         : res.status(500).send(e.message);
     }
   } else {
+    console.log('isAuthorized = false')
     req.user = { isAuthorized: false };
     next();
   }

@@ -77,7 +77,7 @@ router.put(
 
     try {
       let userId;
-      if (req.user.roles.includes('admin')) {
+      if (req.user.roles.includes('admin') && req.body.userId) {
         // if user is an admin, check if target userId is valid.
         //  An error is thrown if user does not exist or id is invalid
         await userDAO.getUserByField({ _id: req.body.userId });
@@ -92,8 +92,8 @@ router.put(
       console.log(updatedPassword);
       res.json(updatedPassword);
     } catch (e) {
-      console.log('Route e');
-      console.log(e);
+    //   console.log('Route e');
+    //   console.log(e);
       e instanceof userDAO.BadDataError
         ? res.status(400).send(e.message)
         : res.status(500).send(e.message);
