@@ -4,15 +4,37 @@ const router = Router();
 const User = require('../daos/user');
 const isUserAuthorized = require('../routes/isUserAuthorized');
 
+router.get('/:id', isUserAuthorized, async (req, res, next) => {
+  console.log('TEST Admin - get /:id');
+  const userId = req.params.id;
+  console.log('userId');
+  console.log(userId);
+  console.log('req.user.roles');
+  console.log(req.user.roles);
+
+  if (!req.user.roles.includes('admin')) {
+    res.status(403).send('Restricted Access');
+  } else {
+    try {
+      const user = await User.getUserByField({ _id: userId });
+      console.log('user');
+      console.log(user);
+      res.json(user);
+    } catch (e) {
+      res.status(500).send(e.message);
+    }
+  }
+});
+
 router.post('/createUser', isUserAuthorized, async (req, res, next) => {
   console.log('TEST Admin - post /createUser');
   const newUser = req.body;
-  console.log('req.user')
-  console.log(req.user)
+  console.log('req.user');
+  console.log(req.user);
   try {
     const storedUser = await User.createUser(newUser);
-    console.log('storedUser')
-    console.log(storedUser)
+    console.log('storedUser');
+    console.log(storedUser);
     res.json(storedUser);
   } catch (e) {
     res.status(500).send(e.message);

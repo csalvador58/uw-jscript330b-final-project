@@ -92,8 +92,8 @@ router.put(
       console.log(updatedPassword);
       res.json(updatedPassword);
     } catch (e) {
-    //   console.log('Route e');
-    //   console.log(e);
+      console.log('Route e');
+      console.log(e.message);
       e instanceof userDAO.BadDataError
         ? res.status(400).send(e.message)
         : res.status(500).send(e.message);

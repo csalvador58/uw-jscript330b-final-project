@@ -33,13 +33,21 @@ module.exports.createUser = (newUserObj) => {
 };
 
 module.exports.getUserByField = async (keyValuePair) => {
+  console.log('DAOs - keyValuePair')
+  console.log(keyValuePair)
+
   try {
-    const user = await User.findOne(keyValuePair).lean();
+    let query = Object.keys(keyValuePair).includes('_id')
+    ? new mongoose.Types.ObjectId(keyValuePair._id)
+    : keyValuePair;
+
+    const user = await User.findOne(query).lean();
     if (user) return user;
     throw new Error('User does not exist');
   } catch (e) {
     if (
       e.message.includes('User does not exist') ||
+      e.message.includes('Argument passed in must') ||
       e.message.includes('ObjectId failed')
     ) {
       throw new BadDataError('Invalid userId');
