@@ -31,10 +31,10 @@ router.use(async (req, res, next) => {
 router.post('/', isUserAuthorized, async (req, res, next) => {
   console.log('TEST login - post /');
   const { email, password } = req.body;
-//   const hashedPW = await bcrypt.hash(password, saltRounds).then(async (hashed) =>{
-//     console.log('hashed password')
-//     console.log(hashed)
-//   })
+  //   const hashedPW = await bcrypt.hash(password, saltRounds).then(async (hashed) =>{
+  //     console.log('hashed password')
+  //     console.log(hashed)
+  //   })
 
   try {
     // Retrieve user data from db
@@ -46,8 +46,8 @@ router.post('/', isUserAuthorized, async (req, res, next) => {
       ...otherFields
     } = await userDAO.getUserByField({ email: email });
     if (!userId) throw new userDAO.BadDataError('User not found');
-    console.log('email, password')
-console.log(userEmail, hashedPassword)
+    console.log('email, password');
+    console.log(userEmail, hashedPassword);
 
     // verify password matches db
     const passwordIsValid = await bcrypt.compare(password, hashedPassword);
@@ -62,13 +62,15 @@ console.log(userEmail, hashedPassword)
         },
         secret
       );
+      console.log('loginToken');
+      console.log(loginToken);
       res.json({ token: loginToken });
     } else {
       throw new userDAO.BadDataError('Password does not match');
     }
   } catch (e) {
-    console.log('e.message')
-    console.log(e.message)
+    console.log('e.message');
+    console.log(e.message);
     e instanceof userDAO.BadDataError
       ? res.status(401).send(e.message)
       : res.status(500).send(e.message);

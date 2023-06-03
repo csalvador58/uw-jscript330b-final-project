@@ -9,17 +9,25 @@ const secret = 'secretKey';
 module.exports = {};
 
 module.exports.createUser = (newUserObj) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const storedUser = await User.create(newUserObj);
-      resolve(storedUser);
-    } catch (e) {
-      if (e.message.includes('duplicate key')) {
-        reject(new BadDataError('Email already exist'));
-      } else {
-        reject(new Error(e.message));
-      }
-    }
+  return new Promise((resolve, reject) => {
+    bcrypt
+      .hash(newUserObj.password, saltRounds)
+      .then(async (hashedPassword) => {
+        try {
+          const newUserObjWithHashedPassword = {
+            ...newUserObj,
+            password: hashedPassword,
+          };
+          const storedUser = await User.create(newUserObjWithHashedPassword);
+          resolve(storedUser);
+        } catch (e) {
+          if (e.message.includes('duplicate key')) {
+            reject(new BadDataError('Email already exist'));
+          } else {
+            reject(new Error(e.message));
+          }
+        }
+      });
   });
 };
 

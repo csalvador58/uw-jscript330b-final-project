@@ -9,6 +9,8 @@ router.post('/createUser', isUserAuthorized, async (req, res, next) => {
   const newUser = req.body;
   try {
     const storedUser = await User.createUser(newUser);
+    console.log('storedUser')
+    console.log(storedUser)
     res.json(storedUser);
   } catch (e) {
     res.status(500).send(e.message);
