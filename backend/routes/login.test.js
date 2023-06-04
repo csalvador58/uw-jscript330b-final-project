@@ -178,6 +178,7 @@ describe('/login', () => {
             email: account.email,
           }).lean();
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
+          expect(newHashedPassword).not.toEqual('validPassword0!');
         });
         it('should return 400 Bad request when an admin tries to update a user password with an incorrect userId ', async () => {
           let res = await request(server).post('/login').send(adminUser);
@@ -205,6 +206,7 @@ describe('/login', () => {
             email: account.email,
           }).lean();
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
+          expect(newHashedPassword).not.toEqual('validPassword0!');
         });
       }
     );

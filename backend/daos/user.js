@@ -100,6 +100,56 @@ module.exports.updatePassword = async (userId, newPassword) => {
   });
 };
 
+module.exports.updateUser = (userId, newData) => {
+  return new Promise(async (resolve, reject) => {
+    console.log('DAO update')
+    console.log(userId)
+    console.log(newData)
+    if (newData.password) {
+      bcrypt.hash(newData.password, saltRounds).then(async (hashedPassword) => {
+        try {
+          console.log('TEST user DAOS - userId');
+          console.log(userId);
+          const updatedUser = await User.findByIdAndUpdate(
+            new mongoose.Types.ObjectId(userId),
+            {
+              ...newData,
+              password: hashedPassword,
+            },
+            { new: 1 }
+          );
+          resolve(updatedUser);
+        } catch (e) {
+          if (e.message.includes('duplicate key')) {
+            reject(new BadDataError('Email already exist'));
+          } else {
+            reject(new Error(e.message));
+          }
+        }
+      });
+    } else {
+      try {
+        console.log('TEST user DAOS - userId');
+        console.log(userId);
+        const updatedUser = await User.findByIdAndUpdate(
+          new mongoose.Types.ObjectId(userId),
+          {
+            ...newData,
+          },
+          { new: 1 }
+        );
+        resolve(updatedUser);
+      } catch (e) {
+        if (e.message.includes('duplicate key')) {
+          reject(new BadDataError('Email already exist'));
+        } else {
+          reject(new Error(e.message));
+        }
+      }
+    }
+  });
+};
+
 module.exports.verifyToken = async (token) => {
   try {
     return await jwt.verify(token, secret);
