@@ -190,30 +190,6 @@ router.put('/', async (req, res, next) => {
       res.status(500).send(e.message);
     }
   }
-
-  // const phoneRegex = /^\d{10}$/;
-  // if (
-  //   !newUser.roles.length ||
-  //   !newUser.name.trim().length ||
-  //   !phoneRegex.test(newUser.phone) ||
-  //   isAdminGroupIdInvalid ||
-  //   isVendorGroupIdInvalid ||
-  //   isVerifierGroupIdInvalid
-  // ) {
-  //   res.status(400).send('Invalid data');
-  // } else {
-  //   try {
-  //     const storedUser = await userDAO.updateUser(updateUserData);
-  //     console.log('storedUser');
-  //     console.log(storedUser);
-  //     res.json(storedUser);
-  //   } catch (e) {
-  //     console.log(e.message);
-  //     e instanceof userDAO.BadDataError
-  //       ? res.status(409).send(e.message)
-  //       : res.status(500).send(e.message);
-  //   }
-  // }
 });
 
 module.exports = router;

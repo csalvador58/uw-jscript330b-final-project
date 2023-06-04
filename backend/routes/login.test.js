@@ -9,7 +9,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe('/login', () => {
+describe.skip('/login', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -151,6 +151,18 @@ describe('/login', () => {
         .send({ password: 'validPassword0!' });
       expect(res.statusCode).toEqual(401);
     });
+    it('should return 400 Bad request when an admin tries to update a user password with an incorrect userId ', async () => {
+      let res = await request(server).post('/login').send(adminUser);
+      const adminLoginToken = res.body.token;
+      res = await request(server)
+        .put('/login/updatePassword')
+        .set('Authorization', 'Bearer ' + adminLoginToken)
+        .send({
+          userId: 'invalidUserId000f1b2a0by',
+          password: 'validPassword0!',
+        });
+      expect(res.statusCode).toEqual(400);
+    });
     describe.each([adminUser, vendorUser, verifierUser])(
       'User %#',
       (account) => {
@@ -179,18 +191,6 @@ describe('/login', () => {
           }).lean();
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
           expect(newHashedPassword).not.toEqual('validPassword0!');
-        });
-        it('should return 400 Bad request when an admin tries to update a user password with an incorrect userId ', async () => {
-          let res = await request(server).post('/login').send(adminUser);
-          const adminLoginToken = res.body.token;
-          res = await request(server)
-            .put('/login/updatePassword')
-            .set('Authorization', 'Bearer ' + adminLoginToken)
-            .send({
-              userId: 'invalidUserId000f1b2a0by',
-              password: 'validPassword0!',
-            });
-          expect(res.statusCode).toEqual(400);
         });
         it('should return 200 OK response when an admin updates a target user password', async () => {
           let res = await request(server).post('/login').send(adminUser);

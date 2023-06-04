@@ -396,16 +396,17 @@ describe('/admin', () => {
     });
 
     describe('PUT /', () => {
+      let token;
       beforeEach(async () => {
         let res = await request(server).post('/login').send(adminUser);
         token = res.body.token;
       });
-      it('should return 403 Forbidden without an admin role', async () => {
-        let res = await request(server).post('/login').send(vendorUser);
-        vendorToken = res.body.token;
+      it.each([vendorUser, verifierUser])('should return 403 Forbidden without an admin role', async (account) => {
+        let res = await request(server).post('/login').send(account);
+        accountToken = res.body.token;
         res = await request(server)
           .put('/admin')
-          .set('Authorization', 'Bearer ' + vendorToken)
+          .set('Authorization', 'Bearer ' + accountToken)
           .send();
         expect(res.statusCode).toEqual(403);
       });

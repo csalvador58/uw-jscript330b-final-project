@@ -16,15 +16,15 @@ const isUserAuthorized = async (req, res, next) => {
       console.log(req.user);
       next();
     } catch (e) {
-      console.log('Error e')
-      console.log(e.message)
+      console.log('Error e');
+      console.log(e.message);
       e instanceof userDAO.BadDataError
         ? res.status(401).send(e.message)
         : res.status(500).send(e.message);
     }
   } else {
-    console.log('isAuthorized = false')
-    req.user = { isAuthorized: false };
+    console.log('isAuthorized = false');
+    req.user = { isAuthorized: false, roles: [] };
     next();
   }
 };
