@@ -9,4 +9,8 @@ const userSchema = new mongoose.Schema({
   groupId: { type: Number, required: true },
 });
 
+
+// create text index
+userSchema.index({ groupId: 'text' });
+
 module.exports = mongoose.model('users', userSchema);

@@ -61,6 +61,22 @@ module.exports.getUserByField = async (keyValuePair) => {
   }
 };
 
+module.exports.getUsersByGroupId = async (id) => {
+  try {
+    const users = await User.find({ groupId: id }).lean();
+    console.log('DAOS - users by id');
+    console.log(users);
+    if (users.length > 0) return users;
+    throw new Error('No accounts found by groupId');
+  } catch (e) {
+    if (e.message.includes('No accounts found')) {
+      throw new BadDataError(e.message);
+    } else {
+      throw new Error(e.message);
+    }
+  }
+};
+
 module.exports.updatePassword = async (userId, newPassword) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(newPassword, saltRounds).then(async (hashedPassword) => {

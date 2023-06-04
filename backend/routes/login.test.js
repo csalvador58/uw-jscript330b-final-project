@@ -21,24 +21,32 @@ describe.skip('/login', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: '4251235555',
-    groupId: '1',
+    phone: 4251235555,
+    groupId: 1,
   };
   const vendorUser = {
     email: 'VendorEmail@email.com',
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: '2061112222',
-    groupId: '2',
+    phone: 2061112222,
+    groupId: 2,
+  };
+  const vendorUser2 = {
+    email: 'VendorEmail2@email.com',
+    password: 'vendor1232!',
+    roles: ['vendor'],
+    name: 'vendor account2',
+    phone: 2065556666,
+    groupId: 2,
   };
   const verifierUser = {
     email: 'VerifierEmail@email.com',
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: '2063334444',
-    groupId: '3',
+    phone: 2063334444,
+    groupId: 3,
   };
 
   describe('before user is created in the system', () => {

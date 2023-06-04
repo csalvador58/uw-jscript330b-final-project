@@ -4,6 +4,24 @@ const router = Router();
 const userDAO = require('../daos/user');
 const isUserAuthorized = require('../routes/isUserAuthorized');
 
+router.get('/search', isUserAuthorized, async (req, res, next) => {
+  console.log('TEST Admin - get /search?groupId');
+
+  if (!req.user.roles.includes('admin')) {
+    res.status(403).send('Restricted Access');
+  } else {
+    try {
+      const users = await userDAO.getUsersByGroupId(req.query.groupId);
+      res.json(users);
+    } catch (e) {
+      e instanceof userDAO.BadDataError
+        ? res.status(400).send(e.message)
+        : res.status(500).send(e.message);
+    }
+  }
+  res.status(200);
+});
+
 router.get('/:id', isUserAuthorized, async (req, res, next) => {
   console.log('TEST Admin - get /:id');
   const userId = req.params.id;

@@ -5,6 +5,7 @@ const testUtils = require('../test-utils');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const user = require('../models/user');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
@@ -23,24 +24,32 @@ describe('/admin', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: '4251235555',
-    groupId: '1',
+    phone: 4251235555,
+    groupId: 1,
   };
   const vendorUser = {
     email: 'VendorEmail@email.com',
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: '2061112222',
-    groupId: '2',
+    phone: 2061112222,
+    groupId: 2,
+  };
+  const vendorUser2 = {
+    email: 'VendorEmail2@email.com',
+    password: 'vendor1232!',
+    roles: ['vendor'],
+    name: 'vendor account2',
+    phone: 2065556666,
+    groupId: 2,
   };
   const verifierUser = {
     email: 'VerifierEmail@email.com',
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: '2063334444',
-    groupId: '3',
+    phone: 2063334444,
+    groupId: 3,
   };
 
   //   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
@@ -99,43 +108,35 @@ describe('/admin', () => {
       await request(server)
         .post('/admin/createUser')
         .set('Authorization', 'Bearer ' + adminToken)
+        .send(vendorUser2);
+      await request(server)
+        .post('/admin/createUser')
+        .set('Authorization', 'Bearer ' + adminToken)
         .send(verifierUser);
     });
     describe('GET /:id', () => {
-      it('should return 403 Forbidden without an admin role', async () => {
-        let res = await request(server).post('/login').send(vendorUser);
-        const token = res.body.token;
-        const { _id: nonAdminUserId } = await User.findOne({
-          email: vendorUser.email,
-        }).lean();
-        res = await request(server)
-          .get(`/admin/${nonAdminUserId.toString()}`)
-          .set('Authorization', 'Bearer ' + token);
-        expect(res.statusCode).toEqual(403);
-      });
-      it('should return 200 OK and the matching account for a user with an admin role', async () => {
+      let token;
+      beforeEach(async () => {
         let res = await request(server).post('/login').send(adminUser);
-        const token = res.body.token;
-        let user = await User.findOne({
-          email: adminUser.email,
-        }).lean();
-        user = {
-          ...user,
-          _id: user._id.toString(),
-        };
-        res = await request(server)
-          .get(`/admin/${user._id}`)
-          .set('Authorization', 'Bearer ' + token);
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toMatchObject(user);
+        token = res.body.token;
       });
-
+      it.each([vendorUser, verifierUser])(
+        'should return 403 Forbidden without an admin role',
+        async (account) => {
+            console.log('iterate accounts: ')
+            console.log(account)
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          const { _id: nonAdminUserId } = await User.findOne({
+            email: account.email,
+          }).lean();
+          res = await request(server)
+            .get(`/admin/${nonAdminUserId.toString()}`)
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
       it('should return 400 Bad Request with an invalid userId format', async () => {
-        let res = await request(server).post('/login').send(adminUser);
-        const token = res.body.token;
-        const { _id: userId } = await User.findOne({
-          email: vendorUser.email,
-        }).lean();
         let testId = '6000111222333444555666777888';
         res = await request(server)
           .get(`/admin/${testId}`)
@@ -143,59 +144,69 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(400);
       });
       it('should return 400 Bad Request when no users are associated with a userId', async () => {
-        let res = await request(server).post('/login').send(adminUser);
-        const token = res.body.token;
-        const { _id: userId } = await User.findOne({
-          email: vendorUser.email,
-        }).lean();
         let testId = '6478141ee3d10726f1b2a0dc';
         res = await request(server)
           .get(`/admin/${testId}`)
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(400);
       });
+      it.each([adminUser, vendorUser, verifierUser])(
+        'should return 200 OK and the matching account for a user with an admin role',
+        async (account) => {
+          let user = await User.findOne({
+            email: account.email,
+          }).lean();
+          user = {
+            ...user,
+            _id: user._id.toString(),
+          };
+          res = await request(server)
+            .get(`/admin/${user._id}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(200);
+          expect(res.body).toMatchObject(user);
+        }
+      );
     });
-    // describe('GET /admin?vendorId=', async () => {
-    //   it('should return 403 Forbidden without an admin role', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(403);
-    //   });
-    //   it('should return all users with matching vendorId', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(200);
-    //   });
-    //   it('should return 204 No Content when no users are associated with a vendorId', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(204);
-    //   });
-    // });
-    // describe('GET /admin?verifierId=', async () => {
-    //   it('should return 403 Forbidden without an admin role', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(403);
-    //   });
-    //   it('should return all users with matching verifierId', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(200);
-    //   });
-    //   it('should return 204 No Content when no users are associated with a verifierId', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(204);
-    //   });
-    // });
-    // describe('GET /search?query=', () => {
-    //   it('should return 403 Forbidden without an admin role', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(403);
-    //   });
-    //   it('should return a limit of 5 users for a search based on name, email, or phone and sorted by best multiple terms', async () => {
-    //     // code here
-    //   });
-    //   it('should return 204 No Content when no users are associated with a verifierId', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(204);
-    //   });
-    // });
+    describe('GET /admin/search?groupId=', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(adminUser);
+        token = res.body.token;
+      });
+      it.each([vendorUser, verifierUser])('should return 403 Forbidden without an admin role', async (account) => {
+        res = await request(server).post('/login').send(account);
+        const accountToken = res.body.token;
+        res = await request(server)
+          .get(`/admin/search?groupId=1`)
+          .set('Authorization', 'Bearer ' + accountToken);
+        expect(res.statusCode).toEqual(403);
+      });
+      it('should return 400 Bad Request when no users are associated with a groupId', async () => {
+        let unusedGroupId = 99;
+        res = await request(server)
+          .get(`/admin/search?groupId=${unusedGroupId}`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(400);
+      });
+      it('should return all users with matching groupId', async () => {
+        let validGroupId = vendorUser.groupId;
+        let users = await User.find({
+          groupId: validGroupId,
+        }).lean();
+        const usersByGroupId = users.map((user) => {
+          return {
+            ...user,
+            _id: user._id.toString(),
+          };
+        });
+        res = await request(server)
+          .get(`/admin/search?groupId=${validGroupId}`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toEqual(usersByGroupId);
+      });
+    });
 
     // describe('POST /', () => {
     //   it('should return 401 without a valid token', async () => {
