@@ -9,20 +9,25 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/login', () => {
+describe('/login', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
   afterEach(testUtils.clearDB);
   const adminToken =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDc4MTE3MGYzMjA0Y2ZiNjRmZGU1N2UiLCJlbWFpbCI6InRlc3RBZG1pbkVtYWlsQGVtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY4NTc3MTU3OX0.zFtE87MKmXXtqYUbOROeuM0Aw_bUx-RMba_mTfTbDh4';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDc4MTE3MGYzMjA0Y2ZiNjRmZGU1N2UiLCJlbWFpbCI6InRlc3RBZG1pbkVtYWlsQGVtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY4NTg2MTU5OX0.uh_f5_RBRyBBBtZjjtGxGi8E9NT-wWa6bFubA9-o-FE';
+
+  const adminGroupId = 1;
+  const vendorGroupId = 2;
+  const verifierGroupId = 3;
+
   const adminUser = {
     email: 'AdminEmail@email.com',
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
     phone: 4251235555,
-    groupId: 1,
+    groupId: adminGroupId,
   };
   const vendorUser = {
     email: 'VendorEmail@email.com',
@@ -30,7 +35,7 @@ describe.skip('/login', () => {
     roles: ['vendor'],
     name: 'vendor account',
     phone: 2061112222,
-    groupId: 2,
+    groupId: vendorGroupId,
   };
   const vendorUser2 = {
     email: 'VendorEmail2@email.com',
@@ -38,7 +43,7 @@ describe.skip('/login', () => {
     roles: ['vendor'],
     name: 'vendor account2',
     phone: 2065556666,
-    groupId: 2,
+    groupId: vendorGroupId,
   };
   const verifierUser = {
     email: 'VerifierEmail@email.com',
@@ -46,7 +51,7 @@ describe.skip('/login', () => {
     roles: ['verifier'],
     name: 'verifier account',
     phone: 2063334444,
-    groupId: 3,
+    groupId: verifierGroupId,
   };
 
   describe('before user is created in the system', () => {

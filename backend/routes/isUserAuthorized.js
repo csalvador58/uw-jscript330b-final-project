@@ -12,7 +12,7 @@ const isUserAuthorized = async (req, res, next) => {
     try {
       req.user = await userDAO.verifyToken(tokenString[1]);
       req.user.isAuthorized = true;
-      console.log('isUserAutho - req.user');
+      console.log('isUserAuthorized - req.user');
       console.log(req.user);
       next();
     } catch (e) {

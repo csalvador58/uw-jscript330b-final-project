@@ -34,8 +34,8 @@ router.post(
         ...otherFields
       } = await userDAO.getUserByField({ email: email });
       if (!userId) throw new userDAO.BadDataError('User not found');
-      console.log('email, password');
-      console.log(userEmail, hashedPassword);
+      console.log('email, password, roles');
+      console.log(userEmail, hashedPassword, userRoles);
 
       // verify password matches db
       const passwordIsValid = await bcrypt.compare(password, hashedPassword);
