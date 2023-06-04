@@ -78,36 +78,36 @@ describe('/admin', () => {
           .set('Authorization', 'Bearer BAD');
         expect(res.statusCode).toEqual(401);
       });
-    //   describe('POST /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       let res = await request(server).post('/login').send(adminUser);
-    //       const token = res.body.token;
-    //       res = await request(server)
-    //         .get('/admin')
-    //         .set('Authorization', 'Bearer BAD');
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
-    //   describe('PUT /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       let res = await request(server).post('/login').send(adminUser);
-    //       const token = res.body.token;
-    //       res = await request(server)
-    //         .get('/admin')
-    //         .set('Authorization', 'Bearer BAD');
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
-    //   describe('DELETE /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       let res = await request(server).post('/login').send(adminUser);
-    //       const token = res.body.token;
-    //       res = await request(server)
-    //         .get('/admin')
-    //         .set('Authorization', 'Bearer BAD');
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
+      //   describe('POST /', () => {
+      //     it('should return 401 Unauthorized response without a valid token', async () => {
+      //       let res = await request(server).post('/login').send(adminUser);
+      //       const token = res.body.token;
+      //       res = await request(server)
+      //         .get('/admin')
+      //         .set('Authorization', 'Bearer BAD');
+      //       expect(res.statusCode).toEqual(401);
+      //     });
+      //   });
+      //   describe('PUT /', () => {
+      //     it('should return 401 Unauthorized response without a valid token', async () => {
+      //       let res = await request(server).post('/login').send(adminUser);
+      //       const token = res.body.token;
+      //       res = await request(server)
+      //         .get('/admin')
+      //         .set('Authorization', 'Bearer BAD');
+      //       expect(res.statusCode).toEqual(401);
+      //     });
+      //   });
+      //   describe('DELETE /', () => {
+      //     it('should return 401 Unauthorized response without a valid token', async () => {
+      //       let res = await request(server).post('/login').send(adminUser);
+      //       const token = res.body.token;
+      //       res = await request(server)
+      //         .get('/admin')
+      //         .set('Authorization', 'Bearer BAD');
+      //       expect(res.statusCode).toEqual(401);
+      //     });
+      //   });
     });
   });
 
@@ -129,6 +129,41 @@ describe('/admin', () => {
         .post('/admin/createUser')
         .set('Authorization', 'Bearer ' + adminToken)
         .send(verifierUser);
+    });
+    describe('GET /', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(adminUser);
+        token = res.body.token;
+      });
+      it.each([vendorUser, verifierUser])(
+        'should return 403 Forbidden without an admin role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          const { _id: nonAdminUserId } = await User.findOne({
+            email: account.email,
+          }).lean();
+          res = await request(server)
+            .get(`/admin/`)
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
+      it('should return 200 OK and user account', async () => {
+        let user = await User.findOne({
+          email: adminUser.email,
+        }).lean();
+        user = {
+          ...user,
+          _id: user._id.toString(),
+        };
+        res = await request(server)
+          .get(`/admin`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(200);
+        expect(res.body).toMatchObject(user);
+      });
     });
     describe('GET /:id', () => {
       let token;
@@ -227,100 +262,108 @@ describe('/admin', () => {
       });
     });
 
-    // describe('POST /', () => {
-    //   it('should return 401 without a valid token', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    //   describe('creating a new user - POST /admin/createUser', () => {
-    //     it('should return 403 Forbidden if user does not have an admin role', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(403);
-    //     });
-    //     it('should return 400 Bad Request without a valid email', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 200 OK with a valid email', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request if password is invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 200 OK if password is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request without one or more roles assigned', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 200 OK with one or more roles assigned', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request if name is invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 200 OK if name is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request if phone is invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 200 OK if phone is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request if an admin role and vendorGroupId is not zero', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 400 Bad Request if an admin role and verifierGroupId is not zero', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 400 Bad Request if not a vendor role and vendorGroupId is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 400 Bad Request if a vendor role is selected and vendorGroupId is invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 200 OK if a vendor role is selected and vendorGroupId is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 400 Bad Request if not a verifier role and verifierGroupId is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 400 Bad Request if a verifier role is selected and verifierGroupId is invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return 200 OK if a verifier role is selected and verifierGroupId is valid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //     it('should return a 409 Conflict if email already exist', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(409);
-    //     });
-    //     it('should not store a raw password', async () => {
-    //       // code here
-    //       // create a new user with admin role and receive a userId
-    //       // find the user with the userId
-    //       // check to make sure password is encrypted
-    //     });
-    //   });
-    // });
+    describe('POST /createUser', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(adminUser);
+        token = res.body.token;
+      });
+      it('should return 401 without a valid token', async () => {
+        res = await request(server)
+          .post('/admin/createUser')
+          .set('Authorization', 'Bearer BAD')
+          .send(vendorUser);
+        expect(res.statusCode).toEqual(401);
+      });
+      describe.skip('creating a new user - POST /admin/createUser', () => {
+        it('should return 403 Forbidden if user does not have an admin role', async () => {
+          // code here
+          expect(res.statusCode).toEqual(403);
+        });
+        // it('should return 400 Bad Request without a valid email', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 200 OK with a valid email', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request if password is invalid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 200 OK if password is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request without one or more roles assigned', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 200 OK with one or more roles assigned', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request if name is invalid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 200 OK if name is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request if phone is invalid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 200 OK if phone is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request if an admin role and vendorGroupId is not zero', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 400 Bad Request if an admin role and verifierGroupId is not zero', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 400 Bad Request if not a vendor role and vendorGroupId is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 400 Bad Request if a vendor role is selected and vendorGroupId is invalid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 200 OK if a vendor role is selected and vendorGroupId is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 400 Bad Request if not a verifier role and verifierGroupId is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(400);
+        // });
+        // it('should return 400 Bad Request if a verifier role is selected and verifierGroupId is invalid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return 200 OK if a verifier role is selected and verifierGroupId is valid', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(200);
+        // });
+        // it('should return a 409 Conflict if email already exist', async () => {
+        //   // code here
+        //   expect(res.statusCode).toEqual(409);
+        // });
+        // it('should not store a raw password', async () => {
+        //   // code here
+        //   // create a new user with admin role and receive a userId
+        //   // find the user with the userId
+        //   // check to make sure password is encrypted
+        // });
+      });
+    });
 
     // describe('PUT /', () => {
     //   it('should return 403 Forbidden without an admin role', async () => {
