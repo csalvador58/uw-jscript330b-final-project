@@ -7,6 +7,13 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
+      <a href="#project-update">Project Update</a>
+      <ul>
+        <li><a href="#completed">Completed</a></li>
+        <li><a href="#pending">Pending</a></li>
+      </ul>
+    </li>
+    <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#scenario">Scenario</a></li>
@@ -50,6 +57,28 @@
   </ol>
 </details>
 <br/>
+
+<!-- PROJECT UPDATE -->
+
+## Project Update
+
+### Completed
+- Login/authorization functions and tests.
+- Data models for user and userData collections.
+- All create, read, and update route/DAO functions related to an admin user.
+- Tests related to above functions.
+- Postman related to above tests saved.
+- All other tests have been setup with descriptions for each 'describe' and 'it' blocks.
+
+
+### Pending
+- Delete functions and tests.
+- Vendor and Verifier user functions and tests. Majority of code will follow admin related functions.
+- Setting up mocks for external components
+- Remaining Postman items for demo
+- Presentation
+
+<br>
 
 <!-- ABOUT THE PROJECT -->
 
