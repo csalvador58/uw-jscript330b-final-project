@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const User = require('../daos/user');
+const userDAO = require('../daos/user');
 const isUserAuthorized = require('../routes/isUserAuthorized');
 
 router.get('/:id', isUserAuthorized, async (req, res, next) => {
@@ -16,12 +16,14 @@ router.get('/:id', isUserAuthorized, async (req, res, next) => {
     res.status(403).send('Restricted Access');
   } else {
     try {
-      const user = await User.getUserByField({ _id: userId });
+      const user = await userDAO.getUserByField({ _id: userId });
       console.log('user');
       console.log(user);
       res.json(user);
     } catch (e) {
-      res.status(500).send(e.message);
+      e instanceof userDAO.BadDataError
+        ? res.status(400).send(e.message)
+        : res.status(500).send(e.message);
     }
   }
 });
@@ -32,7 +34,7 @@ router.post('/createUser', isUserAuthorized, async (req, res, next) => {
   console.log('req.user');
   console.log(req.user);
   try {
-    const storedUser = await User.createUser(newUser);
+    const storedUser = await userDAO.createUser(newUser);
     console.log('storedUser');
     console.log(storedUser);
     res.json(storedUser);
