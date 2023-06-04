@@ -52,48 +52,64 @@ describe('/admin', () => {
     groupId: 3,
   };
 
-  //   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
-  //   describe('Before login', () => {
-  //     beforeEach(async () => {
-  //       await request(server)
-  //         .post('/admin/createUser')
-  //         .set('Authorization', 'Bearer ' + adminToken)
-  //         .send(adminUser);
-  //       await request(server)
-  //         .post('/admin/createUser')
-  //         .set('Authorization', 'Bearer ' + adminToken)
-  //         .send(vendorUser);
-  //       await request(server)
-  //         .post('/admin/createUser')
-  //         .set('Authorization', 'Bearer ' + adminToken)
-  //         .send(verifierUser);
-  //     });
+  describe('Before login', () => {
+    beforeEach(async () => {
+      await request(server)
+        .post('/admin/createUser')
+        .set('Authorization', 'Bearer ' + adminToken)
+        .send(adminUser);
+      await request(server)
+        .post('/admin/createUser')
+        .set('Authorization', 'Bearer ' + adminToken)
+        .send(vendorUser);
+      await request(server)
+        .post('/admin/createUser')
+        .set('Authorization', 'Bearer ' + adminToken)
+        .send(verifierUser);
+    });
 
-  //     describe('GET /', () => {
-  //       it('should return 401 Unauthorized response without a valid token', async () => {
-  //         const res = await request(server).get('/admin');
-  //         expect(res.statusCode).toEqual(401);
-  //       });
-  //     });
-  //     describe('POST /', () => {
-  //       it('should return 401 Unauthorized response without a valid token', async () => {
-  //         // code here
-  //         expect(res.statusCode).toEqual(401);
-  //       });
-  //     });
-  //     describe('PUT /', () => {
-  //       it('should return 401 Unauthorized response without a valid token', async () => {
-  //         // code here
-  //         expect(res.statusCode).toEqual(401);
-  //       });
-  //     });
-  //     describe('DELETE /', () => {
-  //       it('should return 401 Unauthorized response without a valid token', async () => {
-  //         // code here
-  //         expect(res.statusCode).toEqual(401);
-  //       });
-  //     });
-  //   });
+    //   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
+    describe('GET /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server).post('/login').send(adminUser);
+        const token = res.body.token;
+        res = await request(server)
+          .get('/admin')
+          .set('Authorization', 'Bearer BAD');
+        expect(res.statusCode).toEqual(401);
+      });
+    //   describe('POST /', () => {
+    //     it('should return 401 Unauthorized response without a valid token', async () => {
+    //       let res = await request(server).post('/login').send(adminUser);
+    //       const token = res.body.token;
+    //       res = await request(server)
+    //         .get('/admin')
+    //         .set('Authorization', 'Bearer BAD');
+    //       expect(res.statusCode).toEqual(401);
+    //     });
+    //   });
+    //   describe('PUT /', () => {
+    //     it('should return 401 Unauthorized response without a valid token', async () => {
+    //       let res = await request(server).post('/login').send(adminUser);
+    //       const token = res.body.token;
+    //       res = await request(server)
+    //         .get('/admin')
+    //         .set('Authorization', 'Bearer BAD');
+    //       expect(res.statusCode).toEqual(401);
+    //     });
+    //   });
+    //   describe('DELETE /', () => {
+    //     it('should return 401 Unauthorized response without a valid token', async () => {
+    //       let res = await request(server).post('/login').send(adminUser);
+    //       const token = res.body.token;
+    //       res = await request(server)
+    //         .get('/admin')
+    //         .set('Authorization', 'Bearer BAD');
+    //       expect(res.statusCode).toEqual(401);
+    //     });
+    //   });
+    });
+  });
 
   describe('After login', () => {
     beforeEach(async () => {
@@ -123,8 +139,8 @@ describe('/admin', () => {
       it.each([vendorUser, verifierUser])(
         'should return 403 Forbidden without an admin role',
         async (account) => {
-            console.log('iterate accounts: ')
-            console.log(account)
+          console.log('iterate accounts: ');
+          console.log(account);
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
           const { _id: nonAdminUserId } = await User.findOne({
@@ -174,14 +190,17 @@ describe('/admin', () => {
         let res = await request(server).post('/login').send(adminUser);
         token = res.body.token;
       });
-      it.each([vendorUser, verifierUser])('should return 403 Forbidden without an admin role', async (account) => {
-        res = await request(server).post('/login').send(account);
-        const accountToken = res.body.token;
-        res = await request(server)
-          .get(`/admin/search?groupId=1`)
-          .set('Authorization', 'Bearer ' + accountToken);
-        expect(res.statusCode).toEqual(403);
-      });
+      it.each([vendorUser, verifierUser])(
+        'should return 403 Forbidden without an admin role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          res = await request(server)
+            .get(`/admin/search?groupId=1`)
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
       it('should return 400 Bad Request when no users are associated with a groupId', async () => {
         let unusedGroupId = 99;
         res = await request(server)

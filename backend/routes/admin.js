@@ -46,6 +46,29 @@ router.get('/:id', isUserAuthorized, async (req, res, next) => {
   }
 });
 
+router.get('/', isUserAuthorized, async (req, res, next) => {
+  console.log('TEST Admin - get /');
+  console.log('req.user');
+  console.log(req.user);
+  console.log('req.user.roles');
+  console.log(req.user.roles);
+
+  if (!req.user.roles.includes('admin')) {
+    res.status(403).send('Restricted Access');
+  } else {
+    try {
+      const user = await userDAO.getUserByField({ _id: req.user._id });
+      console.log('user');
+      console.log(user);
+      res.json(user);
+    } catch (e) {
+      e instanceof userDAO.BadDataError
+        ? res.status(400).send(e.message)
+        : res.status(500).send(e.message);
+    }
+  }
+});
+
 router.post('/createUser', isUserAuthorized, async (req, res, next) => {
   console.log('TEST Admin - post /createUser');
   const newUser = req.body;
