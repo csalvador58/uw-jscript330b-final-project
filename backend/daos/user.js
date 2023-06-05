@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { default: mongoose } = require('mongoose');
+const { mongoose } = require('mongoose');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
@@ -102,9 +102,9 @@ module.exports.updatePassword = async (userId, newPassword) => {
 
 module.exports.updateUser = (userId, newData) => {
   return new Promise(async (resolve, reject) => {
-    console.log('DAO update')
-    console.log(userId)
-    console.log(newData)
+    console.log('DAO update');
+    console.log(userId);
+    console.log(newData);
     if (newData.password) {
       bcrypt.hash(newData.password, saltRounds).then(async (hashedPassword) => {
         try {

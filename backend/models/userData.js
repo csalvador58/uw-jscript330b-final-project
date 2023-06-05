@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const validDataKeys = ['personalData01', 'personalData02', 'personalData03'];
+const validRecordTypes = ['personal', 'medical', 'employment'];
 
 const userDataSchema = new mongoose.Schema({
   userId: {
@@ -8,17 +8,15 @@ const userDataSchema = new mongoose.Schema({
     ref: 'users',
     required: true,
   },
-  personalData: {
-    type: Map,
-    of: {
-      type: String,
-      enum: validDataKeys,
-    },
+  recordType: {
+    type: String,
+    enum: validRecordTypes,
+    required: true,
   },
-  data: { type: String },
+  dataObject: { type: Object, required: true },
 });
 
 // Use compound index make a field unique
-userDataSchema.index({ userId: 1, personalData: 1 }, { unique: true });
+userDataSchema.index({ userId: 1, recordType: 1 }, { unique: true });
 
 module.exports = mongoose.model('userData', userDataSchema);

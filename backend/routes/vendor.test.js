@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const UserData = require('../models/userData');
 const bcrypt = require('bcrypt');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/vendor', () => {
+describe('/vendor', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -72,24 +73,33 @@ describe.skip('/vendor', () => {
         .send(verifierUser);
     });
     // describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
-    // describe('GET /', () => {
-    //   it('should return 401 Unauthorized response without a valid token', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    // });
-    // describe('POST /', () => {
-    //   it('should return 401 Unauthorized response without a valid token', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    // });
-    // describe('PUT /', () => {
-    //   it('should return 401 Unauthorized response without a valid token', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    // });
+    describe('GET /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server)
+          .get('/vendor')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+        expect(res.statusCode).toEqual(401);
+      });
+    });
+    describe('POST /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server)
+          .post('/vendor/upload')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+        expect(res.statusCode).toEqual(401);
+      });
+    });
+    describe('PUT /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server)
+          .put('/vendor')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+        expect(res.statusCode).toEqual(401);
+      });
+    });
     // describe('DELETE /', () => {
     //   it('should return 401 Unauthorized response without a valid token', async () => {
     //     // code here
@@ -166,60 +176,176 @@ describe.skip('/vendor', () => {
           let res = await request(server).post('/login').send(vendorUser);
           token = res.body.token;
         });
-        it('should return 403 Forbidden without an vendor role', async () => {
-          res = await request(server).put('/vendor').set('Authorization', 'Bearer ' + token);
-          expect(res.statusCode).toEqual(403);
+        it.each([adminUser, verifierUser])(
+          'should return 403 Forbidden without an vendor role',
+          async (account) => {
+            res = await request(server).post('/login').send(account);
+            const accountToken = res.body.token;
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + accountToken)
+              .send();
+            expect(res.statusCode).toEqual(403);
+          }
+        );
+        describe('updating vendor user info - PUT /', () => {
+          it('should return 400 Bad Request without a valid email', async () => {
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'invalidEmail',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if password is invalid', async () => {
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                password: 'invalidPassword',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if the phone is invalid', async () => {
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                phone: 123456,
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 200 OK with valid data', async () => {
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'UpdatedEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(200);
+            let userObj = await User.findOne({
+              email: 'UpdatedEmail@email.com',
+            }).lean();
+            userObj._id = userObj._id.toString();
+            expect(res.body).toMatchObject(userObj);
+          });
+          it('should return a 409 Conflict if email already exist', async () => {
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: vendorUser2.email,
+              });
+            expect(res.statusCode).toEqual(409);
+          });
+          it('should not store a raw password', async () => {
+            const { password: oldHashedPassword } = await User.findOne({
+              email: vendorUser.email,
+            }).lean();
+            res = await request(server)
+              .put('/vendor')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                password: 'newPassword0!',
+              });
+            const { password: newHashedPassword } = await User.findOne({
+              email: vendorUser.email,
+            }).lean();
+            expect(newHashedPassword).not.toEqual(oldHashedPassword);
+            expect(newHashedPassword).not.toEqual('newPassword0!');
+          });
         });
-        //   it('should return 400 Bad Request if required fields are invalid', async () => {
+      });
+      describe('uploading a new personal record - POST /vendor/upload', () => {
+        let token;
+        beforeEach(async () => {
+          let res = await request(server).post('/login').send(vendorUser);
+          token = res.body.token;
+        });
+        it.each([adminUser, verifierUser])(
+          'should return 403 Forbidden if user does not have a vendor role',
+          async (account) => {
+            res = await request(server).post('/login').send(account);
+            const accountToken = res.body.token;
+            res = await request(server)
+              .post('/vendor/upload')
+              .set('Authorization', 'Bearer ' + accountToken);
+            expect(res.statusCode).toEqual(403);
+          }
+        );
+        it('should return 400 Bad Request if required fields are invalid', async () => {
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'personal',
+              dataObject: {
+                data01: 'Address',
+                data02: 'SSN',
+                data03: '',
+              },
+            });
+          expect(res.statusCode).toEqual(400);
+        });
+        it('should return 200 OK with valid data', async () => {
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'personal',
+              dataObject: {
+                data01: 'Address',
+                data02: 'SSN',
+                data03: 'credit',
+              },
+            });
+          expect(res.statusCode).toEqual(200);
+          let dataObj = await UserData.findOne({ _id: res.body._id }).lean();
+          dataObj._id = dataObj._id.toString();
+          dataObj.userId = dataObj.userId.toString();
+          expect(res.body).toMatchObject(dataObj);
+        });
+        it('should return a 409 Conflict if a recordType already exist', async () => {
+          await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'personal',
+              dataObject: {
+                data01: 'Address',
+                data02: 'SSN',
+                data03: 'credit',
+              },
+            });
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'personal',
+              dataObject: {
+                data01: 'Address',
+                data02: 'SSN',
+                data03: 'credit',
+              },
+            });
+          expect(res.statusCode).toEqual(409);
+        });
+        // });
+        // describe('DELETE /vendor/:id', () => {
+        //   it('should return 403 Forbidden without an vendor role', async () => {
         //     // code here
+        //     expect(res.statusCode).toEqual(403);
+        //   });
+        //   it('should return 400 Bad Request if personal record id is not in system', async () => {
         //     expect(res.statusCode).toEqual(400);
         //   });
-        //   it('should return 200 OK with valid data', async () => {
+        //   it('should remove a personal record by id', async () => {
         //     // code here
-        //     expect(res.statusCode).toEqual(200);
-        //   });
-        //   it('should return a 409 Conflict if email already exist', async () => {
-        //     // code here
-        //     expect(res.statusCode).toEqual(409);
-        //   });
-        //   it('should not store a raw password', async () => {
-        //     // code here
-        //     // find the user with the userId
-        //     // check to make sure password is encrypted
+        //     // check user collection
+        //     // check userData collection
         //   });
       });
-      //   describe('uploading a new personal record - POST /vendor/data', () => {
-      //     it('should return 403 Forbidden if user does not have a vendor role', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(403);
-      //     });
-      //     it('should return 400 Bad Request if required fields are invalid', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(400);
-      //     });
-      //     it('should return 200 OK with valid data', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(200);
-      //     });
-      //     it('should return a 409 Conflict if a personalData value already exist', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(409);
-      //     });
-      //   });
-      //   describe('DELETE /vendor/:id', () => {
-      //     it('should return 403 Forbidden without an vendor role', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(403);
-      //     });
-      //     it('should return 400 Bad Request if personal record id is not in system', async () => {
-      //       expect(res.statusCode).toEqual(400);
-      //     });
-      //     it('should remove a personal record by id', async () => {
-      //       // code here
-      //       // check user collection
-      //       // check userData collection
-      //     });
-      //   });
     });
   });
 });
