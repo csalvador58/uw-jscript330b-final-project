@@ -60,8 +60,8 @@
 
 <!-- PROJECT UPDATE -->
 
-## Project Update
-
+## Project Update 
+> (06/04/23)
 ### Completed
 - Login/authorization functions and tests.
 - Data models for user and userData collections.
@@ -72,7 +72,7 @@
 
 
 ### Pending
-- Delete functions and tests.
+- Delete functions and tests related to admin user.
 - Vendor and Verifier user functions and tests. Majority of code will follow admin related functions.
 - Setting up mocks for external components
 - Remaining Postman items for demo
