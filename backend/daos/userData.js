@@ -3,6 +3,53 @@ const mongoose = require('mongoose');
 
 module.exports = {};
 
+module.exports.getAllRecords = async (userId) => {
+  console.log('DAOs get all records');
+  console.log('userId');
+  console.log(userId);
+  try {
+    const userWithData = await UserData.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'accountInfo',
+        },
+      },
+      {
+        $group: {
+          _id: '$userId',
+          accountInfo: { $first: '$accountInfo' },
+          dataRecords: {
+            $push: {
+              recordId: '$_id',
+              recordType: '$recordType',
+              dataObject: '$dataObject',
+            },
+          },
+        },
+      },
+      { $unwind: '$accountInfo' },
+      {
+        $project: {
+          _id: 0,
+          accountInfo: 1,
+          dataRecords: 1,
+        },
+      },
+    ]);
+    return userWithData[0];
+  } catch (e) {
+    throw new Error(e.message);
+  }
+};
+
 module.exports.uploadData = async (userId, type, data) => {
   console.log('DAOs - userId');
   console.log(userId);

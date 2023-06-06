@@ -152,9 +152,34 @@ describe('/vendor', () => {
           expect(res.statusCode).toEqual(200);
           expect(res.body).toMatchObject(user);
         });
-        // it('should return personal data if data option is included in request', async () => {
-        //     // .get('/vendor?data=true')
-        // })
+        it('should return the user info and all personal data if data option is included in request', async () => {
+          let res01 = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'personal',
+              dataObject: {
+                data01: 'Address',
+                data02: 'SSN',
+                data03: 'credit',
+              },
+            });
+          let res02 = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'medical',
+              dataObject: {
+                data01: 'medical01',
+                data02: 'medical02',
+              },
+            });
+          res = await request(server)
+            .get('/vendor?data=true')
+            .set('Authorization', 'Bearer ' + token)
+            .send();
+          expect(res.statusCode).toEqual(200);
+        });
       });
       //   describe('a vendor user retrieving a personal record - GET /:id', () => {
       //     it('should return 403 Forbidden if user does not have a vendor role', async () => {

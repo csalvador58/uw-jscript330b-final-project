@@ -21,9 +21,14 @@ router.get('/', async (req, res, next) => {
   console.log('TEST vendor - get /');
   console.log('req.user');
   console.log(req.user);
+  const dataOption = req.query.data;
+  console.log('dataOption');
+  console.log(dataOption);
 
   try {
-    const user = await userDAO.getUserByField({ _id: req.user._id });
+    const user = dataOption
+      ? await userDataDAO.getAllRecords(req.user._id)
+      : await userDAO.getUserByField({ _id: req.user._id });
     console.log('user');
     console.log(user);
     res.json(user);
