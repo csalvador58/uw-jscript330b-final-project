@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const validRecordTypes = ['personal', 'medical', 'employment'];
+const validRecordTypes = ['personal', 'medical', 'employment', 'background', 'test01', 'test02'];
 
 const userDataSchema = new mongoose.Schema({
   userId: {

@@ -3,7 +3,34 @@ const mongoose = require('mongoose');
 
 module.exports = {};
 
-module.exports.getAllRecords = async (userId) => {
+module.exports.getRecordById = async (recordId) => {
+  try {
+    const records = await UserData.findOne({
+      _id: new mongoose.Types.ObjectId(recordId),
+    }).lean();
+    console.log('DAO - records');
+    console.log(records);
+    if (records) {
+      return records;
+    } else {
+      throw new Error('Invalid ID');
+    }
+  } catch (e) {
+    console.log('DAOs error');
+    console.log(e.message);
+    if (
+      e.message.includes('Invalid ID') ||
+      e.message.includes(
+        'must be a string of 12 bytes or a string of 24 hex characters'
+      )
+    ) {
+      throw new BadDataError(e.message);
+    }
+    throw new Error(e.message);
+  }
+};
+
+module.exports.getUserWithRecords = async (userId) => {
   console.log('DAOs get all records');
   console.log('userId');
   console.log(userId);

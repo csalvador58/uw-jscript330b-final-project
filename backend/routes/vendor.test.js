@@ -82,6 +82,16 @@ describe('/vendor', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
+    describe('GET /:id', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        const recordId = await UserData.findOne();
+        let res = await request(server)
+          .get('/vendor/')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+        expect(res.statusCode).toEqual(401);
+      });
+    });
     describe('POST /', () => {
       it('should return 401 Unauthorized response without a valid token', async () => {
         let res = await request(server)
@@ -157,7 +167,7 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'personal',
+              recordType: 'employment',
               dataObject: {
                 data01: 'Address',
                 data02: 'SSN',
@@ -168,10 +178,10 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'medical',
+              recordType: 'background',
               dataObject: {
-                data01: 'medical01',
-                data02: 'medical02',
+                data01: 'data01',
+                data02: 'data02',
               },
             });
           res = await request(server)
@@ -181,20 +191,34 @@ describe('/vendor', () => {
           expect(res.statusCode).toEqual(200);
         });
       });
-      //   describe('a vendor user retrieving a personal record - GET /:id', () => {
-      //     it('should return 403 Forbidden if user does not have a vendor role', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(403);
-      //     });
-      //     it('should return 400 Bad Request with an invalid id', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(400);
-      //     });
-      //     it('should return the matching personal record by id', async () => {
-      //       // code here
-      //       expect(res.statusCode).toEqual(200);
-      //     });
-      //   });
+      describe('a vendor user retrieving a personal record - GET /:id', () => {
+        let token;
+        beforeEach(async () => {
+          let res = await request(server).post('/login').send(vendorUser);
+          token = res.body.token;
+        });
+        it.each([adminUser, verifierUser])(
+          'should return 403 Forbidden if user does not have a vendor role',
+          async (account) => {
+            res = await request(server).post('/login').send(account);
+            const accountToken = res.body.token;
+            res = await request(server)
+              .get('/vendor/:1234')
+              .set('Authorization', 'Bearer ' + accountToken);
+            expect(res.statusCode).toEqual(403);
+          }
+        );
+        it('should return 400 Bad Request with an invalid id', async () => {
+          res = await request(server)
+            .get('/vendor/:1234')
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(400);
+        });
+        //   it('should return the matching personal record by id', async () => {
+        //     // code here
+        //     expect(res.statusCode).toEqual(200);
+        //   });
+      });
       describe('PUT /', () => {
         let token;
         beforeEach(async () => {
@@ -304,7 +328,7 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'personal',
+              recordType: 'test01',
               dataObject: {
                 data01: 'Address',
                 data02: 'SSN',
@@ -318,7 +342,7 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'personal',
+              recordType: 'test01',
               dataObject: {
                 data01: 'Address',
                 data02: 'SSN',
@@ -336,7 +360,7 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'personal',
+              recordType: 'test01',
               dataObject: {
                 data01: 'Address',
                 data02: 'SSN',
@@ -347,7 +371,7 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'personal',
+              recordType: 'test01',
               dataObject: {
                 data01: 'Address',
                 data02: 'SSN',

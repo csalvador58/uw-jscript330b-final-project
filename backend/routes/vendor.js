@@ -27,13 +27,30 @@ router.get('/', async (req, res, next) => {
 
   try {
     const user = dataOption
-      ? await userDataDAO.getAllRecords(req.user._id)
+      ? await userDataDAO.getUserWithRecords(req.user._id)
       : await userDAO.getUserByField({ _id: req.user._id });
     console.log('user');
     console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
+      ? res.status(400).send(e.message)
+      : res.status(500).send(e.message);
+  }
+});
+
+router.get('/:id', async (req, res, next) => {
+  console.log('TEST vendor - get /:id');
+  console.log('req.params.id');
+  console.log(req.params.id);
+
+  try {
+    const personalData = await userDataDAO.getRecordById(req.params.id);
+    console.log('personalData');
+    console.log(personalData);
+    res.json(personalData);
+  } catch (e) {
+    e instanceof userDataDAO.BadDataError
       ? res.status(400).send(e.message)
       : res.status(500).send(e.message);
   }
