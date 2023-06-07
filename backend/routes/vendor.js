@@ -153,4 +153,19 @@ router.put('/', async (req, res, next) => {
   }
 });
 
+router.delete('/:id', async (req, res, next) => {
+  console.log('Test Vendor - DELETE /:id');
+
+  try {
+    const deletedRecord = await userDataDAO.removeRecordById(req.params.id);
+    console.log('deletedRecord');
+    console.log(deletedRecord);
+    res.json(deletedRecord);
+  } catch (e) {
+    e instanceof userDataDAO.BadDataError
+      ? res.status(400).send(e.message)
+      : res.status(500).send(e.message);
+  }
+});
+
 module.exports = router;

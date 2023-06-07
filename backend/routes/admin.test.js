@@ -10,7 +10,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/admin', () => {
+describe('/admin', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 

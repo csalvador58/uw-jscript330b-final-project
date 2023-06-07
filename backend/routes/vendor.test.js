@@ -110,13 +110,15 @@ describe('/vendor', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-    // describe('DELETE /', () => {
-    //   it('should return 401 Unauthorized response without a valid token', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(401);
-    //   });
-    // });
-
+    describe('DELETE /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server)
+          .put('/vendor/:1234')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+        expect(res.statusCode).toEqual(401);
+      });
+    });
     describe('After login', () => {
       beforeEach(async () => {
         await request(server)
@@ -167,18 +169,18 @@ describe('/vendor', () => {
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'employment',
+              recordType: 'test01',
               dataObject: {
-                data01: 'Address',
-                data02: 'SSN',
-                data03: 'credit',
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
               },
             });
           let res02 = await request(server)
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              recordType: 'background',
+              recordType: 'test02',
               dataObject: {
                 data01: 'data01',
                 data02: 'data02',
@@ -214,10 +216,29 @@ describe('/vendor', () => {
             .set('Authorization', 'Bearer ' + token);
           expect(res.statusCode).toEqual(400);
         });
-        //   it('should return the matching personal record by id', async () => {
-        //     // code here
-        //     expect(res.statusCode).toEqual(200);
-        //   });
+        it('should return the matching personal record by id', async () => {
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'test01',
+              dataObject: {
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
+              },
+            });
+          let personalRecord = {
+            ...res.body,
+            _id: res.body._id.toString(),
+            userId: res.body.userId.toString(),
+          };
+          res = await request(server)
+            .get(`/vendor/${personalRecord._id}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(200);
+          expect(res.body).toMatchObject(personalRecord);
+        });
       });
       describe('PUT /', () => {
         let token;
@@ -330,8 +351,8 @@ describe('/vendor', () => {
             .send({
               recordType: 'test01',
               dataObject: {
-                data01: 'Address',
-                data02: 'SSN',
+                data01: 'data01',
+                data02: 'data02',
                 data03: '',
               },
             });
@@ -344,9 +365,9 @@ describe('/vendor', () => {
             .send({
               recordType: 'test01',
               dataObject: {
-                data01: 'Address',
-                data02: 'SSN',
-                data03: 'credit',
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
               },
             });
           expect(res.statusCode).toEqual(200);
@@ -362,9 +383,9 @@ describe('/vendor', () => {
             .send({
               recordType: 'test01',
               dataObject: {
-                data01: 'Address',
-                data02: 'SSN',
-                data03: 'credit',
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
               },
             });
           res = await request(server)
@@ -373,27 +394,63 @@ describe('/vendor', () => {
             .send({
               recordType: 'test01',
               dataObject: {
-                data01: 'Address',
-                data02: 'SSN',
-                data03: 'credit',
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
               },
             });
           expect(res.statusCode).toEqual(409);
         });
-        // });
-        // describe('DELETE /vendor/:id', () => {
-        //   it('should return 403 Forbidden without an vendor role', async () => {
-        //     // code here
-        //     expect(res.statusCode).toEqual(403);
-        //   });
-        //   it('should return 400 Bad Request if personal record id is not in system', async () => {
-        //     expect(res.statusCode).toEqual(400);
-        //   });
-        //   it('should remove a personal record by id', async () => {
-        //     // code here
-        //     // check user collection
-        //     // check userData collection
-        //   });
+        describe('DELETE /vendor/:id', () => {
+          let token;
+          beforeEach(async () => {
+            let res = await request(server).post('/login').send(vendorUser);
+            token = res.body.token;
+          });
+          it.each([adminUser, verifierUser])(
+            'should return 403 Forbidden without an vendor role',
+            async (account) => {
+              res = await request(server).post('/login').send(account);
+              const accountToken = res.body.token;
+              res = await request(server)
+                .delete(`/vendor/1234`)
+                .set('Authorization', 'Bearer ' + accountToken);
+              expect(res.statusCode).toEqual(403);
+            }
+          );
+          it('should return 400 Bad Request if personal record id is an invalid ID', async () => {
+            res = await request(server)
+              .delete('/vendor/1234')
+              .set('Authorization', 'Bearer ' + token);
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should remove a personal record by id', async () => {
+            res = await request(server)
+              .post('/vendor/upload')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                recordType: 'test01',
+                dataObject: {
+                  data01: 'data01',
+                  data02: 'data02',
+                  data03: 'data03',
+                },
+              });
+            const storedPersonalRecord = {
+              ...res.body,
+              _id: res.body._id.toString(),
+              userId: res.body.userId.toString(),
+            };
+            res = await request(server)
+              .delete(`/vendor/${storedPersonalRecord._id}`)
+              .set('Authorization', 'Bearer ' + token);
+            expect(res.body.acknowledged).toEqual(true);
+            res = await UserData.findOne({
+              _id: storedPersonalRecord._id,
+            }).lean();
+            expect(res).toBeNull();
+          });
+        });
       });
     });
   });
