@@ -491,23 +491,42 @@ describe('/admin', () => {
       });
     });
 
-    // describe('DELETE /admin/:id', () => {
-    //   it('should return 403 Forbidden without an admin role', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(403);
-    //   });
-    //   it('should return 405 Method Not Allowed if admin attempts to delete itself', async () => {
-    //     // code here
-    //     expect(res.statusCode).toEqual(405);
-    //   });
-    //   it('should return 400 Bad Request if userId is not in system', async () => {
-    //     expect(res.statusCode).toEqual(400);
-    //   });
-    //   it('should remove user and userData collections by userId', async () => {
-    //     // code here
-    //     // check user collection
-    //     // check userData collection
-    //   });
-    // });
+    describe('DELETE /admin/:id', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(adminUser);
+        token = res.body.token;
+      });
+      it.each([vendorUser, verifierUser])(
+        'should return 403 Forbidden without an admin role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          res = await request(server)
+            .delete(`/admin/1234`)
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
+      it('should return 405 Method Not Allowed if admin attempts to delete itself', async () => {
+        let user = await User.findOne({ email: adminUser.email }).lean();
+        user._id = user._id.toString();
+        res = await request(server)
+          .delete(`/admin/${user._id}`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(405);
+      });
+      it('should return 400 Bad Request if userId is not in system', async () => {
+        res = await request(server)
+          .delete('/admin/1234')
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(400);
+      });
+      // it('should remove user and userData collections by userId', async () => {
+      //   // code here
+      //   // check user collection
+      //   // check userData collection
+      // });
+    });
   });
 });

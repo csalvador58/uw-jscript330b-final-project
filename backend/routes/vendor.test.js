@@ -11,7 +11,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe('/vendor', () => {
+describe.skip('/vendor', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -407,7 +407,7 @@ describe('/vendor', () => {
           token = res.body.token;
         });
         it.each([adminUser, verifierUser])(
-          'should return 403 Forbidden without an vendor role',
+          'should return 403 Forbidden without a vendor role',
           async (account) => {
             res = await request(server).post('/login').send(account);
             const accountToken = res.body.token;

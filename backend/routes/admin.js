@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 
 const userDAO = require('../daos/user');
+const userDataDAO = require('../daos/userData');
 const isUserAuthorized = require('../routes/isUserAuthorized');
 const isEmailFormatValid = require('../routes/isEmailFormatValid');
 const isPasswordFormatValid = require('../routes/isPasswordFormatValid');
@@ -188,6 +189,35 @@ router.put('/', async (req, res, next) => {
       // console.log('PUT Error');
       // console.log(e);
       res.status(500).send(e.message);
+    }
+  }
+});
+
+router.delete('/:id', async (req, res, next) => {
+  console.log('Test ADMIN - DELETE /:id');
+  console.log('req.params.id');
+  console.log(req.params.id);
+  console.log('req.user._id');
+  console.log(req.user._id);
+  if (req.params.id === req.user._id) {
+    res.status(405).send('Not allowed to delete own user account');
+  } else {
+    try {
+      const isUserDeleted = await userDAO.removeUserById(req.params.id);
+      console.log('isUserDeleted');
+      console.log(isUserDeleted);
+
+      res.json(isUserDeleted.acknowledged);
+    } catch (e) {
+      console.log(e);
+      if (
+        e instanceof userDAO.BadDataError ||
+        e instanceof userDataDAO.BadDataError
+      ) {
+        res.status(400).send(e.message);
+      } else {
+        res.status(500).send(e.message);
+      }
     }
   }
 });

@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const UserData = require('../models/userData');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { mongoose } = require('mongoose');
@@ -70,6 +71,45 @@ module.exports.getUsersByGroupId = async (id) => {
     throw new Error('No accounts found by groupId');
   } catch (e) {
     if (e.message.includes('No accounts found')) {
+      throw new BadDataError(e.message);
+    } else {
+      throw new Error(e.message);
+    }
+  }
+};
+
+module.exports.removeUserById = async (userId) => {
+  console.log('DAOs - userId')
+  console.log(userId)
+  try {
+    const deletedUser = await User.deleteOne({
+      _id: new mongoose.Types.ObjectId(userId),
+    });
+
+    console.log('deletedUser');
+    console.log(deletedUser);
+    if (!deletedUser.deletedCount) {
+      throw new Error('Invalid ID');
+    }
+
+    // delete user data if any exist
+    const deletedUserData = await UserData.deleteOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
+    console.log('deletedUserData')
+    console.log(deletedUserData)
+
+    return deletedUser;
+  } catch (e) {
+    // console.log('DAOs error');
+    // console.log(e.message);
+    if (
+      e.message.includes('Invalid ID') ||
+      e.message.includes(
+        'must be a string of 12 bytes or a string of 24 hex characters'
+      )
+    ) {
       throw new BadDataError(e.message);
     } else {
       throw new Error(e.message);
