@@ -207,7 +207,7 @@ router.delete('/:id', async (req, res, next) => {
       console.log('isUserDeleted');
       console.log(isUserDeleted);
 
-      res.json(isUserDeleted.acknowledged);
+      res.json(isUserDeleted);
     } catch (e) {
       console.log(e);
       if (

@@ -11,7 +11,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/vendor', () => {
+describe('/vendor', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -144,7 +144,7 @@ describe.skip('/vendor', () => {
         token = res.body.token;
       });
       it.each([adminUser, verifierUser])(
-        'should return 403 Forbidden if user does not have a vendor role',
+        'should return 403 Forbidden if %s does not have a vendor role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -199,7 +199,7 @@ describe.skip('/vendor', () => {
         token = res.body.token;
       });
       it.each([adminUser, verifierUser])(
-        'should return 403 Forbidden if user does not have a vendor role',
+        'should return 403 Forbidden if %s does not have a vendor role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -246,7 +246,7 @@ describe.skip('/vendor', () => {
         token = res.body.token;
       });
       it.each([adminUser, verifierUser])(
-        'should return 403 Forbidden without a vendor role',
+        'should return 403 Forbidden for %s without a vendor role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -333,7 +333,7 @@ describe.skip('/vendor', () => {
         token = res.body.token;
       });
       it.each([adminUser, verifierUser])(
-        'should return 403 Forbidden if user does not have a vendor role',
+        'should return 403 Forbidden if %s does not have a vendor role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -407,7 +407,7 @@ describe.skip('/vendor', () => {
           token = res.body.token;
         });
         it.each([adminUser, verifierUser])(
-          'should return 403 Forbidden without a vendor role',
+          'should return 403 Forbidden for %s without a vendor role',
           async (account) => {
             res = await request(server).post('/login').send(account);
             const accountToken = res.body.token;

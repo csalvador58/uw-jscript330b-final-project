@@ -5,6 +5,7 @@ const testUtils = require('../test-utils');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const UserData = require('../models/userData');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
@@ -102,16 +103,14 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-    //   describe('DELETE /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       let res = await request(server).post('/login').send(adminUser);
-    //       const token = res.body.token;
-    //       res = await request(server)
-    //         .get('/admin')
-    //         .set('Authorization', 'Bearer BAD');
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
+      describe('DELETE /', () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
+          res = await request(server)
+            .delete('/admin/1234')
+            .set('Authorization', 'Bearer BAD');
+          expect(res.statusCode).toEqual(401);
+        });
+      });
   });
 
   describe('After login', () => {
@@ -122,7 +121,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden without an admin role',
+        'should return 403 Forbidden for %s without an admin role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -151,7 +150,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden without an admin role',
+        'should return 403 Forbidden for %s without an admin role',
         async (account) => {
           console.log('iterate accounts: ');
           console.log(account);
@@ -181,7 +180,7 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(400);
       });
       it.each([adminUser, vendorUser, verifierUser])(
-        'should return 200 OK and the matching account for a user with an admin role',
+        'should return 200 OK and the matching account for %s with an admin role',
         async (account) => {
           let user = await User.findOne({
             email: account.email,
@@ -202,7 +201,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden without an admin role',
+        'should return 403 Forbidden for %s without an admin role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -253,7 +252,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden if user does not have an admin role',
+        'should return 403 Forbidden if %s does not have an admin role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -383,7 +382,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden without an admin role',
+        'should return 403 Forbidden for %s without an admin role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           accountToken = res.body.token;
@@ -498,7 +497,7 @@ describe('/admin', () => {
         token = res.body.token;
       });
       it.each([vendorUser, verifierUser])(
-        'should return 403 Forbidden without an admin role',
+        'should return 403 Forbidden for %s without an admin role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -522,11 +521,58 @@ describe('/admin', () => {
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(400);
       });
-      // it('should remove user and userData collections by userId', async () => {
-      //   // code here
-      //   // check user collection
-      //   // check userData collection
-      // });
+      it.each([adminUser, vendorUser, verifierUser])(
+        'should remove %s and if applicable all associated userData by userId',
+        async (account) => {
+          // create a test user by account role
+          const testAccount = {
+            ...account,
+            email: `testUserAccount${account.groupId}@email.com`,
+          };
+          await request(server)
+            .post('/admin/createUser')
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send(testAccount);
+          let user = await User.findOne({ email: testAccount.email }).lean();
+
+          // create a test record if account type is a vendor
+          let testRecord = { _id: null };
+          if (user.roles.includes('vendor')) {
+            testRecord = await UserData.create({
+              userId: new mongoose.Types.ObjectId(user._id),
+              recordType: 'test01',
+              dataObject: {
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
+              },
+            });
+            testRecord = {
+              ...testRecord.toObject(),
+              _id: testRecord._id.toString(),
+              userId: testRecord.userId.toString(),
+            };
+          }
+
+          // remove account by userId
+          res = await request(server)
+            .delete(`/admin/${user._id}`)
+            .set('Authorization', 'Bearer ' + token);
+
+          // check user document is removed
+          expect(res.body.acknowledged).toEqual(true);
+          res = await User.findOne({
+            _id: user._id,
+          }).lean();
+          expect(res).toBeNull();
+
+          // check userData records removed is any existed
+          res = await UserData.findOne({
+            _id: testRecord._id,
+          }).lean();
+          expect(res).toBeNull();
+        }
+      );
     });
   });
 });

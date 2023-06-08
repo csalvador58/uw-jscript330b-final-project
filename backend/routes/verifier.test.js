@@ -11,7 +11,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/verifier', () => {
+describe('/verifier', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -112,12 +112,6 @@ describe.skip('/verifier', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-    //   describe('DELETE /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
   });
   describe('After login', () => {
     describe('GET /', () => {
@@ -127,7 +121,7 @@ describe.skip('/verifier', () => {
         token = res.body.token;
       });
       it.each([adminUser, vendorUser])(
-        'should return 403 Forbidden if user does not have a verifier role',
+        'should return 403 Forbidden if %s does not have a verifier role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
@@ -173,7 +167,7 @@ describe.skip('/verifier', () => {
         token = res.body.token;
       });
       it.each([adminUser, vendorUser])(
-        'should return 403 Forbidden without a vendor role',
+        'should return 403 Forbidden for %s without a vendor role',
         async (account) => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;

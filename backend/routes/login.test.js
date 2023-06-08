@@ -9,7 +9,7 @@ const saltRounds = 1;
 // secret will not be visible in code
 const secret = 'secretKey';
 
-describe.skip('/login', () => {
+describe('/login', () => {
   beforeAll(testUtils.connectDB);
   afterAll(testUtils.stopDB);
 
@@ -94,10 +94,10 @@ describe.skip('/login', () => {
         expect(res.statusCode).toEqual(401);
       });
       describe.each([adminUser, vendorUser, verifierUser])(
-        'User %#',
+        'User %s ',
         (account) => {
           it.each(['email', 'password'])(
-            'should return 400 Bad request when the email or password is missing',
+            'should return 400 Bad request when the %s is missing',
             async (key) => {
               const testUser = {
                 ...account,
