@@ -3,6 +3,7 @@ const router = Router();
 
 const userDAO = require('../daos/user');
 const userDataDAO = require('../daos/userData');
+const zkTestAPI = require('../apis/zkTestAPI');
 
 const isUserAuthorized = require('../routes/isUserAuthorized');
 const isEmailFormatValid = require('../routes/isEmailFormatValid');
@@ -33,6 +34,40 @@ router.get('/', async (req, res, next) => {
     e instanceof userDAO.BadDataError
       ? res.status(400).send(e.message)
       : res.status(500).send(e.message);
+  }
+});
+
+router.post('/:id', async (req, res, next) => {
+  console.log('TEST Verifier - post /');
+
+  const recordId = req.params.id;
+  const zkProofRelatedObject = req.body;
+  console.log('zkProofRelatedObject');
+  console.log(zkProofRelatedObject);
+
+  if (!zkProofRelatedObject || JSON.stringify(zkProofRelatedObject) === '{}') {
+    console.log('Test - confirm missing zk data');
+    res.status(400).send('Invalid request');
+  } else {
+    try {
+      let userRecord = await userDataDAO.getRecordById(recordId);
+      userRecord = {
+        ...userRecord,
+        proof: zkProofRelatedObject,
+      };
+      console.log('userRecord');
+      console.log(userRecord);
+      const isProofValid = await zkTestAPI.validateUserRecord(userRecord);
+      console.log('isProofValid');
+      console.log(isProofValid);
+      res.status(200).send({ results: isProofValid });
+    } catch (e) {
+      console.log('e.message');
+      console.log(e.message);
+      e instanceof userDataDAO.BadDataError
+        ? res.status(400).send(e.message)
+        : res.status(500).send(e.message);
+    }
   }
 });
 

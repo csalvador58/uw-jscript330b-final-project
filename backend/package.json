@@ -18,7 +18,8 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "index.js",
-      "test-utils.js"
+      "test-utils.js",
+      "/apis/zkTestAPI.js"
     ],
     "preset": "@shelf/jest-mongodb",
     "watchPathIgnorePatterns": [

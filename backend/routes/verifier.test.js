@@ -5,6 +5,8 @@ const testUtils = require('../test-utils');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const UserData = require('../models/userData');
+const zkTestAPI = require('../apis/zkTestAPI');
+const { validateUserRecord } = require('../apis/zkTestAPI');
 const bcrypt = require('bcrypt');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
@@ -97,12 +99,15 @@ describe('/verifier', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-    //   describe('POST /', () => {
-    //     it('should return 401 Unauthorized response without a valid token', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(401);
-    //     });
-    //   });
+      describe('POST /', () => {
+        it('should return 401 Unauthorized response without a valid token', async () => {
+          let res = await request(server)
+          .get('/verifier/1234')
+          .set('Authorization', 'Bearer BAD')
+          .send();
+          expect(res.statusCode).toEqual(401);
+        });
+      });
     describe('PUT /', () => {
       it('should return 401 Unauthorized response without a valid token', async () => {
         let res = await request(server)
@@ -142,24 +147,61 @@ describe('/verifier', () => {
         expect(res.body).toMatchObject(user);
       });
     });
-    //   describe('zero knowledge verification on a personal record - GET /verifier/:id', () => {
-    //     it('should return 403 Forbidden if user does not have a verifier role', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(403);
-    //     });
-    //     it('should return 400 Bad Request if required fields are invalid', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return 400 Bad Request if personal record id is not in system', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(400);
-    //     });
-    //     it('should return a boolean response', async () => {
-    //       // code here
-    //       expect(res.statusCode).toEqual(200);
-    //     });
-    //   });
+    describe('zero knowledge verification on a personal record - POST /verifier/:id', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(verifierUser);
+        token = res.body.token;
+      });
+      it.each([adminUser, vendorUser])(
+        'should return 403 Forbidden if %s does not have a verifier role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          res = await request(server)
+            .post('/verifier/1234')
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
+      it('should return 400 Bad Request if required fields are invalid', async () => {
+        res = await request(server)
+          .post('/verifier/1234')
+          .set('Authorization', 'Bearer ' + token)
+          .send();
+        expect(res.statusCode).toEqual(400);
+      });
+      it('should return 400 Bad Request if personal record id is invalid', async () => {
+        res = await request(server)
+          .post('/verifier/1234')
+          .set('Authorization', 'Bearer ' + token)
+          .send({ test: 'test' });
+        expect(res.statusCode).toEqual(400);
+      });
+      it('should return 200 OK and a boolean result to the proving request', async () => {
+        let postValidateUserRecord = jest.spyOn(zkTestAPI, 'validateUserRecord');
+        postValidateUserRecord.mockResolvedValue(true);
+
+        testRecord = await UserData.create({
+          userId: new mongoose.Types.ObjectId(res.body._id),
+          recordType: 'test01',
+          dataObject: {
+            data01: 'data01',
+            data02: 'data02',
+            data03: 'data03',
+          },
+        });
+        testRecord._id = testRecord._id.toString();
+        res = await request(server)
+          .post(`/verifier/${testRecord._id}`)
+          .set('Authorization', 'Bearer ' + token)
+          .send({ test: 'test' });
+        expect(res.statusCode).toEqual(200);
+        expect(typeof res.body.results).toBe('boolean');
+
+        postValidateUserRecord.mockRestore();
+      });
+    });
     describe('PUT /', () => {
       let token;
       beforeEach(async () => {
