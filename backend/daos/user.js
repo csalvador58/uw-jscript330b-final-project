@@ -33,8 +33,8 @@ module.exports.createUser = (newUserObj) => {
 };
 
 module.exports.getUserByField = async (keyValuePair) => {
-  console.log('DAOs - keyValuePair');
-  console.log(keyValuePair);
+  // console.log('DAOs - keyValuePair');
+  // console.log(keyValuePair);
 
   try {
     let query = Object.keys(keyValuePair).includes('_id')
@@ -45,8 +45,8 @@ module.exports.getUserByField = async (keyValuePair) => {
     if (user) return user;
     throw new Error('User does not exist');
   } catch (e) {
-    console.log('DAO Error - e');
-    console.log(e.message);
+    // console.log('DAO Error - e');
+    // console.log(e.message);
     if (
       e.message.includes('User does not exist') ||
       e.message.includes(
@@ -64,8 +64,8 @@ module.exports.getUserByField = async (keyValuePair) => {
 module.exports.getUsersByGroupId = async (id) => {
   try {
     const users = await User.find({ groupId: id }).lean();
-    console.log('DAOS - users by id');
-    console.log(users);
+    // console.log('DAOS - users by id');
+    // console.log(users);
     if (users.length > 0) return users;
     throw new Error('No accounts found by groupId');
   } catch (e) {
@@ -81,8 +81,8 @@ module.exports.updatePassword = async (userId, newPassword) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(newPassword, saltRounds).then(async (hashedPassword) => {
       try {
-        console.log('TEST user DAOS - userId');
-        console.log(userId);
+        // console.log('TEST user DAOS - userId');
+        // console.log(userId);
         const updatedPassword = await User.findByIdAndUpdate(
           new mongoose.Types.ObjectId(userId),
           {
@@ -92,8 +92,6 @@ module.exports.updatePassword = async (userId, newPassword) => {
         );
         resolve(updatedPassword);
       } catch (e) {
-        console.log('DAOS update pw - e');
-        console.log(e);
         reject(new Error(e.message));
       }
     });
@@ -102,14 +100,14 @@ module.exports.updatePassword = async (userId, newPassword) => {
 
 module.exports.updateUser = (userId, newData) => {
   return new Promise(async (resolve, reject) => {
-    console.log('DAO update');
-    console.log(userId);
-    console.log(newData);
+    // console.log('DAO update');
+    // console.log(userId);
+    // console.log(newData);
     if (newData.password) {
       bcrypt.hash(newData.password, saltRounds).then(async (hashedPassword) => {
         try {
-          console.log('TEST user DAOS - userId');
-          console.log(userId);
+          // console.log('TEST user DAOS - userId');
+          // console.log(userId);
           const updatedUser = await User.findByIdAndUpdate(
             new mongoose.Types.ObjectId(userId),
             {
@@ -129,8 +127,8 @@ module.exports.updateUser = (userId, newData) => {
       });
     } else {
       try {
-        console.log('TEST user DAOS - userId');
-        console.log(userId);
+        // console.log('TEST user DAOS - userId');
+        // console.log(userId);
         const updatedUser = await User.findByIdAndUpdate(
           new mongoose.Types.ObjectId(userId),
           {

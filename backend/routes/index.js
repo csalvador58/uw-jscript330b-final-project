@@ -13,6 +13,7 @@ router.use((req, res, next) => {
 router.use('/login', require('../routes/login'));
 router.use('/admin', require('../routes/admin'));
 router.use('/vendor', require('./vendor'));
+router.use('/verifier', require('./verifier'));
 
 router.use((err, req, res, next) => {
   console.error(`Error detected: `, err);

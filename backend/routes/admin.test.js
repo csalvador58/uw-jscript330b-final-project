@@ -55,29 +55,32 @@ describe('/admin', () => {
     phone: 2063334444,
     groupId: verifierGroupId,
   };
+  beforeEach(async () => {
+    await request(server)
+      .post('/admin/createUser')
+      .set('Authorization', 'Bearer ' + adminToken)
+      .send(adminUser);
+    await request(server)
+      .post('/admin/createUser')
+      .set('Authorization', 'Bearer ' + adminToken)
+      .send(vendorUser);
+    await request(server)
+      .post('/admin/createUser')
+      .set('Authorization', 'Bearer ' + adminToken)
+      .send(vendorUser2);
+    await request(server)
+      .post('/admin/createUser')
+      .set('Authorization', 'Bearer ' + adminToken)
+      .send(verifierUser);
+  });
 
   describe('Before login', () => {
-    beforeEach(async () => {
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(adminUser);
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(vendorUser);
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(verifierUser);
-    });
-
-    //   describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
     describe('GET /', () => {
       it('should return 401 Unauthorized response without a valid token', async () => {
         let res = await request(server)
           .get('/admin')
-          .set('Authorization', 'Bearer BAD').send();
+          .set('Authorization', 'Bearer BAD')
+          .send();
         expect(res.statusCode).toEqual(401);
       });
     });
@@ -112,24 +115,6 @@ describe('/admin', () => {
   });
 
   describe('After login', () => {
-    beforeEach(async () => {
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(adminUser);
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(vendorUser);
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(vendorUser2);
-      await request(server)
-        .post('/admin/createUser')
-        .set('Authorization', 'Bearer ' + adminToken)
-        .send(verifierUser);
-    });
     describe('GET /', () => {
       let token;
       beforeEach(async () => {
@@ -397,15 +382,18 @@ describe('/admin', () => {
         let res = await request(server).post('/login').send(adminUser);
         token = res.body.token;
       });
-      it.each([vendorUser, verifierUser])('should return 403 Forbidden without an admin role', async (account) => {
-        res = await request(server).post('/login').send(account);
-        accountToken = res.body.token;
-        res = await request(server)
-          .put('/admin')
-          .set('Authorization', 'Bearer ' + accountToken)
-          .send();
-        expect(res.statusCode).toEqual(403);
-      });
+      it.each([vendorUser, verifierUser])(
+        'should return 403 Forbidden without an admin role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          accountToken = res.body.token;
+          res = await request(server)
+            .put('/admin')
+            .set('Authorization', 'Bearer ' + accountToken)
+            .send();
+          expect(res.statusCode).toEqual(403);
+        }
+      );
       describe('updating admin user info - PUT /', () => {
         it('should return 400 Bad Request without a valid email', async () => {
           res = await request(server)

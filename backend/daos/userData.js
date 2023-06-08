@@ -4,21 +4,21 @@ const mongoose = require('mongoose');
 module.exports = {};
 
 module.exports.removeRecordById = async (recordId) => {
-    console.log('DAOs - recordId')
-    console.log(recordId)
+    // console.log('DAOs - recordId')
+    // console.log(recordId)
   try {
     const response = await UserData.deleteOne({
       _id: new mongoose.Types.ObjectId(recordId),
     });
-    console.log('response');
-    console.log(response);
+    // console.log('response');
+    // console.log(response);
     if (!response.deletedCount) {
       throw new Error('Invalid ID');
     }
     return response;
   } catch (e) {
-    console.log('DAOs error');
-    console.log(e.message);
+    // console.log('DAOs error');
+    // console.log(e.message);
     if (
       e.message.includes('Invalid ID') ||
       e.message.includes(
@@ -37,16 +37,16 @@ module.exports.getRecordById = async (recordId) => {
     const records = await UserData.findOne({
       _id: new mongoose.Types.ObjectId(recordId),
     }).lean();
-    console.log('DAO - records');
-    console.log(records);
+    // console.log('DAO - records');
+    // console.log(records);
     if (records) {
       return records;
     } else {
       throw new Error('Invalid ID');
     }
   } catch (e) {
-    console.log('DAOs error');
-    console.log(e.message);
+    // console.log('DAOs error');
+    // console.log(e.message);
     if (
       e.message.includes('Invalid ID') ||
       e.message.includes(
@@ -61,9 +61,9 @@ module.exports.getRecordById = async (recordId) => {
 };
 
 module.exports.getUserWithRecords = async (userId) => {
-  console.log('DAOs get all records');
-  console.log('userId');
-  console.log(userId);
+  // console.log('DAOs get all records');
+  // console.log('userId');
+  // console.log(userId);
   try {
     const userWithData = await UserData.aggregate([
       {
@@ -108,12 +108,12 @@ module.exports.getUserWithRecords = async (userId) => {
 };
 
 module.exports.uploadData = async (userId, type, data) => {
-  console.log('DAOs - userId');
-  console.log(userId);
-  console.log('type');
-  console.log(type);
-  console.log('data');
-  console.log(data);
+  // console.log('DAOs - userId');
+  // console.log(userId);
+  // console.log('type');
+  // console.log(type);
+  // console.log('data');
+  // console.log(data);
   try {
     const uploadedData = await UserData.create({
       userId: new mongoose.Types.ObjectId(userId),
@@ -122,8 +122,8 @@ module.exports.uploadData = async (userId, type, data) => {
     });
     return uploadedData;
   } catch (e) {
-    console.log('DAO - e.message');
-    console.log(e.message);
+    // console.log('DAO - e.message');
+    // console.log(e.message);
     if (e.message.includes('duplicate key')) {
       throw new BadDataError('Record type already exist');
     } else {

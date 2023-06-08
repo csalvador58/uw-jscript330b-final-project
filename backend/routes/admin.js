@@ -32,15 +32,15 @@ router.get('/search', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   console.log('TEST Admin - get /:id');
   const userId = req.params.id;
-  console.log('userId');
-  console.log(userId);
-  console.log('req.user.roles');
-  console.log(req.user.roles);
+  // console.log('userId');
+  // console.log(userId);
+  // console.log('req.user.roles');
+  // console.log(req.user.roles);
 
   try {
     const user = await userDAO.getUserByField({ _id: userId });
-    console.log('user');
-    console.log(user);
+    // console.log('user');
+    // console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -51,15 +51,15 @@ router.get('/:id', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   console.log('TEST Admin - get /');
-  console.log('req.user');
-  console.log(req.user);
-  console.log('req.user.roles');
-  console.log(req.user.roles);
+  // console.log('req.user');
+  // console.log(req.user);
+  // console.log('req.user.roles');
+  // console.log(req.user.roles);
 
   try {
     const user = await userDAO.getUserByField({ _id: req.user._id });
-    console.log('user');
-    console.log(user);
+    // console.log('user');
+    // console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -75,10 +75,10 @@ router.post(
   async (req, res, next) => {
     console.log('TEST Admin - post /createUser');
     const newUser = req.body;
-    console.log('newUser');
-    console.log(newUser);
-    console.log('req.user');
-    console.log(req.user);
+    // console.log('newUser');
+    // console.log(newUser);
+    // console.log('req.user');
+    // console.log(req.user);
 
     const phoneRegex = /^\d{10}$/;
     if (
@@ -91,8 +91,8 @@ router.post(
     } else {
       try {
         const storedUser = await userDAO.createUser(newUser);
-        console.log('storedUser');
-        console.log(storedUser);
+        // console.log('storedUser');
+        // console.log(storedUser);
         res.json(storedUser);
       } catch (e) {
         console.log(e.message);
@@ -107,10 +107,10 @@ router.post(
 router.put('/', async (req, res, next) => {
   console.log('TEST Admin - put /');
   const updateUserData = req.body;
-  console.log('updateUserData');
-  console.log(updateUserData);
-  console.log('req.user');
-  console.log(req.user);
+  // console.log('updateUserData');
+  // console.log(updateUserData);
+  // console.log('req.user');
+  // console.log(req.user);
 
   let updatedFields = {};
   try {
@@ -176,8 +176,8 @@ router.put('/', async (req, res, next) => {
     }
 
     const updatedUser = await userDAO.updateUser(req.user._id, updatedFields);
-    console.log('updatedUser');
-    console.log(updatedUser);
+    // console.log('updatedUser');
+    // console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
@@ -185,8 +185,8 @@ router.put('/', async (req, res, next) => {
     } else if (e instanceof userDAO.BadDataError) {
       res.status(409).send(e.message);
     } else {
-      console.log('PUT Error');
-      console.log(e);
+      // console.log('PUT Error');
+      // console.log(e);
       res.status(500).send(e.message);
     }
   }

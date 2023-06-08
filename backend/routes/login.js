@@ -34,8 +34,8 @@ router.post(
         ...otherFields
       } = await userDAO.getUserByField({ email: email });
       if (!userId) throw new userDAO.BadDataError('User not found');
-      console.log('email, password, roles');
-      console.log(userEmail, hashedPassword, userRoles);
+      // console.log('email, password, roles');
+      // console.log(userEmail, hashedPassword, userRoles);
 
       // verify password matches db
       const passwordIsValid = await bcrypt.compare(password, hashedPassword);
@@ -50,15 +50,15 @@ router.post(
           },
           secret
         );
-        console.log('loginToken');
-        console.log(loginToken);
+        // console.log('loginToken');
+        // console.log(loginToken);
         res.json({ token: loginToken });
       } else {
         throw new userDAO.BadDataError('Password does not match');
       }
     } catch (e) {
-      console.log('e.message');
-      console.log(e.message);
+      // console.log('e.message');
+      // console.log(e.message);
       e instanceof userDAO.BadDataError
         ? res.status(401).send(e.message)
         : res.status(500).send(e.message);
@@ -72,8 +72,8 @@ router.put(
   isPasswordFormatValid,
   async (req, res, next) => {
     console.log('TEST login - PUT / updatePassword');
-    console.log('req.user');
-    console.log(req.user);
+    // console.log('req.user');
+    // console.log(req.user);
 
     try {
       let userId;
@@ -88,12 +88,12 @@ router.put(
       }
       const newPassword = req.body.password;
       const updatedPassword = await userDAO.updatePassword(userId, newPassword);
-      console.log('Password is now updated');
-      console.log(updatedPassword);
+      // console.log('Password is now updated');
+      // console.log(updatedPassword);
       res.json(updatedPassword);
     } catch (e) {
-      console.log('Route e');
-      console.log(e.message);
+      // console.log('Route e');
+      // console.log(e.message);
       e instanceof userDAO.BadDataError
         ? res.status(400).send(e.message)
         : res.status(500).send(e.message);
