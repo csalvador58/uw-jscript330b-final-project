@@ -3,14 +3,9 @@ const server = require('../server');
 const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
 const User = require('../models/user');
-const bcrypt = require('bcrypt');
 const UserData = require('../models/userData');
 const userDAO = require('../daos/user');
 const userDataDAO = require('../daos/userData');
-// saltRounds => 1 used for testing only, 10 is recommended
-const saltRounds = 1;
-// secret will not be visible in code
-const secret = 'secretKey';
 
 describe('/admin', () => {
   beforeAll(testUtils.connectDB);
@@ -41,14 +36,6 @@ describe('/admin', () => {
     phone: 2061112222,
     groupId: vendorGroupId,
   };
-  const vendorUser2 = {
-    email: 'VendorEmail2@email.com',
-    password: 'vendor1232!',
-    roles: ['vendor'],
-    name: 'vendor account2',
-    phone: 2065556666,
-    groupId: vendorGroupId,
-  };
   const verifierUser = {
     email: 'VerifierEmail@email.com',
     password: 'verifier123!',
@@ -66,10 +53,6 @@ describe('/admin', () => {
       .post('/admin/createUser')
       .set('Authorization', 'Bearer ' + adminToken)
       .send(vendorUser);
-    await request(server)
-      .post('/admin/createUser')
-      .set('Authorization', 'Bearer ' + adminToken)
-      .send(vendorUser2);
     await request(server)
       .post('/admin/createUser')
       .set('Authorization', 'Bearer ' + adminToken)

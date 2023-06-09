@@ -1,12 +1,12 @@
 const { Router } = require('express');
 const router = Router();
-
 const userDAO = require('../daos/user');
 const userDataDAO = require('../daos/userData');
 const isUserAuthorized = require('../routes/isUserAuthorized');
 const isEmailFormatValid = require('../routes/isEmailFormatValid');
 const isPasswordFormatValid = require('../routes/isPasswordFormatValid');
 
+// Validate jwt token and store user in req.user
 router.use(isUserAuthorized, async (req, res, next) => {
   // console.log('TEST Admin - middleware isUser Authorized and has admin role');
   if (req.user.roles.includes('admin')) {
@@ -16,6 +16,7 @@ router.use(isUserAuthorized, async (req, res, next) => {
   }
 });
 
+// Search users by groupId
 router.get('/search', async (req, res, next) => {
   // console.log('TEST Admin - get /search?groupId');
   try {
@@ -29,6 +30,7 @@ router.get('/search', async (req, res, next) => {
   res.status(200);
 });
 
+// Get any user by id
 router.get('/:id', async (req, res, next) => {
   // console.log('TEST Admin - get /:id');
   const userId = req.params.id;
@@ -46,6 +48,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+// Get own user data
 router.get('/', async (req, res, next) => {
   // console.log('TEST Admin - get /');
 
@@ -59,6 +62,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// Create a new user
 router.post(
   '/createUser',
   isEmailFormatValid,
@@ -90,6 +94,7 @@ router.post(
   }
 );
 
+// Update selected fields
 router.put('/', async (req, res, next) => {
   // console.log('TEST Admin - put /');
   const updateUserData = req.body;
@@ -170,6 +175,7 @@ router.put('/', async (req, res, next) => {
   }
 });
 
+// Delete a user by id
 router.delete('/:id', async (req, res, next) => {
   // console.log('Test ADMIN - DELETE /:id');
 
@@ -178,7 +184,6 @@ router.delete('/:id', async (req, res, next) => {
   } else {
     try {
       const isUserDeleted = await userDAO.removeUserById(req.params.id);
-
       res.json(isUserDeleted);
     } catch (e) {
       if (

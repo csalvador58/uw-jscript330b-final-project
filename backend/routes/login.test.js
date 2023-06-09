@@ -3,11 +3,6 @@ const server = require('../server');
 const testUtils = require('../test-utils');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const bcrypt = require('bcrypt');
-// saltRounds => 1 used for testing only, 10 is recommended
-const saltRounds = 1;
-// secret will not be visible in code
-const secret = 'secretKey';
 
 describe('/login', () => {
   beforeAll(testUtils.connectDB);
@@ -37,28 +32,12 @@ describe('/login', () => {
     phone: 2061112222,
     groupId: vendorGroupId,
   };
-  const vendorUser2 = {
-    email: 'VendorEmail2@email.com',
-    password: 'vendor1232!',
-    roles: ['vendor'],
-    name: 'vendor account2',
-    phone: 2065556666,
-    groupId: vendorGroupId,
-  };
   const verifierUser = {
     email: 'VerifierEmail@email.com',
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
     phone: 2063334444,
-    groupId: verifierGroupId,
-  };
-  const verifierUser2 = {
-    email: 'VerifierEmail2@email.com',
-    password: 'verifier1232!',
-    roles: ['verifier'],
-    name: 'verifier account2',
-    phone: 2060001111,
     groupId: verifierGroupId,
   };
 

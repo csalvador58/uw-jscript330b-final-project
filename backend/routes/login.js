@@ -12,6 +12,7 @@ const isEmailFormatValid = require('./isEmailFormatValid');
 const isPasswordFormatValid = require('./isPasswordFormatValid');
 const isUserAuthorized = require('./isUserAuthorized');
 
+// Login
 router.post(
   '/',
   isEmailFormatValid,
@@ -59,6 +60,7 @@ router.post(
   }
 );
 
+// Update Password
 router.put(
   '/updatePassword',
   isUserAuthorized,

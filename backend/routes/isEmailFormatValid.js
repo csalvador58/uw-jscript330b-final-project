@@ -9,7 +9,6 @@ const isEmailFormatValid = (req, res, next) => {
   if ( !email || !isEmailFormatValid) {
     res.status(400).send('Invalid email');
   } else {
-    // console.log('test')
     next();
   }
 };

@@ -82,7 +82,6 @@ module.exports.removeUserById = async (userId) => {
         userId: new mongoose.Types.ObjectId(userId),
       });
     }
-
     return deletedUser;
   } catch (e) {
     if (

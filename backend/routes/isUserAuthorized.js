@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 // secret will not be visible in code
 const secret = 'secretKey';
 
+// Validate jwt token
 const isUserAuthorized = async (req, res, next) => {
   // console.log('Middleware Test - isUserAuthorized');
 

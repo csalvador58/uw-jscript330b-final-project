@@ -1,14 +1,8 @@
 const request = require('supertest');
 const server = require('../server');
-const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
 const User = require('../models/user');
 const UserData = require('../models/userData');
-const bcrypt = require('bcrypt');
-// saltRounds => 1 used for testing only, 10 is recommended
-const saltRounds = 1;
-// secret will not be visible in code
-const secret = 'secretKey';
 
 describe('/vendor', () => {
   beforeAll(testUtils.connectDB);
@@ -55,14 +49,6 @@ describe('/vendor', () => {
     phone: 2063334444,
     groupId: verifierGroupId,
   };
-  const verifierUser2 = {
-    email: 'VerifierEmail2@email.com',
-    password: 'verifier1232!',
-    roles: ['verifier'],
-    name: 'verifier account2',
-    phone: 2060001111,
-    groupId: verifierGroupId,
-  };
 
   beforeEach(async () => {
     await request(server)
@@ -81,10 +67,6 @@ describe('/vendor', () => {
       .post('/admin/createUser')
       .set('Authorization', 'Bearer ' + adminToken)
       .send(verifierUser);
-    await request(server)
-      .post('/admin/createUser')
-      .set('Authorization', 'Bearer ' + adminToken)
-      .send(verifierUser2);
   });
   describe('Before login', () => {
     describe('GET /', () => {
