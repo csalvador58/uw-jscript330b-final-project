@@ -99,15 +99,15 @@ describe('/verifier', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-      describe('POST /', () => {
-        it('should return 401 Unauthorized response without a valid token', async () => {
-          let res = await request(server)
+    describe('POST /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        let res = await request(server)
           .get('/verifier/1234')
           .set('Authorization', 'Bearer BAD')
           .send();
-          expect(res.statusCode).toEqual(401);
-        });
+        expect(res.statusCode).toEqual(401);
       });
+    });
     describe('PUT /', () => {
       it('should return 401 Unauthorized response without a valid token', async () => {
         let res = await request(server)
@@ -178,28 +178,32 @@ describe('/verifier', () => {
           .send({ test: 'test' });
         expect(res.statusCode).toEqual(400);
       });
-      it('should return 200 OK and a boolean result to the proving request', async () => {
-        let postValidateUserRecord = jest.spyOn(zkTestAPI, 'validateUserRecord');
-        postValidateUserRecord.mockResolvedValue(true);
-
-        testRecord = await UserData.create({
-          userId: new mongoose.Types.ObjectId(res.body._id),
-          recordType: 'test01',
-          dataObject: {
-            data01: 'data01',
-            data02: 'data02',
-            data03: 'data03',
-          },
+      describe('mock zk external component', () => {
+        let postValidateUserRecord;
+        afterEach(() => {
+          postValidateUserRecord.mockRestore();
         });
-        testRecord._id = testRecord._id.toString();
-        res = await request(server)
-          .post(`/verifier/${testRecord._id}`)
-          .set('Authorization', 'Bearer ' + token)
-          .send({ test: 'test' });
-        expect(res.statusCode).toEqual(200);
-        expect(typeof res.body.results).toBe('boolean');
+        it('should return 200 OK and a boolean result to the proving request', async () => {
+          postValidateUserRecord = jest.spyOn(zkTestAPI, 'validateUserRecord');
+          postValidateUserRecord.mockResolvedValue(true);
 
-        postValidateUserRecord.mockRestore();
+          testRecord = await UserData.create({
+            userId: new mongoose.Types.ObjectId(res.body._id),
+            recordType: 'test01',
+            dataObject: {
+              data01: 'data01',
+              data02: 'data02',
+              data03: 'data03',
+            },
+          });
+          testRecord._id = testRecord._id.toString();
+          res = await request(server)
+            .post(`/verifier/${testRecord._id}`)
+            .set('Authorization', 'Bearer ' + token)
+            .send({ test: 'test' });
+          expect(res.statusCode).toEqual(200);
+          expect(typeof res.body.results).toBe('boolean');
+        });
       });
     });
     describe('PUT /', () => {

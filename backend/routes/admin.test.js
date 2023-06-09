@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const UserData = require('../models/userData');
+const userDAO = require('../daos/user');
+const userDataDAO = require('../daos/userData');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
@@ -103,14 +105,14 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(401);
       });
     });
-      describe('DELETE /', () => {
-        it('should return 401 Unauthorized response without a valid token', async () => {
-          res = await request(server)
-            .delete('/admin/1234')
-            .set('Authorization', 'Bearer BAD');
-          expect(res.statusCode).toEqual(401);
-        });
+    describe('DELETE /', () => {
+      it('should return 401 Unauthorized response without a valid token', async () => {
+        res = await request(server)
+          .delete('/admin/1234')
+          .set('Authorization', 'Bearer BAD');
+        expect(res.statusCode).toEqual(401);
       });
+    });
   });
 
   describe('After login', () => {
@@ -373,6 +375,28 @@ describe('/admin', () => {
         }).lean();
         expect(hashedPassword).not.toEqual(originalPassword);
       });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.create;
+        });
+        afterEach(() => {
+          User.create = originalFn;
+        });
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          User.create = jest.fn().mockRejectedValue(new Error('Server Error'));
+
+          const newTestAccount = {
+            ...vendorUser,
+            email: 'newTestEmailAccount@email.com',
+          };
+          res = await request(server)
+            .post('/admin/createUser')
+            .set('Authorization', 'Bearer ' + token)
+            .send(newTestAccount);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
 
     describe('PUT /', () => {
@@ -487,6 +511,32 @@ describe('/admin', () => {
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
           expect(newHashedPassword).not.toEqual('newPassword0!');
         });
+        describe('server failure', () => {
+          let originalFn;
+          beforeEach(() => {
+            originalFn = userDAO.updateUser;
+          });
+          afterEach(() => {
+            userDAO.updateUser = originalFn;
+          });
+          it('should return 500 Internal Server error if a server error occurs', async () => {
+            userDAO.updateUser = jest
+              .fn()
+              .mockRejectedValue(new Error('Server Error'));
+
+            const newTestAccount = {
+              ...vendorUser,
+              email: 'newTestEmailAccount@email.com',
+            };
+            res = await request(server)
+              .put('/admin')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'UpdatedEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(500);
+          });
+        });
       });
     });
 
@@ -573,6 +623,26 @@ describe('/admin', () => {
           expect(res).toBeNull();
         }
       );
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = userDAO.removeUserById;
+        });
+        afterEach(() => {
+          userDAO.removeUserById = originalFn;
+        });
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          userDAO.removeUserById = jest
+            .fn()
+            .mockRejectedValue(new Error('Server Error'));
+
+          let user = await User.findOne({ email: vendorUser.email }).lean();
+          res = await request(server)
+            .delete(`/admin/${user._id.toString()}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
   });
 });

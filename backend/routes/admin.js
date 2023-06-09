@@ -209,7 +209,7 @@ router.delete('/:id', async (req, res, next) => {
 
       res.json(isUserDeleted);
     } catch (e) {
-      console.log(e);
+      console.log(e.message);
       if (
         e instanceof userDAO.BadDataError ||
         e instanceof userDataDAO.BadDataError
