@@ -10,9 +10,7 @@ const isEmailFormatValid = require('../routes/isEmailFormatValid');
 const isPasswordFormatValid = require('../routes/isPasswordFormatValid');
 
 router.use(isUserAuthorized, async (req, res, next) => {
-  console.log(
-    'TEST Verifier - middleware isUserAuthorized and has verifier role'
-  );
+  // console.log('TEST Verifier - middleware isUserAuthorized and has verifier role');
   if (req.user.roles.includes('verifier')) {
     next();
   } else {
@@ -22,13 +20,9 @@ router.use(isUserAuthorized, async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   'TEST Verifier - get /';
-  // console.log('req.user');
-  // console.log(req.user);
 
   try {
     const user = await userDAO.getUserByField({ _id: req.user._id });
-    // console.log('user');
-    // console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -38,15 +32,12 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post('/:id', async (req, res, next) => {
-  console.log('TEST Verifier - post /');
+  // console.log('TEST Verifier - post /');
 
   const recordId = req.params.id;
   const zkProofRelatedObject = req.body;
-  console.log('zkProofRelatedObject');
-  console.log(zkProofRelatedObject);
 
   if (!zkProofRelatedObject || JSON.stringify(zkProofRelatedObject) === '{}') {
-    console.log('Test - confirm missing zk data');
     res.status(400).send('Invalid request');
   } else {
     try {
@@ -55,15 +46,9 @@ router.post('/:id', async (req, res, next) => {
         ...userRecord,
         proof: zkProofRelatedObject,
       };
-      console.log('userRecord');
-      console.log(userRecord);
       const isProofValid = await zkTestAPI.validateUserRecord(userRecord);
-      console.log('isProofValid');
-      console.log(isProofValid);
       res.status(200).send({ results: isProofValid });
     } catch (e) {
-      console.log('e.message');
-      console.log(e.message);
       e instanceof userDataDAO.BadDataError
         ? res.status(400).send(e.message)
         : res.status(500).send(e.message);
@@ -72,13 +57,8 @@ router.post('/:id', async (req, res, next) => {
 });
 
 router.put('/', async (req, res, next) => {
-  console.log('TEST Verifier - put /');
+  // console.log('TEST Verifier - put /');
   const updateUserData = req.body;
-  // console.log('updateUserData');
-  // console.log(updateUserData);
-  // console.log('req.user');
-  // console.log(req.user);
-
   let updatedFields = {};
 
   try {
@@ -115,10 +95,7 @@ router.put('/', async (req, res, next) => {
         phone: req.body.phone,
       };
     }
-
     const updatedUser = await userDAO.updateUser(req.user._id, updatedFields);
-    // console.log('updatedUser');
-    // console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
@@ -126,8 +103,6 @@ router.put('/', async (req, res, next) => {
     } else if (e instanceof userDAO.BadDataError) {
       res.status(409).send(e.message);
     } else {
-      // console.log('PUT Error');
-      // console.log(e);
       res.status(500).send(e.message);
     }
   }

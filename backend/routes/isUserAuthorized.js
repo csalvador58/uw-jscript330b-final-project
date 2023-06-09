@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const secret = 'secretKey';
 
 const isUserAuthorized = async (req, res, next) => {
-  console.log('Middleware Test - isUserAuthorized');
+  // console.log('Middleware Test - isUserAuthorized');
 
   if (req.headers.authorization.split(' ')[0] === 'Bearer') {
     req.user = {};

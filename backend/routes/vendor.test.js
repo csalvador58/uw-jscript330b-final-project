@@ -2,7 +2,6 @@ const request = require('supertest');
 const server = require('../server');
 const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const UserData = require('../models/userData');
 const bcrypt = require('bcrypt');
@@ -87,7 +86,6 @@ describe('/vendor', () => {
       .set('Authorization', 'Bearer ' + adminToken)
       .send(verifierUser2);
   });
-  // describe.each([adminUser, vendorUser, verifierUser])('User %#', (user) => {
   describe('Before login', () => {
     describe('GET /', () => {
       it('should return 401 Unauthorized response without a valid token', async () => {

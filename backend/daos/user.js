@@ -1,6 +1,5 @@
 const User = require('../models/user');
 const UserData = require('../models/userData');
-// const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { mongoose } = require('mongoose');
 // saltRounds => 1 used for testing only, 10 is recommended
@@ -36,8 +35,6 @@ module.exports.createUser = (newUserObj) => {
 };
 
 module.exports.getUserByField = async (keyValuePair) => {
-  // console.log('DAOs - keyValuePair');
-  // console.log(keyValuePair);
 
   try {
     let query = Object.keys(keyValuePair).includes('_id')
@@ -46,11 +43,7 @@ module.exports.getUserByField = async (keyValuePair) => {
 
     const user = await User.findOne(query).lean();
     return user;
-    // if (user) return user;
-    // throw new Error('User does not exist');
   } catch (e) {
-    // console.log('DAO Error - e');
-    // console.log(e.message);
     if (
       e.message.includes(
         'must be a string of 12 bytes or a string of 24 hex characters'
@@ -67,8 +60,6 @@ module.exports.getUserByField = async (keyValuePair) => {
 module.exports.getUsersByGroupId = async (id) => {
   try {
     const users = await User.find({ groupId: id }).lean();
-    // console.log('DAOS - users by id');
-    // console.log(users);
     if (users.length > 0) return users;
     throw new Error('No accounts found by groupId');
   } catch (e) {
@@ -81,30 +72,19 @@ module.exports.getUsersByGroupId = async (id) => {
 };
 
 module.exports.removeUserById = async (userId) => {
-  console.log('DAOs - userId');
-  console.log(userId);
   try {
     const deletedUser = await User.deleteOne({
       _id: new mongoose.Types.ObjectId(userId),
     });
 
-    // console.log('deletedUser');
-    // console.log(deletedUser);
     if (deletedUser.deletedCount) {
-      // throw new Error('Invalid ID');
-      // delete user data if any exist
       const deletedUserData = await UserData.deleteOne({
         userId: new mongoose.Types.ObjectId(userId),
       });
     }
 
-    // console.log('deletedUserData')
-    // console.log(deletedUserData)
-
     return deletedUser;
   } catch (e) {
-    // console.log('DAOs error');
-    // console.log(e.message);
     if (
       e.message.includes('Invalid ID') ||
       e.message.includes(
@@ -122,8 +102,6 @@ module.exports.updatePassword = async (userId, newPassword) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(newPassword, saltRounds).then(async (hashedPassword) => {
       try {
-        // console.log('TEST user DAOS - userId');
-        // console.log(userId);
         const updatedPassword = await User.findByIdAndUpdate(
           new mongoose.Types.ObjectId(userId),
           {
@@ -141,14 +119,9 @@ module.exports.updatePassword = async (userId, newPassword) => {
 
 module.exports.updateUser = (userId, newData) => {
   return new Promise(async (resolve, reject) => {
-    // console.log('DAO update');
-    // console.log(userId);
-    // console.log(newData);
     if (newData.password) {
       bcrypt.hash(newData.password, saltRounds).then(async (hashedPassword) => {
         try {
-          // console.log('TEST user DAOS - userId');
-          // console.log(userId);
           const updatedUser = await User.findByIdAndUpdate(
             new mongoose.Types.ObjectId(userId),
             {
@@ -168,8 +141,6 @@ module.exports.updateUser = (userId, newData) => {
       });
     } else {
       try {
-        // console.log('TEST user DAOS - userId');
-        // console.log(userId);
         const updatedUser = await User.findByIdAndUpdate(
           new mongoose.Types.ObjectId(userId),
           {
@@ -189,13 +160,6 @@ module.exports.updateUser = (userId, newData) => {
   });
 };
 
-// module.exports.verifyToken = async (token) => {
-//   try {
-//     return await jwt.verify(token, secret);
-//   } catch (e) {
-//     throw new BadDataError(`Invalid token: ${e.message}`);
-//   }
-// };
 
 class BadDataError extends Error {}
 module.exports.BadDataError = BadDataError;

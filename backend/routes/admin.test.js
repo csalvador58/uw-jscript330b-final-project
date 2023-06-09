@@ -2,7 +2,6 @@ const request = require('supertest');
 const server = require('../server');
 const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const UserData = require('../models/userData');
@@ -171,8 +170,6 @@ describe('/admin', () => {
       it.each([vendorUser, verifierUser])(
         'should return 403 Forbidden for %s without an admin role',
         async (account) => {
-          console.log('iterate accounts: ');
-          console.log(account);
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
           const { _id: nonAdminUserId } = await User.findOne({

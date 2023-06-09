@@ -9,7 +9,7 @@ const isEmailFormatValid = require('../routes/isEmailFormatValid');
 const isPasswordFormatValid = require('../routes/isPasswordFormatValid');
 
 router.use(isUserAuthorized, async (req, res, next) => {
-  console.log('TEST Vendor - middleware isUserAuthorized and has vendor role');
+  // console.log('TEST Vendor - middleware isUserAuthorized and has vendor role');
   if (req.user.roles.includes('vendor')) {
     next();
   } else {
@@ -18,19 +18,13 @@ router.use(isUserAuthorized, async (req, res, next) => {
 });
 
 router.get('/', async (req, res, next) => {
-  console.log('TEST vendor - get /');
-  // console.log('req.user');
-  // console.log(req.user);
+  // console.log('TEST vendor - get /');
   const dataOption = req.query.data;
-  // console.log('dataOption');
-  // console.log(dataOption);
 
   try {
     const user = dataOption
       ? await userDataDAO.getUserWithRecords(req.user._id)
       : await userDAO.getUserByField({ _id: req.user._id });
-    // console.log('user');
-    // console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -40,17 +34,10 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/:id', async (req, res, next) => {
-  console.log('TEST vendor - get /:id');
-  // console.log('req.params.id');
-  // console.log(req.params.id);
+  // console.log('TEST vendor - get /:id');
 
   try {
     const personalData = await userDataDAO.getRecordById(req.params.id);
-    // console.log('personalData');
-    // console.log(personalData);
-    if (!personalData) {
-      return res.status(400).send('No record exist');
-    }
     res.json(personalData);
   } catch (e) {
     e instanceof userDataDAO.BadDataError
@@ -60,9 +47,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/upload', async (req, res, next) => {
-  console.log('TEST ');
-  // console.log('req.body');
-  // console.log(req.body);
+  // console.log('TEST ');
 
   try {
     // Iterate through each key in the request data object
@@ -79,12 +64,8 @@ router.post('/upload', async (req, res, next) => {
       req.body.recordType,
       req.body.dataObject
     );
-    // console.log('uploadedData');
-    // console.log(uploadedData);
     res.json(uploadedData);
   } catch (e) {
-    // console.log('e.message');
-    // console.log(e.message);
     if (e.message.includes('Invalid data')) {
       res.status(400).send(e.message);
     } else if (e instanceof userDataDAO.BadDataError) {
@@ -96,12 +77,8 @@ router.post('/upload', async (req, res, next) => {
 });
 
 router.put('/', async (req, res, next) => {
-  console.log('TEST Vendor - put /');
+  // console.log('TEST Vendor - put /');
   const updateUserData = req.body;
-  // console.log('updateUserData');
-  // console.log(updateUserData);
-  // console.log('req.user');
-  // console.log(req.user);
 
   let updatedFields = {};
   try {
@@ -140,8 +117,6 @@ router.put('/', async (req, res, next) => {
     }
 
     const updatedUser = await userDAO.updateUser(req.user._id, updatedFields);
-    // console.log('updatedUser');
-    // console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
@@ -149,20 +124,16 @@ router.put('/', async (req, res, next) => {
     } else if (e instanceof userDAO.BadDataError) {
       res.status(409).send(e.message);
     } else {
-      // console.log('PUT Error');
-      // console.log(e);
       res.status(500).send(e.message);
     }
   }
 });
 
 router.delete('/:id', async (req, res, next) => {
-  console.log('Test Vendor - DELETE /:id');
-
+  // console.log('Test Vendor - DELETE /:id');
   try {
     const deletedRecord = await userDataDAO.removeRecordById(req.params.id);
-    // console.log('deletedRecord');
-    // console.log(deletedRecord);
+
     res.json(deletedRecord);
   } catch (e) {
     e instanceof userDataDAO.BadDataError

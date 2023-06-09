@@ -8,7 +8,7 @@ const isEmailFormatValid = require('../routes/isEmailFormatValid');
 const isPasswordFormatValid = require('../routes/isPasswordFormatValid');
 
 router.use(isUserAuthorized, async (req, res, next) => {
-  console.log('TEST Admin - middleware isUser Authorized and has admin role');
+  // console.log('TEST Admin - middleware isUser Authorized and has admin role');
   if (req.user.roles.includes('admin')) {
     next();
   } else {
@@ -17,8 +17,7 @@ router.use(isUserAuthorized, async (req, res, next) => {
 });
 
 router.get('/search', async (req, res, next) => {
-  console.log('TEST Admin - get /search?groupId');
-
+  // console.log('TEST Admin - get /search?groupId');
   try {
     const users = await userDAO.getUsersByGroupId(req.query.groupId);
     res.json(users);
@@ -31,17 +30,11 @@ router.get('/search', async (req, res, next) => {
 });
 
 router.get('/:id', async (req, res, next) => {
-  console.log('TEST Admin - get /:id');
+  // console.log('TEST Admin - get /:id');
   const userId = req.params.id;
-  // console.log('userId');
-  // console.log(userId);
-  // console.log('req.user.roles');
-  // console.log(req.user.roles);
 
   try {
     const user = await userDAO.getUserByField({ _id: userId });
-    // console.log('user');
-    // console.log(user);
     if (!user) {
       return res.status(400).send('No user exist');
     }
@@ -54,16 +47,10 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.get('/', async (req, res, next) => {
-  console.log('TEST Admin - get /');
-  // console.log('req.user');
-  // console.log(req.user);
-  // console.log('req.user.roles');
-  // console.log(req.user.roles);
+  // console.log('TEST Admin - get /');
 
   try {
     const user = await userDAO.getUserByField({ _id: req.user._id });
-    // console.log('user');
-    // console.log(user);
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -77,12 +64,8 @@ router.post(
   isEmailFormatValid,
   isPasswordFormatValid,
   async (req, res, next) => {
-    console.log('TEST Admin - post /createUser');
+    // console.log('TEST Admin - post /createUser');
     const newUser = req.body;
-    // console.log('newUser');
-    // console.log(newUser);
-    // console.log('req.user');
-    // console.log(req.user);
 
     const phoneRegex = /^\d{10}$/;
     if (
@@ -95,11 +78,8 @@ router.post(
     } else {
       try {
         const storedUser = await userDAO.createUser(newUser);
-        // console.log('storedUser');
-        // console.log(storedUser);
         res.json(storedUser);
       } catch (e) {
-        console.log(e.message);
         e instanceof userDAO.BadDataError
           ? res.status(409).send(e.message)
           : e instanceof userDAO.TypeError
@@ -111,12 +91,8 @@ router.post(
 );
 
 router.put('/', async (req, res, next) => {
-  console.log('TEST Admin - put /');
+  // console.log('TEST Admin - put /');
   const updateUserData = req.body;
-  // console.log('updateUserData');
-  // console.log(updateUserData);
-  // console.log('req.user');
-  // console.log(req.user);
 
   let updatedFields = {};
   try {
@@ -182,41 +158,29 @@ router.put('/', async (req, res, next) => {
     }
 
     const updatedUser = await userDAO.updateUser(req.user._id, updatedFields);
-    // console.log('updatedUser');
-    // console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
-    console.log('e.message');
-    console.log(e.message);
     if (e.message.includes('Invalid')) {
       res.status(400).send(e.message);
     } else if (e instanceof userDAO.BadDataError) {
       res.status(409).send(e.message);
     } else {
-      // console.log('PUT Error');
-      // console.log(e);
       res.status(500).send(e.message);
     }
   }
 });
 
 router.delete('/:id', async (req, res, next) => {
-  console.log('Test ADMIN - DELETE /:id');
-  console.log('req.params.id');
-  console.log(req.params.id);
-  console.log('req.user._id');
-  console.log(req.user._id);
+  // console.log('Test ADMIN - DELETE /:id');
+
   if (req.params.id === req.user._id) {
     res.status(405).send('Not allowed to delete own user account');
   } else {
     try {
       const isUserDeleted = await userDAO.removeUserById(req.params.id);
-      console.log('isUserDeleted');
-      console.log(isUserDeleted);
 
       res.json(isUserDeleted);
     } catch (e) {
-      console.log(e.message);
       if (
         e instanceof userDAO.BadDataError ||
         e instanceof userDataDAO.BadDataError

@@ -2,7 +2,6 @@ const request = require('supertest');
 const server = require('../server');
 const mongoose = require('mongoose');
 const testUtils = require('../test-utils');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const UserData = require('../models/userData');
 const zkTestAPI = require('../apis/zkTestAPI');
@@ -288,8 +287,6 @@ describe('/verifier', () => {
             .send({
               email: verifierUser2.email,
             });
-          console.log('res.body');
-          console.log(res.body);
           expect(res.statusCode).toEqual(409);
         });
         it('should not store a raw password', async () => {

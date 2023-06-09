@@ -1,5 +1,5 @@
 const isPasswordFormatValid = (req, res, next) => {
-    console.log('Middleware Test - isPasswordFormatValid');
+    // console.log('Middleware Test - isPasswordFormatValid');
   
     const { password } = req.body;
     // Regex to ensure password is at minimum 6 characters, includes at least
@@ -9,7 +9,6 @@ const isPasswordFormatValid = (req, res, next) => {
     if (!password || !isPasswordFormatValid) {
       res.status(400).send('Invalid password');
     } else {
-      // console.log('test')
       next();
     }
   };

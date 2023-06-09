@@ -1,5 +1,5 @@
 const isEmailFormatValid = (req, res, next) => {
-  console.log('Middleware Test - isEmailFormatValid');
+  // console.log('Middleware Test - isEmailFormatValid');
 
   const { email } = req.body;
   // Regex to test valid email format
