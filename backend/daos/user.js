@@ -43,8 +43,9 @@ module.exports.getUserByField = async (keyValuePair) => {
       : keyValuePair;
 
     const user = await User.findOne(query).lean();
-    if (user) return user;
-    throw new Error('User does not exist');
+    return user;
+    // if (user) return user;
+    // throw new Error('User does not exist');
   } catch (e) {
     // console.log('DAO Error - e');
     // console.log(e.message);

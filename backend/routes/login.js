@@ -26,14 +26,18 @@ router.post(
 
     try {
       // Retrieve user data from db
+      const user = await userDAO.getUserByField({ email: email });
+      if (!user) {
+        return res.status(401).send('User not found');
+      }
       const {
         _id: userId,
         email: userEmail,
         password: hashedPassword,
         roles: userRoles,
         ...otherFields
-      } = await userDAO.getUserByField({ email: email });
-      if (!userId) throw new userDAO.BadDataError('User not found');
+      } = user;
+
       // console.log('email, password, roles');
       // console.log(userEmail, hashedPassword, userRoles);
 
@@ -57,8 +61,8 @@ router.post(
         throw new userDAO.BadDataError('Password does not match');
       }
     } catch (e) {
-      // console.log('e.message');
-      // console.log(e.message);
+      console.log('e.message');
+      console.log(e.message);
       e instanceof userDAO.BadDataError
         ? res.status(401).send(e.message)
         : res.status(500).send(e.message);

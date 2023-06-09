@@ -144,6 +144,23 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body).toMatchObject(user);
       });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.findOne;
+          User.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+
+        afterEach(() => (User.findOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          res = await request(server)
+            .get(`/admin`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
     describe('GET /:id', () => {
       let token;
@@ -379,13 +396,14 @@ describe('/admin', () => {
         let originalFn;
         beforeEach(() => {
           originalFn = User.create;
+          User.create = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
         });
-        afterEach(() => {
-          User.create = originalFn;
-        });
-        it('should return 500 Internal Server error if a server error occurs', async () => {
-          User.create = jest.fn().mockRejectedValue(new Error('Server Error'));
 
+        afterEach(() => (User.create = originalFn));
+
+        it('should return 500 Internal Server error if a server error occurs', async () => {
           const newTestAccount = {
             ...vendorUser,
             email: 'newTestEmailAccount@email.com',
@@ -515,15 +533,13 @@ describe('/admin', () => {
           let originalFn;
           beforeEach(() => {
             originalFn = userDAO.updateUser;
+            userDAO.updateUser = jest.fn().mockImplementation(() => {
+              throw new Error('Server Error');
+            });
           });
-          afterEach(() => {
-            userDAO.updateUser = originalFn;
-          });
-          it('should return 500 Internal Server error if a server error occurs', async () => {
-            userDAO.updateUser = jest
-              .fn()
-              .mockRejectedValue(new Error('Server Error'));
+          afterEach(() => (userDAO.updateUser = originalFn));
 
+          it('should return 500 Internal Server error if a server error occurs', async () => {
             const newTestAccount = {
               ...vendorUser,
               email: 'newTestEmailAccount@email.com',
@@ -627,15 +643,13 @@ describe('/admin', () => {
         let originalFn;
         beforeEach(() => {
           originalFn = userDAO.removeUserById;
+          userDAO.removeUserById = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
         });
-        afterEach(() => {
-          userDAO.removeUserById = originalFn;
-        });
-        it('should return 500 Internal Server error if a server error occurs', async () => {
-          userDAO.removeUserById = jest
-            .fn()
-            .mockRejectedValue(new Error('Server Error'));
+        afterEach(() => (userDAO.removeUserById = originalFn));
 
+        it('should return 500 Internal Server error if a server error occurs', async () => {
           let user = await User.findOne({ email: vendorUser.email }).lean();
           res = await request(server)
             .delete(`/admin/${user._id.toString()}`)
