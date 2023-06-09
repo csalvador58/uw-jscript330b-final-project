@@ -1,31 +1,22 @@
 const userDAO = require('../daos/user');
+const jwt = require('jsonwebtoken');
+// secret will not be visible in code
+const secret = 'secretKey';
 
 const isUserAuthorized = async (req, res, next) => {
   console.log('Middleware Test - isUserAuthorized');
-  const tokenString = req.headers.authorization
-    ? req.headers.authorization.split(' ')
-    : [];
 
-  if (tokenString[0] === 'Bearer') {
+  if (req.headers.authorization.split(' ')[0] === 'Bearer') {
     req.user = {};
-
     try {
-      req.user = await userDAO.verifyToken(tokenString[1]);
-      req.user.isAuthorized = true;
-      // console.log('isUserAuthorized - req.user');
-      // console.log(req.user);
+      const tokenString = req.headers.authorization.split(' ')[1];
+      req.user = await jwt.verify(tokenString, secret);
       next();
     } catch (e) {
-      // console.log('Error e');
-      // console.log(e.message);
-      e instanceof userDAO.BadDataError
-        ? res.status(401).send(e.message)
-        : res.status(500).send(e.message);
+      return res.status(401).send('Invalid token');
     }
   } else {
-    // console.log('isAuthorized = false');
-    // req.user = { isAuthorized: false, roles: [] };
-    next();
+    return res.status(401).send('Invalid token');
   }
 };
 

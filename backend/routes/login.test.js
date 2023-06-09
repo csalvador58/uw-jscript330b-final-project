@@ -137,12 +137,33 @@ describe('/login', () => {
           });
         }
       );
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.findOne;
+          User.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (User.findOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          const res = await request(server).post('/login').send(vendorUser);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
     describe('PUT /updatePassword', () => {
       it('should return 401 Unauthorized response with an invalid token', async () => {
         const res = await request(server)
           .put('/login/updatePassword')
           .set('Authorization', 'Bearer BAD')
+          .send({ password: 'validPassword0!' });
+        expect(res.statusCode).toEqual(401);
+      });
+      it('should return 401 Unauthorized response with an invalid token', async () => {
+        const res = await request(server)
+          .put('/login/updatePassword')
+          .set('Authorization', 'BearerBAD')
           .send({ password: 'validPassword0!' });
         expect(res.statusCode).toEqual(401);
       });
@@ -205,6 +226,27 @@ describe('/login', () => {
           });
         }
       );
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.findByIdAndUpdate;
+          User.findByIdAndUpdate = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (User.findByIdAndUpdate = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          let res = await request(server).post('/login').send(adminUser);
+            const adminLoginToken = res.body.token;
+            const { _id: userAccountId, password: oldHashedPassword } =
+              await User.findOne({ email: vendorUser.email }).lean();
+            res = await request(server)
+              .put('/login/updatePassword')
+              .set('Authorization', 'Bearer ' + adminLoginToken)
+              .send({ userId: userAccountId, password: 'validPassword0!' });
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
   });
 });

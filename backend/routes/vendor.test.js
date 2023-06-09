@@ -163,7 +163,7 @@ describe('/vendor', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body).toMatchObject(user);
       });
-      it('should return the user info and all personal data if data option is included in request', async () => {
+      it('should return the user info and all personal data when the data option is set to true', async () => {
         let res01 = await request(server)
           .post('/vendor/upload')
           .set('Authorization', 'Bearer ' + token)
@@ -190,6 +190,34 @@ describe('/vendor', () => {
           .set('Authorization', 'Bearer ' + token)
           .send();
         expect(res.statusCode).toEqual(200);
+      });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = UserData.aggregate;
+          UserData.aggregate = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (UserData.aggregate = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'test01',
+              dataObject: {
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
+              },
+            });
+          res = await request(server)
+            .get('/vendor?data=true')
+            .set('Authorization', 'Bearer ' + token)
+            .send();
+          expect(res.statusCode).toEqual(500);
+        });
       });
     });
     describe('a vendor user retrieving a personal record - GET /:id', () => {
@@ -237,6 +265,38 @@ describe('/vendor', () => {
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(200);
         expect(res.body).toMatchObject(personalRecord);
+      });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = UserData.findOne;
+          UserData.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (UserData.findOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          res = await request(server)
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'test01',
+              dataObject: {
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
+              },
+            });
+          let personalRecord = {
+            ...res.body,
+            _id: res.body._id.toString(),
+            userId: res.body.userId.toString(),
+          };
+          res = await request(server)
+            .get(`/vendor/${personalRecord._id}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
       });
     });
     describe('PUT /', () => {
@@ -400,30 +460,90 @@ describe('/vendor', () => {
           });
         expect(res.statusCode).toEqual(409);
       });
-      describe('DELETE /vendor/:id', () => {
-        let token;
-        beforeEach(async () => {
-          let res = await request(server).post('/login').send(vendorUser);
-          token = res.body.token;
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = UserData.create;
+          UserData.create = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
         });
-        it.each([adminUser, verifierUser])(
-          'should return 403 Forbidden for %s without a vendor role',
-          async (account) => {
-            res = await request(server).post('/login').send(account);
-            const accountToken = res.body.token;
-            res = await request(server)
-              .delete(`/vendor/1234`)
-              .set('Authorization', 'Bearer ' + accountToken);
-            expect(res.statusCode).toEqual(403);
-          }
-        );
-        it('should return 400 Bad Request if personal record id is an invalid ID', async () => {
+        afterEach(() => (UserData.create = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
           res = await request(server)
-            .delete('/vendor/1234')
-            .set('Authorization', 'Bearer ' + token);
-          expect(res.statusCode).toEqual(400);
+            .post('/vendor/upload')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              recordType: 'test01',
+              dataObject: {
+                data01: 'data01',
+                data02: 'data02',
+                data03: 'data03',
+              },
+            });
+          expect(res.statusCode).toEqual(500);
         });
-        it('should remove a personal record by id', async () => {
+      });
+    });
+    describe('DELETE /vendor/:id', () => {
+      let token;
+      beforeEach(async () => {
+        let res = await request(server).post('/login').send(vendorUser);
+        token = res.body.token;
+      });
+      it.each([adminUser, verifierUser])(
+        'should return 403 Forbidden for %s without a vendor role',
+        async (account) => {
+          res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
+          res = await request(server)
+            .delete(`/vendor/1234`)
+            .set('Authorization', 'Bearer ' + accountToken);
+          expect(res.statusCode).toEqual(403);
+        }
+      );
+      it('should return 400 Bad Request if personal record id is an invalid ID', async () => {
+        res = await request(server)
+          .delete('/vendor/1234')
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(400);
+      });
+      it('should remove a personal record by id', async () => {
+        res = await request(server)
+          .post('/vendor/upload')
+          .set('Authorization', 'Bearer ' + token)
+          .send({
+            recordType: 'test01',
+            dataObject: {
+              data01: 'data01',
+              data02: 'data02',
+              data03: 'data03',
+            },
+          });
+        const storedPersonalRecord = {
+          ...res.body,
+          _id: res.body._id.toString(),
+          userId: res.body.userId.toString(),
+        };
+        res = await request(server)
+          .delete(`/vendor/${storedPersonalRecord._id}`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.body.acknowledged).toEqual(true);
+        res = await UserData.findOne({
+          _id: storedPersonalRecord._id,
+        }).lean();
+        expect(res).toBeNull();
+      });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = UserData.deleteOne;
+          UserData.deleteOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (UserData.deleteOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
           res = await request(server)
             .post('/vendor/upload')
             .set('Authorization', 'Bearer ' + token)
@@ -443,11 +563,7 @@ describe('/vendor', () => {
           res = await request(server)
             .delete(`/vendor/${storedPersonalRecord._id}`)
             .set('Authorization', 'Bearer ' + token);
-          expect(res.body.acknowledged).toEqual(true);
-          res = await UserData.findOne({
-            _id: storedPersonalRecord._id,
-          }).lean();
-          expect(res).toBeNull();
+          expect(res.statusCode).toEqual(500);
         });
       });
     });

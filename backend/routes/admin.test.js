@@ -212,6 +212,23 @@ describe('/admin', () => {
           expect(res.body).toMatchObject(user);
         }
       );
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.findOne;
+          User.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (User.findOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          let user = await User.find({ email: vendorUser.email });
+          res = await request(server)
+            .get(`/admin/${user[0]._id.toString()}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
     describe('GET /admin/search?groupId=', () => {
       let token;
@@ -253,6 +270,23 @@ describe('/admin', () => {
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(200);
         expect(res.body).toEqual(usersByGroupId);
+      });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.find;
+          User.find = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (User.find = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          let validGroupId = vendorUser.groupId;
+          res = await request(server)
+            .get(`/admin/search?groupId=${validGroupId}`)
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
       });
     });
 
@@ -338,7 +372,7 @@ describe('/admin', () => {
           .set('Authorization', 'Bearer ' + token)
           .send({
             ...testUser,
-            groupId: 0,
+            groupId: 'a',
           });
         expect(res.statusCode).toEqual(400);
       });
@@ -532,12 +566,12 @@ describe('/admin', () => {
         describe('server failure', () => {
           let originalFn;
           beforeEach(() => {
-            originalFn = userDAO.updateUser;
-            userDAO.updateUser = jest.fn().mockImplementation(() => {
+            originalFn = User.findByIdAndUpdate;
+            User.findByIdAndUpdate = jest.fn().mockImplementation(() => {
               throw new Error('Server Error');
             });
           });
-          afterEach(() => (userDAO.updateUser = originalFn));
+          afterEach(() => (User.findByIdAndUpdate = originalFn));
 
           it('should return 500 Internal Server error if a server error occurs', async () => {
             const newTestAccount = {
@@ -642,12 +676,12 @@ describe('/admin', () => {
       describe('server failure', () => {
         let originalFn;
         beforeEach(() => {
-          originalFn = userDAO.removeUserById;
-          userDAO.removeUserById = jest.fn().mockImplementation(() => {
+          originalFn = User.deleteOne;
+          User.deleteOne = jest.fn().mockImplementation(() => {
             throw new Error('Server Error');
           });
         });
-        afterEach(() => (userDAO.removeUserById = originalFn));
+        afterEach(() => (User.deleteOne = originalFn));
 
         it('should return 500 Internal Server error if a server error occurs', async () => {
           let user = await User.findOne({ email: vendorUser.email }).lean();

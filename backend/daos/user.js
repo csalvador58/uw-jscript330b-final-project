@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const UserData = require('../models/userData');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { mongoose } = require('mongoose');
 // saltRounds => 1 used for testing only, 10 is recommended
@@ -25,6 +25,8 @@ module.exports.createUser = (newUserObj) => {
         } catch (e) {
           if (e.message.includes('duplicate key')) {
             reject(new BadDataError('Email already exist'));
+          } else if (e.message.includes('Cast to')) {
+            reject(new TypeError('Invalid input data'));
           } else {
             reject(new Error(e.message));
           }
@@ -50,13 +52,12 @@ module.exports.getUserByField = async (keyValuePair) => {
     // console.log('DAO Error - e');
     // console.log(e.message);
     if (
-      e.message.includes('User does not exist') ||
       e.message.includes(
         'must be a string of 12 bytes or a string of 24 hex characters'
       ) ||
       e.message.includes('ObjectId failed')
     ) {
-      throw new BadDataError('Invalid userId');
+      throw new BadDataError('Invalid data input');
     } else {
       throw new Error(e.message);
     }
@@ -80,26 +81,25 @@ module.exports.getUsersByGroupId = async (id) => {
 };
 
 module.exports.removeUserById = async (userId) => {
-  console.log('DAOs - userId')
-  console.log(userId)
+  console.log('DAOs - userId');
+  console.log(userId);
   try {
     const deletedUser = await User.deleteOne({
       _id: new mongoose.Types.ObjectId(userId),
     });
 
-    console.log('deletedUser');
-    console.log(deletedUser);
-    if (!deletedUser.deletedCount) {
-      throw new Error('Invalid ID');
+    // console.log('deletedUser');
+    // console.log(deletedUser);
+    if (deletedUser.deletedCount) {
+      // throw new Error('Invalid ID');
+      // delete user data if any exist
+      const deletedUserData = await UserData.deleteOne({
+        userId: new mongoose.Types.ObjectId(userId),
+      });
     }
 
-    // delete user data if any exist
-    const deletedUserData = await UserData.deleteOne({
-      userId: new mongoose.Types.ObjectId(userId),
-    });
-
-    console.log('deletedUserData')
-    console.log(deletedUserData)
+    // console.log('deletedUserData')
+    // console.log(deletedUserData)
 
     return deletedUser;
   } catch (e) {
@@ -189,13 +189,15 @@ module.exports.updateUser = (userId, newData) => {
   });
 };
 
-module.exports.verifyToken = async (token) => {
-  try {
-    return await jwt.verify(token, secret);
-  } catch (e) {
-    throw new BadDataError(`Invalid token: ${e.message}`);
-  }
-};
+// module.exports.verifyToken = async (token) => {
+//   try {
+//     return await jwt.verify(token, secret);
+//   } catch (e) {
+//     throw new BadDataError(`Invalid token: ${e.message}`);
+//   }
+// };
 
 class BadDataError extends Error {}
 module.exports.BadDataError = BadDataError;
+class TypeError extends Error {}
+module.exports.TypeError = TypeError;

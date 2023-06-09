@@ -58,7 +58,7 @@ router.post(
         // console.log(loginToken);
         res.json({ token: loginToken });
       } else {
-        throw new userDAO.BadDataError('Password does not match');
+        return res.status(401).send('Password does not match')
       }
     } catch (e) {
       console.log('e.message');

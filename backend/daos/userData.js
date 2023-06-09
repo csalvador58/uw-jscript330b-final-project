@@ -10,14 +10,11 @@ module.exports.getRecordById = async (recordId) => {
     }).lean();
     // console.log('DAO - records');
     // console.log(records);
-    if (records) {
-      return records;
-    } else {
-      throw new Error('Invalid ID');
-    }
+
+    return records;
   } catch (e) {
-    // console.log('DAOs error');
-    // console.log(e.message);
+    console.log('DAOs error');
+    console.log(e.message);
     if (
       e.message.includes('Invalid ID') ||
       e.message.includes(
@@ -81,30 +78,27 @@ module.exports.getUserWithRecords = async (userId) => {
 module.exports.removeRecordById = async (recordId) => {
   // console.log('DAOs - recordId')
   // console.log(recordId)
-try {
-  const response = await UserData.deleteOne({
-    _id: new mongoose.Types.ObjectId(recordId),
-  });
-  // console.log('response');
-  // console.log(response);
-  if (!response.deletedCount) {
-    throw new Error('Invalid ID');
+  try {
+    const response = await UserData.deleteOne({
+      _id: new mongoose.Types.ObjectId(recordId),
+    });
+    // console.log('response');
+    // console.log(response);
+    return response;
+  } catch (e) {
+    // console.log('DAOs error');
+    // console.log(e.message);
+    if (
+      e.message.includes('Invalid ID') ||
+      e.message.includes(
+        'must be a string of 12 bytes or a string of 24 hex characters'
+      )
+    ) {
+      throw new BadDataError(e.message);
+    } else {
+      throw new Error(e.message);
+    }
   }
-  return response;
-} catch (e) {
-  // console.log('DAOs error');
-  // console.log(e.message);
-  if (
-    e.message.includes('Invalid ID') ||
-    e.message.includes(
-      'must be a string of 12 bytes or a string of 24 hex characters'
-    )
-  ) {
-    throw new BadDataError(e.message);
-  } else {
-    throw new Error(e.message);
-  }
-}
 };
 
 module.exports.uploadData = async (userId, type, data) => {

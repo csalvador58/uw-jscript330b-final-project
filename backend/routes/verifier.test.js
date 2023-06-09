@@ -146,6 +146,22 @@ describe('/verifier', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body).toMatchObject(user);
       });
+      describe('server failure', () => {
+        let originalFn;
+        beforeEach(() => {
+          originalFn = User.findOne;
+          User.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Server Error');
+          });
+        });
+        afterEach(() => (User.findOne = originalFn));
+        it('should return 500 Internal Server error if a server error occurs', async () => {
+          res = await request(server)
+            .get('/verifier')
+            .set('Authorization', 'Bearer ' + token);
+          expect(res.statusCode).toEqual(500);
+        });
+      });
     });
     describe('zero knowledge verification on a personal record - POST /verifier/:id', () => {
       let token;
@@ -291,6 +307,25 @@ describe('/verifier', () => {
           }).lean();
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
           expect(newHashedPassword).not.toEqual('newPassword0!');
+        });
+        describe('server failure', () => {
+          let originalFn;
+          beforeEach(() => {
+            originalFn = User.findByIdAndUpdate;
+            User.findByIdAndUpdate = jest.fn().mockImplementation(() => {
+              throw new Error('Server Error');
+            });
+          });
+          afterEach(() => (User.findByIdAndUpdate = originalFn));
+          it('should return 500 Internal Server error if a server error occurs', async () => {
+            res = await request(server)
+              .put('/verifier')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'UpdatedEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(500);
+          });
         });
       });
     });

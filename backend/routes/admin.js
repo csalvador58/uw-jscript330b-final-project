@@ -64,9 +64,6 @@ router.get('/', async (req, res, next) => {
     const user = await userDAO.getUserByField({ _id: req.user._id });
     // console.log('user');
     // console.log(user);
-    if (!user) {
-      return res.status(400).send('No user exist');
-    }
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
@@ -105,6 +102,8 @@ router.post(
         console.log(e.message);
         e instanceof userDAO.BadDataError
           ? res.status(409).send(e.message)
+          : e instanceof userDAO.TypeError
+          ? res.status(400).send(e.message)
           : res.status(500).send(e.message);
       }
     }
@@ -187,6 +186,8 @@ router.put('/', async (req, res, next) => {
     // console.log(updatedUser);
     res.json(updatedUser);
   } catch (e) {
+    console.log('e.message');
+    console.log(e.message);
     if (e.message.includes('Invalid')) {
       res.status(400).send(e.message);
     } else if (e instanceof userDAO.BadDataError) {

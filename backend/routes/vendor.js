@@ -48,6 +48,9 @@ router.get('/:id', async (req, res, next) => {
     const personalData = await userDataDAO.getRecordById(req.params.id);
     // console.log('personalData');
     // console.log(personalData);
+    if (!personalData) {
+      return res.status(400).send('No record exist');
+    }
     res.json(personalData);
   } catch (e) {
     e instanceof userDataDAO.BadDataError
