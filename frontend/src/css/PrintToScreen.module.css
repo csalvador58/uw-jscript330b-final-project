@@ -4,11 +4,10 @@
   padding: 16px;
 }
 
-.code-container h3 {
+.code-container pre {
   font-family: 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.5;
-  color: #333;
-  white-space: normal;
-  word-wrap: break-word;
+  color: #171717;
+  word-break: break-all;
 }

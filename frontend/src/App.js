@@ -6,7 +6,6 @@ import classes from './App.module.css';
 import Login from './components/Login';
 
 function App() {
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(true);
   const [loginToken, setLoginToken] = useState('');
   const [displayRequest, setDisplayRequest] = useState(
     'This is a test for request'
@@ -16,9 +15,8 @@ function App() {
   );
 
   const loginHandler = (token) => {
-    setLoginToken(token)
+    setLoginToken(token);
   };
-
   const handleRequestDisplayUpdate = (state) => {
     setDisplayRequest(state);
   };
@@ -39,32 +37,19 @@ function App() {
         <div className={classes['flex-column']}>
           <Title name='Login User' />
           <div>
-            {/* {isAdminLoggedIn && ( */}
             <div className={classes['flex.column']}>
               <Login
                 handleRequestDisplayUpdate={handleRequestDisplayUpdate}
                 handleResponseDisplayUpdate={handleResponseDisplayUpdate}
-                isUserLoggedIn={isUserLoggedIn}
                 loginHandler={loginHandler}
               />
             </div>
-            {/* )} */}
-            {/* {!isAdminLoggedIn && (
-              <div className={classes['flex-column']}>
-                <Button onClick={() => true}>View My Account</Button>
-                <Button onClick={() => true}>Update My Account</Button>
-                <Button onClick={() => true}>Find Account</Button>
-                <Button onClick={() => true}>Search Group ID</Button>
-                <Button onClick={() => true}>Create A New User</Button>
-                <Button onClick={() => true}>Update An Account</Button>
-                <Button onClick={() => true}>Delete An Account</Button>
-              </div>
-            )} */}
           </div>
         </div>
       </div>
       <div className={classes['item-main2']}>
         <Title name='User Account' />
+        {loginToken && <div>Valid</div>}
       </div>
       <div className={classes['item-main3']}>
         <Title name='Other' />

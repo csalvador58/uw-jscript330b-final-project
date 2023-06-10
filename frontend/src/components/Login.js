@@ -10,7 +10,6 @@ const defaultFormValues = {
 function Login({
   handleRequestDisplayUpdate,
   handleResponseDisplayUpdate,
-  isUserLoggedIn,
   loginHandler,
 }) {
   const [formValues, setFormValues] = useState(defaultFormValues);
@@ -49,17 +48,10 @@ function Login({
     })
       .then((response) => {
         if (!response.ok) {
-          //   return response.json().then((data) => {
-          //     throw new Error(data.error);
-          //     // throw new Error(`
-          //     //     ${response.status}: ${response.statusText},
-          //     //     Error: ${data}
-          //     //     `);
-          //   });
-          return response.text().then((data) => {
-            console.error(data); // Log the response data for inspection
+          return response.json().then((data) => {
+            console.error(data.error); // Log the response data for inspection
             throw new Error(
-              `${response.status}: ${response.statusText}, ${data}`
+              `${response.status}: ${response.statusText}, ${data.error}`
             );
           });
         }
@@ -69,6 +61,7 @@ function Login({
         console.log('data');
         console.log(data);
         handleResponseDisplayUpdate(data);
+        loginHandler(data.token)
       })
       .catch((error) => {
         console.error(error);
