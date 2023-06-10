@@ -14,10 +14,10 @@ const isUserAuthorized = async (req, res, next) => {
       req.user = await jwt.verify(tokenString, secret);
       next();
     } catch (e) {
-      return res.status(401).send('Invalid token');
+      return res.status(401).json({ error: 'Invalid token' });
     }
   } else {
-    return res.status(401).send('Invalid token');
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };
 

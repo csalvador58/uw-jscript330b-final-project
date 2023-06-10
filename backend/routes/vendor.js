@@ -13,7 +13,7 @@ router.use(isUserAuthorized, async (req, res, next) => {
   if (req.user.roles.includes('vendor')) {
     next();
   } else {
-    res.status(403).send('Restricted Access');
+    res.status(403).json({ error: 'Restricted Access' });
   }
 });
 
@@ -28,8 +28,8 @@ router.get('/', async (req, res, next) => {
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 
@@ -41,8 +41,8 @@ router.get('/:id', async (req, res, next) => {
     res.json(personalData);
   } catch (e) {
     e instanceof userDataDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 
@@ -67,11 +67,11 @@ router.post('/upload', async (req, res, next) => {
     res.json(uploadedData);
   } catch (e) {
     if (e.message.includes('Invalid data')) {
-      res.status(400).send(e.message);
+      res.status(400).json({ error: e.message });
     } else if (e instanceof userDataDAO.BadDataError) {
-      res.status(409).send(e.message);
+      res.status(409).json({ error: e.message });
     } else {
-      res.status(500).send(e.message);
+      res.status(500).json({ error: e.message });
     }
   }
 });
@@ -120,11 +120,11 @@ router.put('/', async (req, res, next) => {
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
-      res.status(400).send(e.message);
+      res.status(400).json({ error: e.message });
     } else if (e instanceof userDAO.BadDataError) {
-      res.status(409).send(e.message);
+      res.status(409).json({ error: e.message });
     } else {
-      res.status(500).send(e.message);
+      res.status(500).json({ error: e.message });
     }
   }
 });
@@ -137,8 +137,8 @@ router.delete('/:id', async (req, res, next) => {
     res.json(deletedRecord);
   } catch (e) {
     e instanceof userDataDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 

@@ -25,7 +25,7 @@ router.post(
       // Retrieve user data from db
       const user = await userDAO.getUserByField({ email: email });
       if (!user) {
-        return res.status(401).send('User not found');
+        return res.status(401).json({ error: 'User not found' });
       }
       const {
         _id: userId,
@@ -50,12 +50,12 @@ router.post(
         );
         res.json({ token: loginToken });
       } else {
-        return res.status(401).send('Password does not match')
+        return res.status(401).json({ error: 'Password does not match' });
       }
     } catch (e) {
       e instanceof userDAO.BadDataError
-        ? res.status(401).send(e.message)
-        : res.status(500).send(e.message);
+        ? res.status(401).json({ error: e.message })
+        : res.status(500).json({ error: e.message });
     }
   }
 );
@@ -85,8 +85,8 @@ router.put(
       res.json(updatedPassword);
     } catch (e) {
       e instanceof userDAO.BadDataError
-        ? res.status(400).send(e.message)
-        : res.status(500).send(e.message);
+        ? res.status(400).json({ error: e.message })
+        : res.status(500).json({ error: e.message });
     }
   }
 );

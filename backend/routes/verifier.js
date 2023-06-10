@@ -26,8 +26,8 @@ router.get('/', async (req, res, next) => {
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 
@@ -38,7 +38,7 @@ router.post('/:id', async (req, res, next) => {
   const zkProofRelatedObject = req.body;
 
   if (!zkProofRelatedObject || JSON.stringify(zkProofRelatedObject) === '{}') {
-    res.status(400).send('Invalid request');
+    res.status(400).json({ error: 'Invalid request' });
   } else {
     try {
       let userRecord = await userDataDAO.getRecordById(recordId);
@@ -47,11 +47,11 @@ router.post('/:id', async (req, res, next) => {
         proof: zkProofRelatedObject,
       };
       const isProofValid = await zkTestAPI.validateUserRecord(userRecord);
-      res.status(200).send({ results: isProofValid });
+      res.status(200).json({ results: isProofValid });
     } catch (e) {
       e instanceof userDataDAO.BadDataError
-        ? res.status(400).send(e.message)
-        : res.status(500).send(e.message);
+        ? res.status(400).json({ error: e.message })
+        : res.status(500).json({ error: e.message });
     }
   }
 });
@@ -99,11 +99,11 @@ router.put('/', async (req, res, next) => {
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
-      res.status(400).send(e.message);
+      res.status(400).json({ error: e.message });
     } else if (e instanceof userDAO.BadDataError) {
-      res.status(409).send(e.message);
+      res.status(409).json({ error: e.message });
     } else {
-      res.status(500).send(e.message);
+      res.status(500).json({ error: e.message });
     }
   }
 });

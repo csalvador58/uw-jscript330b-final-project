@@ -12,7 +12,7 @@ router.use(isUserAuthorized, async (req, res, next) => {
   if (req.user.roles.includes('admin')) {
     next();
   } else {
-    res.status(403).send('Restricted Access');
+    res.status(403).json({ error: 'Restricted Access' });
   }
 });
 
@@ -24,8 +24,8 @@ router.get('/search', async (req, res, next) => {
     res.json(users);
   } catch (e) {
     e instanceof userDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
   res.status(200);
 });
@@ -38,13 +38,13 @@ router.get('/:id', async (req, res, next) => {
   try {
     const user = await userDAO.getUserByField({ _id: userId });
     if (!user) {
-      return res.status(400).send('No user exist');
+      return res.status(400).json({ error: 'No user exist' });
     }
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 
@@ -57,8 +57,8 @@ router.get('/', async (req, res, next) => {
     res.json(user);
   } catch (e) {
     e instanceof userDAO.BadDataError
-      ? res.status(400).send(e.message)
-      : res.status(500).send(e.message);
+      ? res.status(400).json({ error: e.message })
+      : res.status(500).json({ error: e.message });
   }
 });
 
@@ -78,17 +78,17 @@ router.post(
       !phoneRegex.test(newUser.phone) ||
       !newUser.groupId
     ) {
-      res.status(400).send('Invalid data');
+      res.status(400).json({ error: 'Invalid data' });
     } else {
       try {
         const storedUser = await userDAO.createUser(newUser);
         res.json(storedUser);
       } catch (e) {
         e instanceof userDAO.BadDataError
-          ? res.status(409).send(e.message)
+          ? res.status(409).json({ error: e.message })
           : e instanceof userDAO.TypeError
-          ? res.status(400).send(e.message)
-          : res.status(500).send(e.message);
+          ? res.status(400).json({ error: e.message })
+          : res.status(500).json({ error: e.message });
       }
     }
   }
@@ -166,11 +166,11 @@ router.put('/', async (req, res, next) => {
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {
-      res.status(400).send(e.message);
+      res.status(400).json({ error: e.message });
     } else if (e instanceof userDAO.BadDataError) {
-      res.status(409).send(e.message);
+      res.status(409).json({ error: e.message });
     } else {
-      res.status(500).send(e.message);
+      res.status(500).json({ error: e.message });
     }
   }
 });
@@ -180,7 +180,7 @@ router.delete('/:id', async (req, res, next) => {
   // console.log('Test ADMIN - DELETE /:id');
 
   if (req.params.id === req.user._id) {
-    res.status(405).send('Not allowed to delete own user account');
+    res.status(405).json({ error: 'Not allowed to delete own user account' });
   } else {
     try {
       const isUserDeleted = await userDAO.removeUserById(req.params.id);
@@ -190,9 +190,9 @@ router.delete('/:id', async (req, res, next) => {
         e instanceof userDAO.BadDataError ||
         e instanceof userDataDAO.BadDataError
       ) {
-        res.status(400).send(e.message);
+        res.status(400).json({ error: e.message });
       } else {
-        res.status(500).send(e.message);
+        res.status(500).json({ error: e.message });
       }
     }
   }
