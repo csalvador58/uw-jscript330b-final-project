@@ -4,6 +4,7 @@ import Button from './components/Button';
 import PrintToScreen from './components/PrintToScreen';
 import classes from './App.module.css';
 import Login from './components/Login';
+import Account from './components/Account';
 
 function App() {
   const [loginToken, setLoginToken] = useState('');
@@ -29,7 +30,7 @@ function App() {
       <div className={classes['item-header']}>
         <div className={classes['section-header']}>
           <h1>
-            Vendor Credential App<span>Zero Knowledge</span>
+            Vendor Credential App<span>UWJSCRIPT330 - Final Project</span>
           </h1>
         </div>
       </div>
@@ -48,8 +49,14 @@ function App() {
         </div>
       </div>
       <div className={classes['item-main2']}>
-        <Title name='User Account' />
-        {loginToken && <div>Valid</div>}
+        <Title name='Account' />
+        {loginToken && (
+          <Account
+            token={loginToken}
+            handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+            handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+          />
+        )}
       </div>
       <div className={classes['item-main3']}>
         <Title name='Other' />

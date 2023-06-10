@@ -49,7 +49,7 @@ function Login({
       .then((response) => {
         if (!response.ok) {
           return response.json().then((data) => {
-            console.error(data.error); // Log the response data for inspection
+            console.error(data.error); 
             throw new Error(
               `${response.status}: ${response.statusText}, ${data.error}`
             );
