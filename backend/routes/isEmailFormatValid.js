@@ -6,8 +6,8 @@ const isEmailFormatValid = (req, res, next) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isEmailFormatValid = emailRegex.test(email);
 
-  if ( !email || !isEmailFormatValid) {
-    res.status(400).send('Invalid email');
+  if (!email || !isEmailFormatValid) {
+    res.status(400).json({ error: 'Invalid email' });
   } else {
     next();
   }
