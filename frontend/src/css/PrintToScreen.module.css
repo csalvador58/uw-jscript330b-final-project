@@ -1,0 +1,14 @@
+.code-container {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.code-container h3 {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  white-space: normal;
+  word-wrap: break-word;
+}
