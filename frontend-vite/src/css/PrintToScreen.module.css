@@ -1,0 +1,13 @@
+.code-container {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.code-container pre {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #171717;
+  word-break: break-all;
+}

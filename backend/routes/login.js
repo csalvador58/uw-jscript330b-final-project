@@ -48,7 +48,7 @@ router.post(
           },
           secret
         );
-        res.json({ token: loginToken });
+        res.json({ token: loginToken, roles: userRoles });
       } else {
         return res.status(401).json({ error: 'Password does not match' });
       }
