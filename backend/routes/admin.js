@@ -78,12 +78,14 @@ router.post(
       !phoneRegex.test(newUser.phone) ||
       !newUser.groupId
     ) {
-      res.status(400).json({ error: 'Invalid data' });
+      return res.status(400).json({ error: 'Invalid data' });
     } else {
       try {
         const storedUser = await userDAO.createUser(newUser);
         res.json(storedUser);
       } catch (e) {
+        console.log('error');
+        console.log(e);
         e instanceof userDAO.BadDataError
           ? res.status(409).json({ error: e.message })
           : e instanceof userDAO.TypeError
@@ -94,7 +96,7 @@ router.post(
   }
 );
 
-// Update selected fields on admin account or a user by ID 
+// Update selected fields on admin account or a user by ID
 router.put('/:id?', async (req, res, next) => {
   // console.log('TEST Admin - put /');
   const userId = req.params.id ? req.params.id : req.user._id;
@@ -125,7 +127,8 @@ router.put('/:id?', async (req, res, next) => {
       };
     }
     if (req.body.roles) {
-      if (Array.isArray(req.body.roles)) {
+      const validRoles = ['admin', 'vendor', 'verifier'];
+      if (!req.body.roles.some((role) => validRoles.includes(role))) {
         throw new Error('Invalid roles');
       }
       updatedFields = {
@@ -181,7 +184,9 @@ router.delete('/:id', async (req, res, next) => {
   // console.log('Test ADMIN - DELETE /:id');
 
   if (req.params.id === req.user._id) {
-    res.status(405).json({ error: 'Not allowed to delete own user account' });
+    return res
+      .status(405)
+      .json({ error: 'Not allowed to delete own user account' });
   } else {
     try {
       const isUserDeleted = await userDAO.removeUserById(req.params.id);

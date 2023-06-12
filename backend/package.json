@@ -11,7 +11,8 @@
     "test": "jest --runInBand --coverage --coverageDirectory='coverage'",
     "ci": "jest --json --runInBand | node .github/workflows/parseOutput.js",
     "tdd": "jest --watch --runInBand",
-    "start": "node index.js"
+    "start": "node index.js",
+    "devStart": "nodemon index.js"
   },
   "jest": {
     "testEnvironment": "node",
@@ -31,7 +32,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.2.1"
+    "mongoose": "^7.2.1",
+    "nodemon": "^2.0.22"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^4.1.7",

@@ -473,7 +473,7 @@ describe('/admin', () => {
             .put('/admin')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              roles: [],
+              roles: ['invalidRole'],
             });
           expect(res.statusCode).toEqual(400);
         });

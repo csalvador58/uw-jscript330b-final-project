@@ -4,8 +4,8 @@ import classes from '../css/Login.module.css';
 import PropTypes from 'prop-types';
 
 const defaultFormValues = {
-  email: 'testAdminEmail@email.com',
-  password: 'admin123!',
+  email: '',
+  password: '',
 };
 
 function Login({
