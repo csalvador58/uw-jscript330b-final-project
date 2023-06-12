@@ -1,5 +1,5 @@
-import React from 'react';
 import classes from '../css/PrintToScreen.module.css';
+import PropTypes from 'prop-types';
 
 function PrintToScreen({ message }) {
   const formattedData = JSON.stringify(message, null, 2).replace(/\\/g, '');
@@ -11,3 +11,7 @@ function PrintToScreen({ message }) {
 }
 
 export default PrintToScreen;
+
+PrintToScreen.propTypes = {
+  message: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+};

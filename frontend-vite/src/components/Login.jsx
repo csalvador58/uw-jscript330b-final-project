@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Button from '../components/Button';
 import classes from '../css/Login.module.css';
+import PropTypes from 'prop-types';
 
 const defaultFormValues = {
   email: '',
@@ -49,7 +50,7 @@ function Login({
       .then((response) => {
         if (!response.ok) {
           return response.json().then((data) => {
-            console.error(data.error); 
+            console.error(data.error);
             throw new Error(
               `${response.status}: ${response.statusText}, ${data.error}`
             );
@@ -61,7 +62,7 @@ function Login({
         console.log('data');
         console.log(data);
         handleResponseDisplayUpdate(data);
-        loginHandler(data.token)
+        loginHandler(data);
       })
       .catch((error) => {
         console.error(error);
@@ -72,26 +73,28 @@ function Login({
   };
   return (
     <>
-      <form action='/action_page.php'>
-        <label htmlFor='email'>Email</label>
-        <input
-          type='text'
-          id='email'
-          name='email'
-          placeholder='Your email..'
-          value={formValues.email}
-          onChange={inputChangeHandler}
-        />
+      <form>
+        <div className={classes['flex-column']}>
+          <label htmlFor='email'>Email</label>
+          <input
+            type='text'
+            id='email'
+            name='email'
+            placeholder='Your email..'
+            value={formValues.email}
+            onChange={inputChangeHandler}
+          />
 
-        <label htmlFor='password'>Password</label>
-        <input
-          type='text'
-          id='password'
-          name='password'
-          placeholder='Password..'
-          value={formValues.password}
-          onChange={inputChangeHandler}
-        />
+          <label htmlFor='password'>Password</label>
+          <input
+            type='text'
+            id='password'
+            name='password'
+            placeholder='Password..'
+            value={formValues.password}
+            onChange={inputChangeHandler}
+          />
+        </div>
       </form>
       <div>
         <Button onClick={handleLogin}>Login</Button>
@@ -101,3 +104,9 @@ function Login({
 }
 
 export default Login;
+
+Login.propTypes = {
+  handleRequestDisplayUpdate: PropTypes.func.isRequired,
+  handleResponseDisplayUpdate: PropTypes.func.isRequired,
+  loginHandler: PropTypes.func.isRequired,
+};

@@ -1,5 +1,5 @@
-import React from 'react';
 import classes from '../css/Title.module.css';
+import PropTypes from 'prop-types';
 
 function Title({ name }) {
   return (
@@ -10,3 +10,7 @@ function Title({ name }) {
 }
 
 export default Title;
+
+Title.propTypes = {
+  name: PropTypes.string.isRequired,
+};

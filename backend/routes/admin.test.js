@@ -431,7 +431,7 @@ describe('/admin', () => {
       });
     });
 
-    describe('PUT /', () => {
+    describe('PUT /:id?', () => {
       let token;
       beforeEach(async () => {
         let res = await request(server).post('/login').send(adminUser);
@@ -568,6 +568,110 @@ describe('/admin', () => {
           });
         });
       });
+      describe.each([vendorUser, verifierUser])(
+        'updating a %s info by id - PUT /:id?',
+        (account) => {
+          let userAccount;
+          beforeEach(async () => {
+            userAccount = await User.findOne({
+              email: account.email,
+            }).lean();
+          });
+          it('should return 400 Bad Request without a valid email', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'invalidEmail',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if password is invalid', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                password: 'invalidPassword',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request without one or more roles assigned', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                roles: [],
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if the name is invalid', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                name: '  ',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if the phone is invalid', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                phone: 123456,
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 400 Bad Request if the groupId is invalid', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                groupId: 'invalid',
+              });
+            expect(res.statusCode).toEqual(400);
+          });
+          it('should return 200 OK with valid data', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'UpdatedEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(200);
+            let userObj = await User.findOne({
+              email: 'UpdatedEmail@email.com',
+            }).lean();
+            userObj._id = userObj._id.toString();
+            expect(res.body).toMatchObject(userObj);
+          });
+          it('should return a 409 Conflict if email already exist', async () => {
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: adminUser.email,
+              });
+            expect(res.statusCode).toEqual(409);
+          });
+          it('should not store a raw password', async () => {
+            const { password: oldHashedPassword } = await User.findOne({
+              email: account.email,
+            }).lean();
+            res = await request(server)
+              .put(`/admin/${userAccount._id.toString()}`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                password: 'newPassword0!',
+              });
+            const { password: newHashedPassword } = await User.findOne({
+              email: account.email,
+            }).lean();
+            expect(newHashedPassword).not.toEqual(oldHashedPassword);
+            expect(newHashedPassword).not.toEqual('newPassword0!');
+          });
+        }
+      );
     });
 
     describe('DELETE /admin/:id', () => {

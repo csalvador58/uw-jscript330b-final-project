@@ -94,9 +94,10 @@ router.post(
   }
 );
 
-// Update selected fields
-router.put('/', async (req, res, next) => {
+// Update selected fields on admin account or a user by ID 
+router.put('/:id?', async (req, res, next) => {
   // console.log('TEST Admin - put /');
+  const userId = req.params.id ? req.params.id : req.user._id;
   const updateUserData = req.body;
 
   let updatedFields = {};
@@ -162,7 +163,7 @@ router.put('/', async (req, res, next) => {
       };
     }
 
-    const updatedUser = await userDAO.updateUser(req.user._id, updatedFields);
+    const updatedUser = await userDAO.updateUser(userId, updatedFields);
     res.json(updatedUser);
   } catch (e) {
     if (e.message.includes('Invalid')) {

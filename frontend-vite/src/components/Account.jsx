@@ -1,38 +1,33 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Button from '../components/Button';
 import classes from '../css/Account.module.css';
-import jwt from 'jsonwebtoken';
+import PropTypes from 'prop-types';
 
 function Account({
   handleRequestDisplayUpdate,
   handleResponseDisplayUpdate,
-  token,
+  auth,
 }) {
   const [accountInfo, setAccountInfo] = useState('');
   const handleGetAccount = () => {
-    const decodedToken = jwt.decode(token);
-    console.log('decodedToken')
-    console.log(decodedToken)
-
-    const url = `http://localhost:3000/${decodedToken.roles[0]}`;
+    const url = `http://localhost:3000/${auth.roles[0]}`;
     const method = 'GET';
     const headers = {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${auth.token}`,
       'Content-Type': 'application/json',
     };
-    const body = '';
+
     const apiRequest = {
       url: url,
       method: method,
       headers: headers,
-      body: body,
     };
+    
     handleRequestDisplayUpdate(apiRequest);
 
     fetch(url, {
       method: method,
       headers: headers,
-      body: body,
     })
       .then((response) => {
         if (!response.ok) {
@@ -49,6 +44,9 @@ function Account({
         console.log('data');
         console.log(data);
         handleResponseDisplayUpdate(data);
+        setAccountInfo(data);
+        console.log('accountInfo');
+        console.log(accountInfo);
       })
       .catch((error) => {
         console.error(error);
@@ -56,12 +54,22 @@ function Account({
         handleResponseDisplayUpdate(error.message);
       });
   };
+
   return (
     <div className={classes['flex-column']}>
       <p>Get Account</p>
-      <Button onClick={handleGetAccount}></Button>
+      <Button onClick={handleGetAccount}>View Account</Button>
     </div>
   );
 }
 
 export default Account;
+
+Account.propTypes = {
+  handleRequestDisplayUpdate: PropTypes.func.isRequired,
+  handleResponseDisplayUpdate: PropTypes.func.isRequired,
+  auth: PropTypes.shape({
+    token: PropTypes.string.isRequired,
+    roles: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  }).isRequired,
+};
