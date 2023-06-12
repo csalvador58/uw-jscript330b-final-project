@@ -5,6 +5,7 @@ import PrintToScreen from './components/PrintToScreen';
 import classes from './App.module.css';
 import Login from './components/Login';
 import Account from './components/Account';
+import CreateAccount from './components/CreateAccount';
 import Update from './components/Update';
 
 function App() {
@@ -16,9 +17,9 @@ function App() {
     'This is a test for response'
   );
 
-  console.log(loginToken);
-  console.log(displayRequest);
-  console.log(displayResponse);
+  // console.log(loginToken);
+  // console.log(displayRequest);
+  // console.log(displayResponse);
 
   const loginHandler = (auth) => {
     setLoginToken(auth);
@@ -56,6 +57,11 @@ function App() {
       <div className={classes['item-main2']}>
         <Title name='Account' />
         <Account
+          auth={loginToken}
+          handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+          handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+        />
+        <CreateAccount
           auth={loginToken}
           handleRequestDisplayUpdate={handleRequestDisplayUpdate}
           handleResponseDisplayUpdate={handleResponseDisplayUpdate}

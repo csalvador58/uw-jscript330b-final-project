@@ -22,7 +22,7 @@ function Account({
       method: method,
       headers: headers,
     };
-    
+
     handleRequestDisplayUpdate(apiRequest);
 
     fetch(url, {
@@ -41,8 +41,6 @@ function Account({
         return response.json();
       })
       .then((data) => {
-        console.log('data');
-        console.log(data);
         handleResponseDisplayUpdate(data);
         setAccountInfo(data);
         console.log('accountInfo');
@@ -57,8 +55,11 @@ function Account({
 
   return (
     <div className={classes['flex-column']}>
-      <p>Get Account</p>
-      <Button onClick={handleGetAccount}>View Account</Button>
+      <p>Token</p>
+      <p className={classes.wrap}>{auth.token}</p>
+      <p>Roles</p>
+      <p>{auth.roles[0]}</p>
+      <Button onClick={handleGetAccount}>Click to View Account</Button>
     </div>
   );
 }

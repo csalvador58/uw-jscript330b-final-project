@@ -36,19 +36,19 @@ div.flex-column {
 }
 
 .item-main1 {
-  grid-area: admin;
+  grid-area: main1;
   background-color: azure;
   border-style: groove;
   padding: 1rem;
 }
 .item-main2 {
-  grid-area: vendor;
+  grid-area: main2;
   background-color: azure;
   border-style: groove;
   padding: 1rem;
 }
 .item-main3 {
-  grid-area: verifier;
+  grid-area: main3;
   background-color: azure;
   border-style: groove;
   padding: 1rem;
@@ -69,12 +69,12 @@ div.flex-column {
   grid-row: auto;
   grid-template-areas:
     'header header header header'
-    'admin admin output1 output1'
-    'admin admin output1 output1'
-    'vendor vendor output1 output1'
-    'vendor vendor output2 output2'
-    'verifier verifier output2 output2'
-    'verifier verifier output2 output2'
+    'main1 main1 output1 output1'
+    'main1 main1 output1 output1'
+    'main2 main2 output1 output1'
+    'main2 main2 output2 output2'
+    'main3 main3 output2 output2'
+    'main3 main3 output2 output2'
     'footer footer footer footer';
 }
 

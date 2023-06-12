@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import Button from '../components/Button';
 import PropTypes from 'prop-types';
-import classes from '../css/Update.module.css';
+import classes from '../css/CreateAccount.module.css';
 
 const defaultFormValues = {
-  userId: '',
   name: '',
   email: '',
   password: '',
   phone: '',
   roles: [''],
+  groupId: '',
 };
 
 function Update({
@@ -25,7 +25,7 @@ function Update({
       const updateState = { ...currentState };
       if (name === 'roles') {
         updateState[name] = [value];
-      } else if (name === 'phone') {
+      } else if (name === 'phone' || name === 'groupId') {
         updateState[name] = parseInt(value);
       } else {
         updateState[name] = value;
@@ -36,23 +36,30 @@ function Update({
 
   const handleUpdate = (event) => {
     event.preventDefault();
-    console.log('formValues');
-    console.log(formValues);
+    // console.log('formValues');
+    // console.log(formValues);
 
-    console.log('auth');
-    console.log(auth);
-    
-    const userIdOption = formValues.userId ? formValues.userId: '';
-    const url = `http://localhost:3000/admin/${userIdOption}`;
-    const method = 'PUT';
+    // console.log('auth');
+    // console.log(auth);
+
+    const url = `http://localhost:3000/admin/createUser`;
+    const method = 'POST';
     const headers = {
       Authorization: `Bearer ${auth.token}`,
       'Content-Type': 'application/json',
     };
 
     let body = {};
+    // let body = {
+    //   email: 'testVendorXEmail@email.com',
+    //   password: 'vendor1230!',
+    //   roles: ['vendor'],
+    //   name: 'vendor account',
+    //   phone: 2061112222,
+    //   groupId: 2,
+    // };
     for (const [key, val] of Object.entries(formValues)) {
-        if (key === 'roles' && val[0] === '') {
+        if (key === 'roles' && val.length === 0 ) {
             continue;
           }
           if (val !== '') {
@@ -77,7 +84,7 @@ function Update({
       .then((response) => {
         if (!response.ok) {
           return response.json().then((data) => {
-            console.error(data.error);
+            // console.error(data.error);
             throw new Error(
               `${response.status}: ${response.statusText}, ${data.error}`
             );
@@ -100,15 +107,6 @@ function Update({
     <>
       <form>
         <div className={classes['flex-column']}>
-          <label htmlFor='userId'>(Optional) User ID</label>
-          <input
-            type='text'
-            id='userId'
-            name='userId'
-            placeholder='User ID'
-            value={formValues.userId}
-            onChange={inputChangeHandler}
-          />
           <label htmlFor='name'>Name</label>
           <input
             type='text'
@@ -154,8 +152,17 @@ function Update({
             value={formValues.roles[0]}
             onChange={inputChangeHandler}
           />
+          <label htmlFor='groupId'>groupId</label>
+          <input
+            type='number'
+            id='groupId'
+            name='groupId'
+            placeholder='(1) Admin, (2) Vendor, (3) Verifier'
+            value={formValues.groupId}
+            onChange={inputChangeHandler}
+          />
           <div>
-            <Button onClick={handleUpdate}>Update Account</Button>
+            <Button onClick={handleUpdate}>Create Account</Button>
           </div>
         </div>
       </form>

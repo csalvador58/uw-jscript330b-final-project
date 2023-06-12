@@ -4,8 +4,8 @@ import classes from '../css/Login.module.css';
 import PropTypes from 'prop-types';
 
 const defaultFormValues = {
-  email: '',
-  password: '',
+  email: 'testAdminEmail@email.com',
+  password: 'admin123!',
 };
 
 function Login({
@@ -33,7 +33,7 @@ function Login({
       // Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     };
-    const body = JSON.stringify(formValues);
+    const body = formValues;
     const apiRequest = {
       url: url,
       method: method,
@@ -45,7 +45,7 @@ function Login({
     fetch(url, {
       method: method,
       headers: headers,
-      body: body,
+      body: JSON.stringify(body),
     })
       .then((response) => {
         if (!response.ok) {
@@ -59,8 +59,8 @@ function Login({
         return response.json();
       })
       .then((data) => {
-        console.log('data');
-        console.log(data);
+        // console.log('data');
+        // console.log(data);
         handleResponseDisplayUpdate(data);
         loginHandler(data);
       })
