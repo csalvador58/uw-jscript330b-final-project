@@ -5,9 +5,10 @@ import PrintToScreen from './components/PrintToScreen';
 import classes from './App.module.css';
 import Login from './components/Login';
 import Account from './components/Account';
+import Update from './components/Update';
 
 function App() {
-  const [loginToken, setLoginToken] = useState({ token: '', roles: [] });
+  const [loginToken, setLoginToken] = useState({ token: 'invalid', roles: [] });
   const [displayRequest, setDisplayRequest] = useState(
     'This is a test for request'
   );
@@ -19,8 +20,8 @@ function App() {
   console.log(displayRequest);
   console.log(displayResponse);
 
-  const loginHandler = (token) => {
-    setLoginToken(token);
+  const loginHandler = (auth) => {
+    setLoginToken(auth);
   };
   const handleRequestDisplayUpdate = (state) => {
     setDisplayRequest(state);
@@ -55,13 +56,18 @@ function App() {
       <div className={classes['item-main2']}>
         <Title name='Account' />
         <Account
-          token={loginToken}
+          auth={loginToken}
+          handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+          handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+        />
+        <Update
+          auth={loginToken}
           handleRequestDisplayUpdate={handleRequestDisplayUpdate}
           handleResponseDisplayUpdate={handleResponseDisplayUpdate}
         />
       </div>
       <div className={classes['item-main3']}>
-        <Title name='Other' />
+        <Title name='Search' />
       </div>
       <div className={classes['item-side1']}>
         <h2 className={classes.center}>Request</h2>

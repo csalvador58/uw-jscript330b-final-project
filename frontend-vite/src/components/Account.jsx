@@ -6,14 +6,14 @@ import PropTypes from 'prop-types';
 function Account({
   handleRequestDisplayUpdate,
   handleResponseDisplayUpdate,
-  token,
+  auth,
 }) {
   const [accountInfo, setAccountInfo] = useState('');
   const handleGetAccount = () => {
-    const url = `http://localhost:3000/${token.roles[0]}`;
+    const url = `http://localhost:3000/${auth.roles[0]}`;
     const method = 'GET';
     const headers = {
-      Authorization: `Bearer ${token.token}`,
+      Authorization: `Bearer ${auth.token}`,
       'Content-Type': 'application/json',
     };
 
@@ -22,8 +22,7 @@ function Account({
       method: method,
       headers: headers,
     };
-    console.log('apiRequest');
-    console.log(apiRequest);
+    
     handleRequestDisplayUpdate(apiRequest);
 
     fetch(url, {
@@ -69,7 +68,7 @@ export default Account;
 Account.propTypes = {
   handleRequestDisplayUpdate: PropTypes.func.isRequired,
   handleResponseDisplayUpdate: PropTypes.func.isRequired,
-  token: PropTypes.shape({
+  auth: PropTypes.shape({
     token: PropTypes.string.isRequired,
     roles: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   }).isRequired,
