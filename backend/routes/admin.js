@@ -18,9 +18,15 @@ router.use(isUserAuthorized, async (req, res, next) => {
 
 // Search users by groupId
 router.get('/search', async (req, res, next) => {
-  // console.log('TEST Admin - get /search?groupId');
+  // console.log('TEST Admin - get /search?query');
+  const searchQuery = req.query.query;
+
+  if(!searchQuery) {
+    return res.status(400).json({error: 'Missing search query'})
+  }
   try {
-    const users = await userDAO.getUsersByGroupId(req.query.groupId);
+    // console.log('Executing search...')
+    const users = await userDAO.getUsersBySearch(searchQuery);
     res.json(users);
   } catch (e) {
     e instanceof userDAO.BadDataError

@@ -210,7 +210,7 @@ describe('/admin', () => {
         });
       });
     });
-    describe('GET /admin/search?groupId=', () => {
+    describe('GET /admin/search?query=', () => {
       let token;
       beforeEach(async () => {
         let res = await request(server).post('/login').send(adminUser);
@@ -222,34 +222,46 @@ describe('/admin', () => {
           res = await request(server).post('/login').send(account);
           const accountToken = res.body.token;
           res = await request(server)
-            .get(`/admin/search?groupId=1`)
+            .get(`/admin/search?query=test`)
             .set('Authorization', 'Bearer ' + accountToken);
           expect(res.statusCode).toEqual(403);
         }
       );
-      it('should return 400 Bad Request when no users are associated with a groupId', async () => {
-        let unusedGroupId = 99;
+      it('should return 400 Bad Request when query is missing', async () => {
         res = await request(server)
-          .get(`/admin/search?groupId=${unusedGroupId}`)
+          .get(`/admin/search?query=`)
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(400);
       });
-      it('should return all users with matching groupId', async () => {
-        let validGroupId = vendorUser.groupId;
-        let users = await User.find({
-          groupId: validGroupId,
-        }).lean();
-        const usersByGroupId = users.map((user) => {
+      it('should return 400 Bad Request when no users are associated with a query', async () => {
+        let badSearch = 'bad search';
+        res = await request(server)
+          .get(`/admin/search?query=${badSearch}`)
+          .set('Authorization', 'Bearer ' + token);
+        expect(res.statusCode).toEqual(400);
+      });
+      it('should return all users with matching query', async () => {
+        let validQuery = 'account';
+        let users = await User.find(
+          { $text: { $search: validQuery } },
+          { score: { $meta: 'textScore' } }
+        )
+          .sort({ score: { $meta: 'textScore' } })
+          .lean();
+        const usersByQuery = users.map((user) => {
           return {
-            ...user,
             _id: user._id.toString(),
           };
         });
         res = await request(server)
-          .get(`/admin/search?groupId=${validGroupId}`)
+          .get(`/admin/search?query=${validQuery}`)
           .set('Authorization', 'Bearer ' + token);
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toEqual(usersByGroupId);
+        expect(
+          res.body.map((user) => {
+            return { _id: user._id.toString() };
+          })
+        ).toEqual(usersByQuery);
       });
       describe('server failure', () => {
         let originalFn;
@@ -261,9 +273,9 @@ describe('/admin', () => {
         });
         afterEach(() => (User.find = originalFn));
         it('should return 500 Internal Server error if a server error occurs', async () => {
-          let validGroupId = vendorUser.groupId;
+          let validQuery = vendorUser.query;
           res = await request(server)
-            .get(`/admin/search?groupId=${validGroupId}`)
+            .get(`/admin/search?query=${validQuery}`)
             .set('Authorization', 'Bearer ' + token);
           expect(res.statusCode).toEqual(500);
         });
@@ -591,6 +603,15 @@ describe('/admin', () => {
             userAccount = await User.findOne({
               email: account.email,
             }).lean();
+          });
+          it('should return 400 Bad Request without a valid email', async () => {
+            res = await request(server)
+              .put(`/admin/1234`)
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'validEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(400);
           });
           it('should return 400 Bad Request without a valid email', async () => {
             res = await request(server)

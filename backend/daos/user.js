@@ -56,14 +56,19 @@ module.exports.getUserByField = async (keyValuePair) => {
   }
 };
 
-module.exports.getUsersByGroupId = async (id) => {
+module.exports.getUsersBySearch = async (searchQuery) => {
   try {
-    const users = await User.find({ groupId: id }).lean();
+    // const users = await User.find({ searchQuery }).lean();
+    const users = await User.find(
+      { $text: { $search: searchQuery } },
+      { score: { $meta: 'textScore' } }
+    ).sort({ score: { $meta: 'textScore' } });
+
     if (users.length > 0) return users;
-    throw new Error('No accounts found by groupId');
+    throw new BadDataError('No accounts found by search query');
   } catch (e) {
-    if (e.message.includes('No accounts found')) {
-      throw new BadDataError(e.message);
+    if (e instanceof BadDataError) {
+      throw e;
     } else {
       throw new Error(e.message);
     }
@@ -121,18 +126,22 @@ module.exports.updateUser = async (userId, newData) => {
       const hashedPassword = await bcrypt.hash(newData.password, saltRounds);
       newData.password = hashedPassword;
     }
-    
+
     const updatedUser = await User.findByIdAndUpdate(
       new mongoose.Types.ObjectId(userId),
       newData,
       { new: true }
     );
-    
+
     return updatedUser;
   } catch (e) {
     if (e.message.includes('duplicate key')) {
       throw new BadDataError('Email already exists');
-    } else if (e.message.includes('must be a string of 12 bytes or a string of 24 hex characters')) {
+    } else if (
+      e.message.includes(
+        'must be a string of 12 bytes or a string of 24 hex characters'
+      )
+    ) {
       throw new BadDataError('Invalid user ID');
     } else {
       throw new Error(e.message);
