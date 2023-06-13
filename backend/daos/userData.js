@@ -99,6 +99,8 @@ module.exports.uploadData = async (userId, type, data) => {
   } catch (e) {
     if (e.message.includes('duplicate key')) {
       throw new BadDataError('Record type already exist');
+    } else if (e.message.includes('userData validation failed')) {
+      throw new BadDataError('Invalid record type');
     } else {
       throw new Error(e.message);
     }

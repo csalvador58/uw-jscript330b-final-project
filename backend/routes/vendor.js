@@ -66,7 +66,7 @@ router.post('/upload', async (req, res, next) => {
     );
     res.json(uploadedData);
   } catch (e) {
-    if (e.message.includes('Invalid data')) {
+    if (e.message.includes('Invalid')) {
       res.status(400).json({ error: e.message });
     } else if (e instanceof userDataDAO.BadDataError) {
       res.status(409).json({ error: e.message });

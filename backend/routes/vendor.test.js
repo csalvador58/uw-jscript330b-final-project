@@ -417,6 +417,20 @@ describe('/vendor', () => {
           });
         expect(res.statusCode).toEqual(400);
       });
+      it('should return 400 Bad Request if recordType is not a valid name', async () => {
+        res = await request(server)
+          .post('/vendor/upload')
+          .set('Authorization', 'Bearer ' + token)
+          .send({
+            recordType: 'BadTestName',
+            dataObject: {
+              data01: 'data01',
+              data02: 'data02',
+              data03: 'data03',
+            },
+          });
+        expect(res.statusCode).toEqual(400);
+      });
       it('should return 200 OK with valid data', async () => {
         res = await request(server)
           .post('/vendor/upload')

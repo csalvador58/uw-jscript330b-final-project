@@ -89,7 +89,7 @@ module.exports.removeUserById = async (userId) => {
         'must be a string of 12 bytes or a string of 24 hex characters'
       )
     ) {
-      throw new BadDataError(e.message);
+      throw new BadDataError('Invalid ID');
     } else {
       throw new Error(e.message);
     }
