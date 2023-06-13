@@ -77,8 +77,13 @@ router.post('/upload', async (req, res, next) => {
 });
 
 router.put('/', async (req, res, next) => {
-  // console.log('TEST Vendor - put /');
+  console.log('TEST Vendor - put /');
   const updateUserData = req.body;
+
+
+  if(!req.body.email && !req.body.password && ! req.body.phone) {
+    return res.status(400).json({ error: 'Limited to update Email, Password, and Phone fields only'});
+  }
 
   let updatedFields = {};
   try {

@@ -15,6 +15,10 @@ router.use('/admin', require('../routes/admin'));
 router.use('/vendor', require('./vendor'));
 router.use('/verifier', require('./verifier'));
 
+router.use((req, res, next) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
 router.use((err, req, res, next) => {
   console.error(`Error detected: `, err);
 });

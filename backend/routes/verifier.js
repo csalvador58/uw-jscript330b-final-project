@@ -61,6 +61,10 @@ router.put('/', async (req, res, next) => {
   const updateUserData = req.body;
   let updatedFields = {};
 
+  if(!req.body.email && !req.body.password && ! req.body.phone) {
+    return res.status(400).json({ error: 'Limited to update Email, Password, and Phone fields only'});
+  }
+
   try {
     if (req.body.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

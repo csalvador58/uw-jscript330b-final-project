@@ -298,6 +298,15 @@ describe('/vendor', () => {
         }
       );
       describe('updating vendor user info - PUT /', () => {
+        it('should return 400 Bad Request if updating a restricted field', async () => {
+          res = await request(server)
+            .put('/vendor')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              roles: ['admin'],
+            });
+          expect(res.statusCode).toEqual(400);
+        });
         it('should return 400 Bad Request without a valid email', async () => {
           res = await request(server)
             .put('/vendor')
