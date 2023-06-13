@@ -7,7 +7,7 @@ const mongoURL = process.env.MONGO_CONNECTION_STRING || 'mongodb://127.0.0.1/uw-
 mongoose
   .connect(mongoURL, {})
   .then(() => {
-    server.listen(port, '0.0.0.0,', () => {
+    server.listen(port, '0.0.0.0', () => {
       console.log(`Server is listening on http://localhost:${port}`);
     });
   })
