@@ -21,7 +21,7 @@ describe('/login', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: 4251235555,
+    phone: '4251235555',
     groupId: adminGroupId,
   };
   const vendorUser = {
@@ -29,7 +29,7 @@ describe('/login', () => {
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: 2061112222,
+    phone: '2061112222',
     groupId: vendorGroupId,
   };
   const verifierUser = {
@@ -37,7 +37,7 @@ describe('/login', () => {
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: 2063334444,
+    phone: '2063334444',
     groupId: verifierGroupId,
   };
 
@@ -205,6 +205,40 @@ describe('/login', () => {
           });
         }
       );
+      describe.each([vendorUser, verifierUser])(
+        'Non-admin %s',
+        (account) => {
+          it('should return 400 Bad request when attempting to change a target user password', async () => {
+            let res = await request(server).post('/login').send(account);
+            const accountToken = res.body.token;
+
+            // create test target account
+            let targetTestAccount = {
+              ...account,
+              email: 'targetAccount@email.com',
+            };
+            console.log('targetTestAccount')
+            console.log(targetTestAccount)
+            await request(server)
+              .post('/admin/createUser')
+              .set('Authorization', 'Bearer ' + adminToken)
+              .send(targetTestAccount);
+            const targetUser = await User.findOne({
+              email: 'targetAccount@email.com',
+            }).lean();
+            res = await request(server)
+              .put('/login/updatePassword')
+              .set('Authorization', 'Bearer ' + accountToken)
+              .send({ userId: targetUser._id, password: 'validPassword0!' });
+            expect(res.statusCode).toEqual(400);
+            // const { password: newHashedPassword } = await User.findOne({
+            //   email: account.email,
+            // }).lean();
+            // expect(newHashedPassword).not.toEqual(oldHashedPassword);
+            // expect(newHashedPassword).not.toEqual('validPassword0!');
+          });
+        }
+      );
       describe('server failure', () => {
         let originalFn;
         beforeEach(() => {
@@ -216,13 +250,13 @@ describe('/login', () => {
         afterEach(() => (User.findByIdAndUpdate = originalFn));
         it('should return 500 Internal Server error if a server error occurs', async () => {
           let res = await request(server).post('/login').send(adminUser);
-            const adminLoginToken = res.body.token;
-            const { _id: userAccountId, password: oldHashedPassword } =
-              await User.findOne({ email: vendorUser.email }).lean();
-            res = await request(server)
-              .put('/login/updatePassword')
-              .set('Authorization', 'Bearer ' + adminLoginToken)
-              .send({ userId: userAccountId, password: 'validPassword0!' });
+          const adminLoginToken = res.body.token;
+          const { _id: userAccountId, password: oldHashedPassword } =
+            await User.findOne({ email: vendorUser.email }).lean();
+          res = await request(server)
+            .put('/login/updatePassword')
+            .set('Authorization', 'Bearer ' + adminLoginToken)
+            .send({ userId: userAccountId, password: 'validPassword0!' });
           expect(res.statusCode).toEqual(500);
         });
       });

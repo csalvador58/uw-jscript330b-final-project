@@ -25,7 +25,7 @@ describe('/admin', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: 4251235555,
+    phone: '4251235555',
     groupId: adminGroupId,
   };
   const vendorUser = {
@@ -33,7 +33,7 @@ describe('/admin', () => {
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: 2061112222,
+    phone: '2061112222',
     groupId: vendorGroupId,
   };
   const verifierUser = {
@@ -41,7 +41,7 @@ describe('/admin', () => {
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: 2063334444,
+    phone: '2063334444',
     groupId: verifierGroupId,
   };
   beforeEach(async () => {
@@ -277,7 +277,7 @@ describe('/admin', () => {
         password: 'test1232!',
         roles: ['vendor'],
         name: 'test account',
-        phone: 2063337777,
+        phone: '2063337777',
         groupId: 2,
       };
       beforeEach(async () => {
@@ -342,7 +342,7 @@ describe('/admin', () => {
           .set('Authorization', 'Bearer ' + token)
           .send({
             ...testUser,
-            phone: 123456,
+            phone: '123456',
           });
         expect(res.statusCode).toEqual(400);
       });
@@ -491,7 +491,7 @@ describe('/admin', () => {
             .put('/admin')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              phone: 123456,
+              phone: '123456',
             });
           expect(res.statusCode).toEqual(400);
         });
@@ -524,6 +524,7 @@ describe('/admin', () => {
             .set('Authorization', 'Bearer ' + token)
             .send({
               email: vendorUser.email,
+              password: 'validPassword123!',
             });
           expect(res.statusCode).toEqual(409);
         });
@@ -563,6 +564,20 @@ describe('/admin', () => {
               .set('Authorization', 'Bearer ' + token)
               .send({
                 email: 'UpdatedEmail@email.com',
+              });
+            expect(res.statusCode).toEqual(500);
+          });
+          it('should return 500 Internal Server error if a server error occurs', async () => {
+            const newTestAccount = {
+              ...vendorUser,
+              email: 'newTestEmailAccount@email.com',
+            };
+            res = await request(server)
+              .put('/admin')
+              .set('Authorization', 'Bearer ' + token)
+              .send({
+                email: 'UpdatedEmail@email.com',
+                password: 'validPassword123!',
               });
             expect(res.statusCode).toEqual(500);
           });
@@ -618,7 +633,7 @@ describe('/admin', () => {
               .put(`/admin/${userAccount._id.toString()}`)
               .set('Authorization', 'Bearer ' + token)
               .send({
-                phone: 123456,
+                phone: '123456',
               });
             expect(res.statusCode).toEqual(400);
           });

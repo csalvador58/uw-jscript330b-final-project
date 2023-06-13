@@ -5,10 +5,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   roles: { type: [String], required: true },
   name: { type: String, required: true },
-  phone: { type: Number, required: true },
+  phone: { type: String, required: true },
   groupId: { type: Number, required: true },
 });
-
 
 // create text index
 userSchema.index({ groupId: 'text' });

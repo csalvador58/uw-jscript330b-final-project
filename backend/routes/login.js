@@ -70,7 +70,11 @@ router.put(
 
     try {
       let userId;
-      if (req.user.roles.includes('admin') && req.body.userId) {
+
+      if (req.body.userId) {
+        if (!req.user.roles.includes('admin')) {
+          return res.status(400).json({ error: 'Invalid token' });
+        }
         // if user is an admin, check if target userId is valid.
         //  An error is thrown if user does not exist or id is invalid
         await userDAO.getUserByField({ _id: req.body.userId });

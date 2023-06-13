@@ -25,7 +25,7 @@ describe('/verifier', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: 4251235555,
+    phone: '4251235555',
     groupId: adminGroupId,
   };
   const vendorUser = {
@@ -33,7 +33,7 @@ describe('/verifier', () => {
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: 2061112222,
+    phone: '2061112222',
     groupId: vendorGroupId,
   };
   const vendorUser2 = {
@@ -41,7 +41,7 @@ describe('/verifier', () => {
     password: 'vendor1232!',
     roles: ['vendor'],
     name: 'vendor account2',
-    phone: 2065556666,
+    phone: '2065556666',
     groupId: vendorGroupId,
   };
   const verifierUser = {
@@ -49,7 +49,7 @@ describe('/verifier', () => {
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: 2063334444,
+    phone: '2063334444',
     groupId: verifierGroupId,
   };
   const verifierUser2 = {
@@ -57,7 +57,7 @@ describe('/verifier', () => {
     password: 'verifier1232!',
     roles: ['verifier'],
     name: 'verifier account2',
-    phone: 2060001111,
+    phone: '2060001111',
     groupId: verifierGroupId,
   };
 
@@ -257,7 +257,7 @@ describe('/verifier', () => {
             .put('/verifier')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              phone: 123456,
+              phone: '123456',
             });
           expect(res.statusCode).toEqual(400);
         });

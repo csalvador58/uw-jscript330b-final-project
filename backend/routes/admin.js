@@ -71,27 +71,26 @@ router.post(
     // console.log('TEST Admin - post /createUser');
     const newUser = req.body;
 
-    const phoneRegex = /^\d{10}$/;
-    if (
-      !newUser.roles.length ||
-      !newUser.name.trim().length ||
-      !phoneRegex.test(newUser.phone) ||
-      !newUser.groupId
-    ) {
-      return res.status(400).json({ error: 'Invalid data' });
-    } else {
-      try {
-        const storedUser = await userDAO.createUser(newUser);
-        res.json(storedUser);
-      } catch (e) {
-        console.log('error');
-        console.log(e);
-        e instanceof userDAO.BadDataError
-          ? res.status(409).json({ error: e.message })
-          : e instanceof userDAO.TypeError
-          ? res.status(400).json({ error: e.message })
-          : res.status(500).json({ error: e.message });
+    try {
+      const phoneRegex = /^\d{10}$/;
+      if (
+        !newUser.roles.length ||
+        !newUser.name.trim().length ||
+        !phoneRegex.test(newUser.phone) ||
+        !newUser.groupId
+      ) {
+        return res.status(400).json({ error: 'Invalid data' });
       }
+      const storedUser = await userDAO.createUser(newUser);
+      res.json(storedUser);
+    } catch (e) {
+      // console.log('error');
+      // console.log(e);
+      e instanceof userDAO.BadDataError
+        ? res.status(409).json({ error: e.message })
+        : e instanceof userDAO.TypeError
+        ? res.status(400).json({ error: e.message })
+        : res.status(500).json({ error: e.message });
     }
   }
 );

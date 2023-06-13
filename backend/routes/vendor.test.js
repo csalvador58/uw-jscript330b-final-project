@@ -22,7 +22,7 @@ describe('/vendor', () => {
     password: 'admin123!',
     roles: ['admin'],
     name: 'admin account',
-    phone: 4251235555,
+    phone: '4251235555',
     groupId: adminGroupId,
   };
   const vendorUser = {
@@ -30,7 +30,7 @@ describe('/vendor', () => {
     password: 'vendor123!',
     roles: ['vendor'],
     name: 'vendor account',
-    phone: 2061112222,
+    phone: '2061112222',
     groupId: vendorGroupId,
   };
   const vendorUser2 = {
@@ -38,7 +38,7 @@ describe('/vendor', () => {
     password: 'vendor1232!',
     roles: ['vendor'],
     name: 'vendor account2',
-    phone: 2065556666,
+    phone: '2065556666',
     groupId: vendorGroupId,
   };
   const verifierUser = {
@@ -46,7 +46,7 @@ describe('/vendor', () => {
     password: 'verifier123!',
     roles: ['verifier'],
     name: 'verifier account',
-    phone: 2063334444,
+    phone: '2063334444',
     groupId: verifierGroupId,
   };
 
@@ -321,7 +321,7 @@ describe('/vendor', () => {
             .put('/vendor')
             .set('Authorization', 'Bearer ' + token)
             .send({
-              phone: 123456,
+              phone: '123456',
             });
           expect(res.statusCode).toEqual(400);
         });
@@ -363,6 +363,26 @@ describe('/vendor', () => {
           }).lean();
           expect(newHashedPassword).not.toEqual(oldHashedPassword);
           expect(newHashedPassword).not.toEqual('newPassword0!');
+        });
+        describe('server failure', () => {
+          let originalFn;
+          beforeEach(() => {
+            originalFn = User.findByIdAndUpdate;
+            User.findByIdAndUpdate = jest.fn().mockImplementation(() => {
+              reject(new Error('Server Error'));
+            });
+          });
+          afterEach(() => (User.findByIdAndUpdate = originalFn));
+
+          it('should return 500 Internal Server error if a server error occurs', async () => {
+            res = await request(server)
+            .put('/vendor')
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+              email: 'UpdatedEmail@email.com',
+            });
+            expect(res.statusCode).toEqual(500);
+          });
         });
       });
     });
