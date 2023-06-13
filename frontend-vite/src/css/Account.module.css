@@ -1,12 +1,22 @@
 div.flex {
-    display: flex;
-  }
-  
-  div.flex-column {
-    display: flex;
-    flex-direction: column;
-  }
+  display: flex;
+}
 
-  p.wrap {
-    word-wrap: break-word;
-  }
+div.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+p.token {
+  word-wrap: break-word;
+  color: #cccccc;
+}
+
+p {
+  color: #ffffff;
+  margin: 1rem 0;
+}
+
+input {
+  margin: 0.5rem 0;
+}

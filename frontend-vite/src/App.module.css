@@ -1,7 +1,12 @@
+html,
+body {
+  background: black;
+}
+
 h1 {
   padding: 0;
   margin: 0;
-  font-family: "Raleway", sans-serif;
+  font-family: 'Raleway', sans-serif;
   font-weight: 300;
   font-size: 40px;
   color: #080808;
@@ -13,12 +18,18 @@ h1 span {
   line-height: 1.3;
 }
 
-h2.center {
+h2 {
+  color: #ffffff;
+}
+
+h2.display {
   text-align: center;
+  color: #cccccc
 }
 
 div.flex {
   display: flex;
+  width: 100vw;
 }
 
 div.flex-column {
@@ -27,58 +38,88 @@ div.flex-column {
 }
 
 .item-header {
-  grid-area: header;
-  background-color: azure;
+  background-color: black;
+  position: sticky;
+  top: 0;
 }
-.item-footer {
-  grid-area: footer;
-  background-color: rgb(180, 87, 87);
+
+.item-header h1 {
+  text-align: center;
+  font-size: 50px;
+  text-transform: uppercase;
+  background: linear-gradient(
+    140deg,
+    rgba(54, 190, 255, 1) 0%,
+    rgba(115, 63, 241, 1) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  margin: 0 auto;
+}
+
+.header_container {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header_container h1 {
+  font-size: 64px;
+}
+
+.header_container h1 span {
+  background: linear-gradient(
+    140deg,
+    rgba(54, 190, 255, 1) 0%,
+    rgba(115, 63, 241, 1) 100%
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+.header_container p {
+  font-size: 20px;
 }
 
 .item-main1 {
-  grid-area: main1;
-  background-color: azure;
+  background-color: black;
   border-style: groove;
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 .item-main2 {
-  grid-area: main2;
-  background-color: azure;
+  background-color: black;
   border-style: groove;
   padding: 1rem;
-}
-.item-main3 {
-  grid-area: main3;
-  background-color: azure;
-  border-style: groove;
-  padding: 1rem;
+  margin: 1rem 0;
 }
 
-.item-side1 {
-  grid-area: output1;
-  background-color: rgb(228, 231, 176);
+.left {
+  display: flex;
+  flex-direction: column;
+  width: 40vw;
+  margin-top: 90px;
 }
-.item-side2 {
-  grid-area: output2;
-  background-color: rgb(223, 224, 211);
+
+.right {
+  width: 55vw;
+  overflow: auto;
+  position: fixed;
+  top: 120px;
+  right: 10px;
 }
 
 .container {
-  display: grid;
-  grid-template-columns: 25% 25% 25% 25%;
-  grid-row: auto;
-  grid-template-areas:
-    'header header header header'
-    'main1 main1 output1 output1'
-    'main1 main1 output1 output1'
-    'main2 main2 output1 output1'
-    'main2 main2 output2 output2'
-    'main3 main3 output2 output2'
-    'main3 main3 output2 output2'
-    'footer footer footer footer';
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.section-header h1 {
-  text-align:center; font-size:50px; text-transform:uppercase; color:#222; letter-spacing:1px;
-  font-family:"Playfair Display", serif; font-weight:400;
+label {
+  color: #ffffff;
 }

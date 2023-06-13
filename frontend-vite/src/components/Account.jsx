@@ -56,9 +56,8 @@ function Account({
   return (
     <div className={classes['flex-column']}>
       <p>Token</p>
-      <p className={classes.wrap}>{auth.token}</p>
-      <p>Roles</p>
-      <p>{auth.roles[0]}</p>
+      <p className={classes.token}>{auth.token}</p>
+      <p>Roles: <span className={classes.blue}>{auth.roles[0]}</span></p>
       <Button onClick={handleGetAccount}>Click to View Account</Button>
     </div>
   );

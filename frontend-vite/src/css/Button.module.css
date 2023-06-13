@@ -23,7 +23,7 @@
   touch-action: manipulation;
   white-space: nowrap;
   width: 15rem;
-  margin: 1rem auto;
+  margin: 2rem auto;
 }
 
 .button-15:disabled {

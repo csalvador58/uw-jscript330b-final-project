@@ -34,60 +34,48 @@ function App() {
   return (
     <div className={classes.container}>
       <div className={classes['item-header']}>
-        <div className={classes['section-header']}>
-          <h1>
-            Vendor Credential App<span>UWJSCRIPT330 - Final Project</span>
-          </h1>
-        </div>
+   
+        <h1 className={classes.header_container}>
+            Vendor Credential App<span>UWJSCRIPT330 - Demo</span>
+        </h1>
       </div>
-      <div className={classes['item-main1']}>
-        <div className={classes['flex-column']}>
-          <Title name='Login User' />
-          <div>
-            <div className={classes['flex.column']}>
-              <Login
-                handleRequestDisplayUpdate={handleRequestDisplayUpdate}
-                handleResponseDisplayUpdate={handleResponseDisplayUpdate}
-                loginHandler={loginHandler}
-              />
-            </div>
+      <div className={classes.flex}>
+        <div className={classes.left}>
+          <div className={classes['item-main1']}>         
+            <Title name='Login User' />
+            <Login
+              handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+              handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+              loginHandler={loginHandler}
+            />
+          </div>
+          <div className={classes['item-main2']}>
+            <Title name='Account' />
+            <Account
+              auth={loginToken}
+              handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+              handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+            />
+            <CreateAccount
+              auth={loginToken}
+              handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+              handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+            />
+            <Update
+              auth={loginToken}
+              handleRequestDisplayUpdate={handleRequestDisplayUpdate}
+              handleResponseDisplayUpdate={handleResponseDisplayUpdate}
+            />
           </div>
         </div>
-      </div>
-      <div className={classes['item-main2']}>
-        <Title name='Account' />
-        <Account
-          auth={loginToken}
-          handleRequestDisplayUpdate={handleRequestDisplayUpdate}
-          handleResponseDisplayUpdate={handleResponseDisplayUpdate}
-        />
-        <CreateAccount
-          auth={loginToken}
-          handleRequestDisplayUpdate={handleRequestDisplayUpdate}
-          handleResponseDisplayUpdate={handleResponseDisplayUpdate}
-        />
-        <Update
-          auth={loginToken}
-          handleRequestDisplayUpdate={handleRequestDisplayUpdate}
-          handleResponseDisplayUpdate={handleResponseDisplayUpdate}
-        />
-      </div>
-      <div className={classes['item-main3']}>
-        <Title name='Search' />
-      </div>
-      <div className={classes['item-side1']}>
-        <h2 className={classes.center}>Request</h2>
-        <div>
+
+        <div className={classes.right}>
+          <h2 className={classes.display}>Request</h2>
           <PrintToScreen message={displayRequest} />
-        </div>
-      </div>
-      <div className={classes['item-side2']}>
-        <h2 className={classes.center}>Response</h2>
-        <div>
+          <h2 className={classes.display}>Response</h2>
           <PrintToScreen message={displayResponse} />
         </div>
       </div>
-      <div className={classes['item-footer']}>footer</div>
     </div>
   );
 }
