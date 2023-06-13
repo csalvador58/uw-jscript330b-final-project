@@ -241,7 +241,20 @@ describe('/admin', () => {
         expect(res.statusCode).toEqual(400);
       });
       it('should return all users with matching query', async () => {
-        let validQuery = 'account';
+        // create a unique user
+        await request(server)
+        .post('/admin/createUser')
+        .set('Authorization', 'Bearer ' + adminToken)
+        .send({
+          email: 'uniqueEmail@email.com',
+          password: 'test123!',
+          roles: ['vendor'],
+          name: 'unique account',
+          phone: '2063334444',
+          groupId: vendorGroupId,
+        });
+
+        let validQuery = 'unique';
         let users = await User.find(
           { $text: { $search: validQuery } },
           { score: { $meta: 'textScore' } }
