@@ -35,7 +35,6 @@ module.exports.createUser = (newUserObj) => {
 };
 
 module.exports.getUserByField = async (keyValuePair) => {
-
   try {
     let query = Object.keys(keyValuePair).includes('_id')
       ? new mongoose.Types.ObjectId(keyValuePair._id)
@@ -116,49 +115,30 @@ module.exports.updatePassword = async (userId, newPassword) => {
   });
 };
 
-module.exports.updateUser = (userId, newData) => {
-  return new Promise(async (resolve, reject) => {
+module.exports.updateUser = async (userId, newData) => {
+  try {
     if (newData.password) {
-      bcrypt.hash(newData.password, saltRounds).then(async (hashedPassword) => {
-        try {
-          const updatedUser = await User.findByIdAndUpdate(
-            new mongoose.Types.ObjectId(userId),
-            {
-              ...newData,
-              password: hashedPassword,
-            },
-            { new: 1 }
-          );
-          resolve(updatedUser);
-        } catch (e) {
-          if (e.message.includes('duplicate key')) {
-            reject(new BadDataError('Email already exist'));
-          } else {
-            reject(new Error(e.message));
-          }
-        }
-      });
-    } else {
-      try {
-        const updatedUser = await User.findByIdAndUpdate(
-          new mongoose.Types.ObjectId(userId),
-          {
-            ...newData,
-          },
-          { new: 1 }
-        );
-        resolve(updatedUser);
-      } catch (e) {
-        if (e.message.includes('duplicate key')) {
-          reject(new BadDataError('Email already exist'));
-        } else {
-          reject(new Error(e.message));
-        }
-      }
+      const hashedPassword = await bcrypt.hash(newData.password, saltRounds);
+      newData.password = hashedPassword;
     }
-  });
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(userId),
+      newData,
+      { new: true }
+    );
+    
+    return updatedUser;
+  } catch (e) {
+    if (e.message.includes('duplicate key')) {
+      throw new BadDataError('Email already exists');
+    } else if (e.message.includes('must be a string of 12 bytes or a string of 24 hex characters')) {
+      throw new BadDataError('Invalid user ID');
+    } else {
+      throw new Error(e.message);
+    }
+  }
 };
-
 
 class BadDataError extends Error {}
 module.exports.BadDataError = BadDataError;
