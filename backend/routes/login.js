@@ -60,9 +60,44 @@ router.post(
   }
 );
 
+// // Update Password
+// router.put(
+//   '/updatePassword',
+//   isUserAuthorized,
+//   isPasswordFormatValid,
+//   async (req, res, next) => {
+//     // console.log('TEST login - PUT / updatePassword');
+
+//     try {
+//       let userId;
+
+//       if (req.body.userId) {
+//         if (!req.user.roles.includes('admin')) {
+//           return res.status(400).json({ error: 'Invalid token' });
+//         }
+//         // if user is an admin, check if target userId is valid.
+//         //  An error is thrown if user does not exist or id is invalid
+//         await userDAO.getUserByField({ _id: req.body.userId });
+//         userId = req.body.userId;
+//       } else {
+//         // all other users can only update their own password
+//         userId = req.user._id;
+//       }
+//       const newPassword = req.body.password;
+//       const updatedPassword = await userDAO.updatePassword(userId, newPassword);
+
+//       res.json(updatedPassword);
+//     } catch (e) {
+//       e instanceof userDAO.BadDataError
+//         ? res.status(400).json({ error: e.message })
+//         : res.status(500).json({ error: e.message });
+//     }
+//   }
+// );
+
 // Update Password
 router.put(
-  '/updatePassword',
+  '/updatePassword/:id?',
   isUserAuthorized,
   isPasswordFormatValid,
   async (req, res, next) => {
@@ -71,14 +106,14 @@ router.put(
     try {
       let userId;
 
-      if (req.body.userId) {
+      if (req.params.id) {
         if (!req.user.roles.includes('admin')) {
           return res.status(400).json({ error: 'Invalid token' });
         }
         // if user is an admin, check if target userId is valid.
         //  An error is thrown if user does not exist or id is invalid
-        await userDAO.getUserByField({ _id: req.body.userId });
-        userId = req.body.userId;
+        await userDAO.getUserByField({ _id: req.params.id });
+        userId = req.params.id;
       } else {
         // all other users can only update their own password
         userId = req.user._id;

@@ -131,7 +131,7 @@ describe('/login', () => {
         });
       });
     });
-    describe('PUT /updatePassword', () => {
+    describe('PUT /updatePassword/:id?', () => {
       it('should return 401 Unauthorized response with an invalid token', async () => {
         const res = await request(server)
           .put('/login/updatePassword')
@@ -150,10 +150,9 @@ describe('/login', () => {
         let res = await request(server).post('/login').send(adminUser);
         const adminLoginToken = res.body.token;
         res = await request(server)
-          .put('/login/updatePassword')
+          .put('/login/updatePassword/1234')
           .set('Authorization', 'Bearer ' + adminLoginToken)
           .send({
-            userId: 'invalidUserId000f1b2a0by',
             password: 'validPassword0!',
           });
         expect(res.statusCode).toEqual(400);
@@ -193,9 +192,9 @@ describe('/login', () => {
             const { _id: userAccountId, password: oldHashedPassword } =
               await User.findOne({ email: account.email }).lean();
             res = await request(server)
-              .put('/login/updatePassword')
+              .put(`/login/updatePassword/${userAccountId.toString()}`)
               .set('Authorization', 'Bearer ' + adminLoginToken)
-              .send({ userId: userAccountId, password: 'validPassword0!' });
+              .send({ password: 'validPassword0!' });
             expect(res.statusCode).toEqual(200);
             const { password: newHashedPassword } = await User.findOne({
               email: account.email,
@@ -205,40 +204,32 @@ describe('/login', () => {
           });
         }
       );
-      describe.each([vendorUser, verifierUser])(
-        'Non-admin %s',
-        (account) => {
-          it('should return 400 Bad request when attempting to change a target user password', async () => {
-            let res = await request(server).post('/login').send(account);
-            const accountToken = res.body.token;
+      describe.each([vendorUser, verifierUser])('Non-admin %s', (account) => {
+        it('should return 400 Bad request when attempting to change a target user password', async () => {
+          let res = await request(server).post('/login').send(account);
+          const accountToken = res.body.token;
 
-            // create test target account
-            let targetTestAccount = {
-              ...account,
-              email: 'targetAccount@email.com',
-            };
-            console.log('targetTestAccount')
-            console.log(targetTestAccount)
-            await request(server)
-              .post('/admin/createUser')
-              .set('Authorization', 'Bearer ' + adminToken)
-              .send(targetTestAccount);
-            const targetUser = await User.findOne({
-              email: 'targetAccount@email.com',
-            }).lean();
-            res = await request(server)
-              .put('/login/updatePassword')
-              .set('Authorization', 'Bearer ' + accountToken)
-              .send({ userId: targetUser._id, password: 'validPassword0!' });
-            expect(res.statusCode).toEqual(400);
-            // const { password: newHashedPassword } = await User.findOne({
-            //   email: account.email,
-            // }).lean();
-            // expect(newHashedPassword).not.toEqual(oldHashedPassword);
-            // expect(newHashedPassword).not.toEqual('validPassword0!');
-          });
-        }
-      );
+          // create test target account
+          let targetTestAccount = {
+            ...account,
+            email: 'targetAccount@email.com',
+          };
+          console.log('targetTestAccount');
+          console.log(targetTestAccount);
+          await request(server)
+            .post('/admin/createUser')
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send(targetTestAccount);
+          const targetUser = await User.findOne({
+            email: 'targetAccount@email.com',
+          }).lean();
+          res = await request(server)
+            .put(`/login/updatePassword/${targetUser._id.toString()}`)
+            .set('Authorization', 'Bearer ' + accountToken)
+            .send({ password: 'validPassword0!' });
+          expect(res.statusCode).toEqual(400);
+        });
+      });
       describe('server failure', () => {
         let originalFn;
         beforeEach(() => {
