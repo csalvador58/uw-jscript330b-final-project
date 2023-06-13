@@ -1,7 +1,7 @@
 const userDAO = require('../daos/user');
 const jwt = require('jsonwebtoken');
 // secret will not be visible in code
-const secret = 'secretKey';
+const secret = process.env.JWTKEY || 'secretKey';
 
 // Validate jwt token
 const isUserAuthorized = async (req, res, next) => {

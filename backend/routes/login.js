@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 // saltRounds => 1 used for testing only, 10 is recommended
 const saltRounds = 1;
 // secret will not be visible in code
-const secret = 'secretKey';
+const secret = process.env.JWTKEY || 'secretKey';
 
 const userDAO = require('../daos/user');
 const isEmailFormatValid = require('./isEmailFormatValid');
