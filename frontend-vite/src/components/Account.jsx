@@ -10,7 +10,9 @@ function Account({
 }) {
   const [accountInfo, setAccountInfo] = useState('');
   const handleGetAccount = () => {
-    const url = `http://localhost:3000/${auth.roles[0]}`;
+    const domain = 'https://uw-jscript330b-final-project-production.up.railway.app';
+    // const domain = 'http://localhost:3000';
+    const url = `${domain}/${auth.roles[0]}`;
     const method = 'GET';
     const headers = {
       Authorization: `Bearer ${auth.token}`,

@@ -43,7 +43,9 @@ function Update({
     console.log(auth);
     
     const userIdOption = formValues.userId ? formValues.userId: '';
-    const url = `http://localhost:3000/${auth.roles[0]}/${userIdOption}`;
+    const domain = 'https://uw-jscript330b-final-project-production.up.railway.app';
+    // const domain = 'http://localhost:3000';
+    const url = `${domain}/${auth.roles[0]}/${userIdOption}`;
     const method = 'PUT';
     const headers = {
       Authorization: `Bearer ${auth.token}`,

@@ -26,8 +26,9 @@ function Login({
 
   const handleLogin = (event) => {
     event.preventDefault();
-
-    const url = 'http://localhost:3000/login';
+    const domain = 'https://uw-jscript330b-final-project-production.up.railway.app';
+    // const domain = 'http://localhost:3000';
+    const url = `${domain}/login`;
     const method = 'POST';
     const headers = {
       // Authorization: `Bearer ${token}`,

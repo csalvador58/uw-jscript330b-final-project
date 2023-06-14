@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 mermaidHistory
+.DS_Store
+backend/.DS_Store

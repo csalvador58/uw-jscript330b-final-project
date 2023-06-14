@@ -41,8 +41,9 @@ function Update({
 
     // console.log('auth');
     // console.log(auth);
-
-    const url = `http://localhost:3000/admin/createUser`;
+    const domain = 'https://uw-jscript330b-final-project-production.up.railway.app';
+    // const domain = 'http://localhost:3000';
+    const url = `${domain}/admin/createUser`;
     const method = 'POST';
     const headers = {
       Authorization: `Bearer ${auth.token}`,
