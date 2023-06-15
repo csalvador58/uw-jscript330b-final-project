@@ -214,8 +214,6 @@ describe('/login', () => {
             ...account,
             email: 'targetAccount@email.com',
           };
-          console.log('targetTestAccount');
-          console.log(targetTestAccount);
           await request(server)
             .post('/admin/createUser')
             .set('Authorization', 'Bearer ' + adminToken)

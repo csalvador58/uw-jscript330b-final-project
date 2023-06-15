@@ -77,7 +77,7 @@ router.post('/upload', async (req, res, next) => {
 });
 
 router.put('/', async (req, res, next) => {
-  console.log('TEST Vendor - put /');
+  // console.log('TEST Vendor - put /');
   const updateUserData = req.body;
 
 
