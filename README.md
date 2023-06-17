@@ -6,6 +6,22 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
+  <li>
+      <a href="#final-project-update">Final Project Update</a>
+      <ul>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#learned">Learned</a></li>
+        <li><a href="#improvements">Improvements</a></li>
+        <li>
+      <a href="#project-setup">Project Setup</a>
+      <ul>
+        <li><a href="#api-backend">API Backend</a></li>
+        <li><a href="#frontend-sample">Frontend Sample</a></li>
+      </ul>
+    </li>
+      </ul>
+    </li>
     <li>
       <a href="#project-update">Project Update</a>
       <ul>
@@ -58,11 +74,113 @@
 </details>
 <br/>
 
+<!-- FINAL UPDATE -->
+
+## Final Project Update
+
+> (06/17/23)
+
+### Self-Evaluation
+
+#### Approach
+
+> I was introduced to test-driven development in the last frontend course but I did not get to apply it as much as I had in this project which is something I'm very proud to have completed. Being able to work through weekly assignments that prioritized learning how to code with unit tests was valuable to me. In my previous roles outside of software development, I'm always someone who puts more thought into a plan before tackling problems. Even with the use of mermaid diagrams which was something I recently learned about to help visually plan the flow of an application, by writing unit tests, it allowed me stay on organized throughout the project as I worked on various sections of my code. Unit tests also ensured areas of my code that were dependent on an updated section were always put into my attention.
+
+#### Results
+
+> Overall I'm satisfied with what I was able to accomplish in this project from completing over 90% test coverage, completing all CRUD requirements, applying authentication, and finding an area to apply some advance mongoDB methods such as an aggregation with multiple pipeline stages. I'm glad to have deployed the backend and setup mongo atlas as we had learned in class. Additionally I'm also glad to have created a sample frontend to tie this whole program together into this project.
+
+- Deployed API/Backend: https://uw-jscript330b-final-project-production.up.railway.app
+- Test Results:
+
+  ![Test Results](Tests.png)
+
+- Dependencies
+  - Express/Node.js
+  - Mongoose/MongoDB Atlas
+  - bcrypt
+  - JWT
+  - Jest
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+- Project Structure - API/Backend
+
+  ```
+  ├── apis
+  │   └── zkTestAPI.js
+  ├── daos
+  │   ├── user.js
+  │   └── userData.js
+  ├── index.js
+  ├── jest-mongodb-config.js
+  ├── models
+  │   ├── user.js
+  │   └── userData.js
+  ├── package-lock.json
+  ├── package.json
+  ├── routes
+  │   ├── admin.js
+  │   ├── admin.test.js
+  │   ├── index.js
+  │   ├── isEmailFormatValid.js
+  │   ├── isPasswordFormatValid.js
+  │   ├── isUserAuthorized.js
+  │   ├── login.js
+  │   ├── login.test.js
+  │   ├── vendor.js
+  │   ├── vendor.test.js
+  │   ├── verifier.js
+  │   └── verifier.test.js
+  ├── server.js
+  └── test-utils.js
+  ```
+
+#### Learned
+
+> This final project went very well with minimal issues completing the requirements. In comparison to my frontend project from the last course which I did have a well thought plan of the design, however the impact from having a significantly lesser amount of unit tests made the experience felt disorganized. This has been a great experience to see the value of prioritizing a test driven development approach earlier and throughout a project. Even my knowledge of creating unit tests has greatly improved when compared to only fixing code based on prebuilt tests during the weekly class assignments. I have a greater understanding of Express, Node.js, and MongoDB after successfully creating this project. Also coming into the course I had my mind on learning more about CORS as it was an issue I did not resolve in my last frontend project. With the knowledge I now have with creating APIs, I was able to play with CORS settings and learn about the errors while adding a sample frontend. Lastly, learned about a new frontend build tool called Vite after finding out that the Create React App tool which was highly utilized in the last course was no longer being maintained. In summary, I have learned a great amount of knowledge during this backend course and the overall full-stack program to continue building fun applications.
+
+#### Improvements
+
+- Find ways to refactor code.
+- Work with a large dataset.
+- Integrate actual external components.
+- Update the frontend to apply all routes.
+- Obtain 100% coverage.
+
+### Project Setup
+
+#### API Backend
+
+- Server Deployed: https://uw-jscript330b-final-project-production.up.railway.app
+- For local setup, in root project directory:
+
+  `cd backend && npm install`
+
+  `npm start`
+
+- API will be accessible via http://localhost:3000/
+
+#### Frontend Sample
+
+- In root project directory:
+
+  `cd frontend-vite && npm install`
+
+  `npm run dev`
+
+- App will be accessible via http://localhost:3001/
+- Fetch routes will need to be updated if running backend locally
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 <!-- PROJECT UPDATE -->
 
-## Project Update 
+## Project Update
+
 > (06/04/23)
+
 ### Completed
+
 - Login/authorization functions and tests.
 - Data models for user and userData collections.
 - All create, read, and update route/DAO functions related to an admin user.
@@ -70,8 +188,8 @@
 - Postman related to above tests saved.
 - All other tests have been setup with descriptions for each 'describe' and 'it' blocks.
 
-
 ### Pending
+
 - Delete functions and tests related to admin user.
 - Vendor and Verifier user functions and tests. Majority of code will follow admin related functions.
 - Setting up mocks for external components
@@ -138,11 +256,11 @@
 
 #### Data models:
 
-- User - Fields include a User ID, Name, Email, Phone, Password, vendorGroupId, and verifierGroupId
+- User \* Fields include a User ID, Name, Email, Phone, Password, vendorGroupId, and verifierGroupId
   - Index will be used on the name, email, and phone fields.
 - User_Data - Fields will include a User ID, array of personal data (Project example: personalRecord01, ..., personalRecordN), and a zkProof string
   - Aggregate and Lookup methods will be used to connect the User and User_Data collections and display requesting documents to a Vendor user.
-- zkTransactions (TBD - This portion may not be included in project or a simple model will be use for demo) - All zk related data
+- zkTransactions (TBD - This portion may not be included in project or a simple model will be use for demo) \* All zk related data
   - In any route that utilizes zk transactions, a transaction record will be saved to the User_zkTransactions collection containing data related to the zk changes. This will allow for a zk recursion feature if implemented in the project. A purpose of this feature could be utilized for audit scenarios requiring detailed external recreation of zk proofs. During any updates to a vendor user's User_Data, the old zk proof can be used as an input field to generate a new zk proof. This will allow for faster verifications at any point in time when evaluating a timeline of changes in the User personal data.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -231,7 +349,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% Admin updates own user data (Limited to email, phone, password) 
+%% Admin updates own user data (Limited to email, phone, password)
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -249,7 +367,7 @@ MongoDB_User_Data -->> (Route) Delete User: Confirms with Success/Fail
 (Route) Delete User -->> User: Response - Success/Fail
 end
 
-%% A Vendor user creates a new personal record 
+%% A Vendor user creates a new personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Create New Personal record: (Vendor) - Create a new personal record in User_Data with a reference to a vendor userId
 (Route) Create New Personal record ->> (External) Electronic data verification system: Perform an external validation on personal data
@@ -263,7 +381,7 @@ MongoDB_User_zkTransactions -->> (Route) Create New Personal record: Confirms wi
 (Route) Create New Personal record -->> User: Response - Success/Fail
 end
 
-%% A Vendor User views personal records 
+%% A Vendor User views personal records
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records by ID or text search
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document or a limited query result
@@ -271,7 +389,7 @@ MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password) 
+%% A Vendor User updates own user data (Limited to email, phone, password)
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -311,7 +429,7 @@ MongoDB_User_zkTransactions -->> (Route) Delete User Data: Confirms with Success
 (Route) Delete User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User views own user data 
+%% A Verifier User views own user data
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -319,7 +437,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password) 
+%% A Verifier User updates own user data (Limited to email, phone, password)
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -421,7 +539,7 @@ MongoDB_User -->> (Route) Create New User: Confirms with Success/Fail
 (Route) Create New User -->> User: Response - Success/Fail
 end
 
-%% A Vendor user creates a new personal record 
+%% A Vendor user creates a new personal record
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Create New Personal record: (Vendor) - Create a new personal record in User_Data with a reference to a vendor userId
 (Route) Create New Personal record ->> (External) Electronic data verification system: Perform an external validation on personal data
@@ -488,7 +606,7 @@ MongoDB_User -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Vendor User views personal records 
+%% A Vendor User views personal records
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Read Only Data: (Vendor) - View a Vendor User's own personal records by ID or text search
 (Route) Read Only Data ->> MongoDB_User_Data: Verify Vendor role and retrieve a matching User document or a limited query result
@@ -496,7 +614,7 @@ MongoDB_User_Data -->> (Route) Read Only Data: Confirms with data + Success/Fail
 (Route) Read Only Data -->> User: Response - Data + Success/Fail
 end
 
-%% A Verifier User views own user data 
+%% A Verifier User views own user data
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Read Only Data: (Verifier) - View a Verifier User's own data
 (Route) Read Only Data ->> MongoDB_User: Verify Verifier role and retrieve a matching User document
@@ -551,7 +669,7 @@ User ->> (Middleware) Validate User: All requests require a valid token
 (Middleware) Validate User -->> User: Response - Error invalid token
 end
 
-%% Admin updates own user data (Limited to email, phone, password) 
+%% Admin updates own user data (Limited to email, phone, password)
 rect rgb(0, 128, 255)
 (Middleware) Validate User ->> (Route) Update User: (Admin) - Update a Admin User's own data
 (Route) Update User ->> MongoDB_User: Verify Admin role and update limited to email, phone, password
@@ -559,7 +677,7 @@ MongoDB_User -->> (Route) Update User: Confirms with Success/Fail
 (Route) Update User -->> User: Response - Success/Fail
 end
 
-%% A Vendor User updates own user data (Limited to email, phone, password) 
+%% A Vendor User updates own user data (Limited to email, phone, password)
 rect rgb(127, 0, 255)
 (Middleware) Validate User ->> (Route) Update User: (Vendor) - Update a Vendor User's own data
 (Route) Update User ->> MongoDB_User: Verify Vendor role and update limited to email, phone, password
@@ -581,7 +699,7 @@ MongoDB_User_zkTransactions -->> (Route) Update User Data: Confirms with Success
 (Route) Update User Data -->> User: Response - Success/Fail
 end
 
-%% A Verifier User updates own user data (Limited to email, phone, password) 
+%% A Verifier User updates own user data (Limited to email, phone, password)
 rect rgb(76, 0, 153)
 (Middleware) Validate User ->> (Route) Update User: (Verifier) - Update a Verifier User's own data
 (Route) Update User ->> MongoDB_User: Verify Verifier role and update limited to email, phone, password
@@ -657,7 +775,7 @@ end
 
 ### Timeline
 
-- Week ending May 28th - Completed psuedo code for tests, setup data models. Begin Login/Auth portion of code.
+- Week ending May 28th - Completed pseudo code for tests, setup data models. Begin Login/Auth portion of code.
 - Week ending June 4th - Completed Login, Create, and Read functions/logic. Tests for related functions are working. Begin working on simple simulation logic for external components needed for an operating project demo.
 - Week ending June 11th - Completed Update and Delete functions/logic. Tests for related functions are working.
 - Week ending June 13th - Completed Postman and Presentation deck completed.
