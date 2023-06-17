@@ -88,7 +88,7 @@
 
 #### Results
 
-> Overall I'm satisfied with what I was able to accomplish in this project from completing over 90% test coverage, completing all CRUD requirements, applying authentication, and finding an area to apply some advance mongoDB methods such as an aggregation with multiple pipeline stages. I'm glad to have deployed the backend and setup mongo atlas as we had learned in class. Additionally I'm also glad to have created a sample frontend to tie this whole program together into this project.
+> Overall I'm satisfied with what I was able to accomplish in this project.  The amount of time I put into planning and unit tests really showed as I met my milestones without delays. The only deviation from my initial plan was on the order of sections I planned to code first. I went from initially thinking of writing the code for specific routes, but since I was able to create detailed pseudo test descriptions, I found it was easier to write sections of the code based on a user role.  I was able to complete over 90% test coverage, complete all CRUD requirements, apply the planned JWT authentication, and finding an area to apply some advance mongoDB methods such as an aggregation with multiple pipeline stages. I'm glad to have deployed the backend and setup mongo atlas as we had learned in class. Additionally I'm also glad to have created a sample frontend to tie this whole program together into this project.
 
 - Deployed API/Backend: https://uw-jscript330b-final-project-production.up.railway.app
 - Test Results:
@@ -144,6 +144,7 @@
 
 - Find ways to refactor code.
 - Work with a large dataset.
+- Replace MongoDB with a SQL database.
 - Integrate actual external components.
 - Update the frontend to apply all routes.
 - Obtain 100% coverage.
