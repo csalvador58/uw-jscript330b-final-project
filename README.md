@@ -6,7 +6,14 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-  <li>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#scenario">Scenario</a></li>
+        <li><a href="#problem">Problem</a></li>
+      </ul>
+    </li>
+    <li>
       <a href="#final-project-update">Final Project Update</a>
       <ul>
         <li><a href="#approach">Approach</a></li>
@@ -23,23 +30,16 @@
       </ul>
     </li>
     <li>
-      <a href="#project-update">Project Update</a>
+      <a href="#project-update">1st Project Update</a>
       <ul>
         <li><a href="#completed">Completed</a></li>
         <li><a href="#pending">Pending</a></li>
       </ul>
     </li>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#design">Design</a>
       <ul>
-        <li><a href="#scenario">Scenario</a></li>
-        <li><a href="#problem">Problem</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#components">Components</a>
-      <ul>
-        <li><a href="#external-components">External Components</a></li>
+        <li><a href="#components">Components</a></li>
       </ul>
       <ul>
         <li><a href="#routes">Routes</a></li>
@@ -74,6 +74,18 @@
 </details>
 <br/>
 
+<!-- ABOUT THE PROJECT -->
+
+## About The Project
+
+### Scenario
+
+> This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that perform work at a hospital or clinic are required to be fully compliant on any credentialing requirements. Most hospital network outsources this process to a third-party VC company. A hospital network will provide a list of requirements to the third-party VC company to manage the data collection and authorization of vendors to access a facility (i.e. data can include identification, background screening, completed training materials, and medical records).
+
+### Problem
+
+> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <a href="https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise" target="_blank">June 2022</a>. A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
+
 <!-- FINAL UPDATE -->
 
 ## Final Project Update
@@ -88,7 +100,7 @@
 
 #### Results
 
-> Overall I'm satisfied with what I was able to accomplish in this project.  The amount of time I put into planning and unit tests helped ensure I met my targets on-time. I was able to complete over 90% test coverage, complete all CRUD requirements, apply the planned JWT authentication, and find an area to apply some advance mongoDB methods such as aggregation with multiple pipeline stages. I'm glad to have deployed the backend and setup mongo atlas as we had learned in class. Additionally I was able to create a sample frontend to tie this whole program together into this project.
+> Overall I'm satisfied with what I was able to accomplish in this project. The amount of time I put into planning and unit tests helped ensure I met my targets on-time. I was able to complete over 90% test coverage, complete all CRUD requirements, apply the planned JWT authentication, and find an area to apply some advance mongoDB methods such as aggregation with multiple pipeline stages. I'm glad to have deployed the backend and setup mongo atlas as we had learned in class. Additionally I was able to create a sample frontend to tie this whole program together into this project.
 
 - Deployed API/Backend: https://uw-jscript330b-final-project-production.up.railway.app
 - Test Results:
@@ -199,25 +211,13 @@
 
 <br>
 
-<!-- ABOUT THE PROJECT -->
+<!-- Design -->
 
-## About The Project
-
-### Scenario
-
-> This project serves to provide the back-end and database components for a Vendor Credentialing (VC) application for use in the Healthcare service industry. All vendors that perform work at a hospital or clinic are required to be fully compliant on any credentialing requirements. Most hospital network outsources this process to a third-party VC company. A hospital network will provide a list of requirements to the third-party VC company to manage the data collection and authorization of vendors to access a facility (i.e. data can include identification, background screening, completed training materials, and medical records).
-
-### Problem
-
-> Third-party data leaks are a common occurrence and one that continues to rise in healthcare <a href="https://www.techtarget.com/searchsecurity/news/252521771/Healthcare-breaches-on-the-rise" target="_blank">June 2022</a>. A way to reduce the issue is to minimize the number of instances personal information are uploaded to databases. A pain point in the industry is having to upload the same personal documents to multiple vendor credentialing companies when access to multiple hospitals are needed. The process creates additional administrative costs and increases attack vectors that leads to personal data leaks. By applying the principals of a zero-knowledge protocol, zero information from a personal record will be shared to vendor credential companies but still allow for credentials to become verified. Solving this problem in the vendor credentialing process could also lead to the adoption of zero-knowledge protocols deeper in the healthcare industry to improve the security of sharing and tracking electronic medical records.
+## Design
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Components
-
-<!-- 3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc. -->
-
-#### External Components:
 
 - Two external components will be simulated in this project. An Electronic data verification system (a component to authenticate input data) and a Zero-knowledge component (produces the zk proof).
 
